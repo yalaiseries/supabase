@@ -189,7 +189,15 @@
           const data = await res.json().catch(() => ({}));
           if (!res.ok) {
             setStatus('');
-            setContent(data.error || 'Could not load members-only resources.');
+            if (res.status === 403) {
+              contentEl.innerHTML = `
+                <p><strong>Signed in, but not registered yet.</strong></p>
+                <p class="muted">Please submit the registration form using the same email address, then try again.</p>
+                <p><a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Open registration form</a></p>
+              `;
+            } else {
+              setContent(data.error || 'Could not load members-only resources.');
+            }
             return;
           }
 

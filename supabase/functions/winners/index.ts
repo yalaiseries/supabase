@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+import { requireRegisteredMember } from '../_shared/membership.ts';
 import { buildFromTransposedCsv, mergeYearEntries, type YearEntry } from '../_shared/winners-lib.ts';
 import {
   winnersData2024Csv,
@@ -24,13 +25,8 @@ serve(async (req) => {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
 
-  const auth = req.headers.get('authorization') || '';
-  if (!auth.toLowerCase().startsWith('bearer ')) {
-    return json({ error: 'Unauthorized. Please sign in.' }, 401);
-  }
-
-  // Supabase can enforce JWT verification at the edge (verify_jwt=true by default).
-  // We keep the check above mainly for clearer errors and to avoid work.
+  const membership = await requireRegisteredMember(req);
+  if (!membership.ok) return json(membership.body, membership.status);
 
   const yearEntries: Array<YearEntry | null> = [];
 
