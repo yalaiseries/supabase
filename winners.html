@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Winners & Use Cases · AI (Hackathon) Series</title>
+    <meta name="description" content="Members-only winners and use cases library (2024–2025)." />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="canonical" href="https://aihackathon.pro/winners.html" />
+    <meta name="theme-color" content="#0b1220" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AI (Hackathon) Series" />
+    <meta property="og:title" content="Winners & Use Cases · AI (Hackathon) Series" />
+    <meta property="og:description" content="Members-only winners and use cases library." />
+    <meta property="og:url" content="https://aihackathon.pro/winners.html" />
+
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="stylesheet" href="/site.css" />
+
+    <script src="/supabase-config.js"></script>
+
+    <script type="module">
+      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+      window.__createSupabaseClient = createClient;
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="header">
+      <div class="nav">
+        <a class="brand" href="/">
+          <span class="badge" aria-hidden="true"></span>
+          <span>
+            <strong>AI (Hackathon) Series</strong>
+            <span class="sub">Agentic AI Learning Hub (2026)</span>
+          </span>
+        </a>
+        <nav class="links" aria-label="Primary">
+          <a href="/">Home</a>
+          <a href="/programme.html">Programme</a>
+          <a href="/timeline.html">Timeline</a>
+          <a href="/submissions.html">Submissions</a>
+          <a href="/members.html">Participants</a>
+          <a class="active" href="/winners.html" aria-current="page">Winners</a>
+          <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Register</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main" id="main">
+      <h1>Winners & Use Cases (Members-only)</h1>
+      <p class="muted">Browse past winners and use case summaries grouped by year and category.</p>
+
+      <section class="card">
+        <h2>Status</h2>
+        <div class="small" id="status" style="margin-top: 10px;"></div>
+      </section>
+
+      <section class="card" id="libraryCard">
+        <div class="years-nav" id="yearsNav" aria-label="Jump to year"></div>
+        <div id="library" class="winners"></div>
+      </section>
+
+      <footer class="footer">
+        <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> · <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> · Public: <a href="https://archihackathon.com" target="_blank" rel="noreferrer">archihackathon.com</a>
+      </footer>
+    </main>
+
+    <script>
+      const statusEl = document.getElementById('status');
+      const yearsNavEl = document.getElementById('yearsNav');
+      const libraryEl = document.getElementById('library');
+
+      // TODO: Replace these with your Supabase project values.
+      const SUPABASE_URL = window.SUPABASE_URL || 'https://YOUR_PROJECT_REF.supabase.co';
+      const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+
+      const supabase = window.__createSupabaseClient
+        ? window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        : null;
+
+      function setStatus(text) {
+        statusEl.textContent = text || '';
+      }
+
+      function escapeHtml(value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function renderYearsNav(years) {
+        if (!years.length) {
+          yearsNavEl.innerHTML = '';
+          return;
+        }
+        yearsNavEl.innerHTML = years
+          .map((y) => `<a class="pill" href="#year-${y}">${y}</a>`)
+          .join('');
+      }
+
+      function renderLibrary(winners) {
+        const years = (Array.isArray(winners) ? winners : [])
+          .map((y) => Number(y.year))
+          .filter((y) => Number.isFinite(y))
+          .sort((a, b) => b - a);
+
+        renderYearsNav(years);
+
+        const byYear = new Map();
+        for (const entry of Array.isArray(winners) ? winners : []) {
+          const year = Number(entry.year);
+          if (!Number.isFinite(year)) continue;
+          byYear.set(year, entry);
+        }
+
+        libraryEl.innerHTML = years
+          .map((year) => {
+            const yearEntry = byYear.get(year) || {};
+            const categories = Array.isArray(yearEntry.categories) ? yearEntry.categories : [];
+
+            const columns = categories
+              .slice()
+              .sort((a, b) => String(a.category || '').localeCompare(String(b.category || '')))
+              .map((cat) => {
+                const title = escapeHtml(cat.category || 'Uncategorized');
+                const useCases = Array.isArray(cat.useCases) ? cat.useCases : [];
+
+                const cards = useCases
+                  .map((u) => {
+                    const uTitle = escapeHtml(u.title);
+                    const team = escapeHtml(u.team);
+                    const award = escapeHtml(u.award);
+                    const summary = escapeHtml(u.summary);
+                    const links = Array.isArray(u.links) ? u.links : [];
+
+                    const linksHtml = links.length
+                      ? `<div class="usecase-links">${links
+                          .map((l) => {
+                            const label = escapeHtml(l.label || l.url || 'Link');
+                            const url = escapeHtml(l.url || '#');
+                            return `<a href="${url}" target="_blank" rel="noreferrer">${label}</a>`;
+                          })
+                          .join(' · ')}</div>`
+                      : '';
+
+                    const metaBits = [team, award].filter(Boolean).join(' · ');
+                    const metaHtml = metaBits ? `<div class="usecase-meta">${metaBits}</div>` : '';
+
+                    return `
+                      <article class="usecase">
+                        <h4>${uTitle}</h4>
+                        ${metaHtml}
+                        ${summary ? `<p class="muted">${summary}</p>` : ''}
+                        ${linksHtml}
+                      </article>
+                    `;
+                  })
+                  .join('');
+
+                return `
+                  <section class="category-col">
+                    <h3>${title}</h3>
+                    ${cards || '<p class="small muted">No use cases listed yet.</p>'}
+                  </section>
+                `;
+              })
+              .join('');
+
+            return `
+              <section class="year" id="year-${year}">
+                <div class="year-head">
+                  <h2>${year}</h2>
+                  <a class="small" href="#main">Back to top</a>
+                </div>
+                <div class="columns">${columns || '<p class="muted">No categories yet.</p>'}</div>
+              </section>
+            `;
+          })
+          .join('');
+      }
+
+      async function loadWinners(session) {
+        libraryEl.innerHTML = '';
+        yearsNavEl.innerHTML = '';
+
+        if (!session || !session.access_token) {
+          window.location.href = '/members.html';
+          return;
+        }
+
+        setStatus('Loading winners library…');
+        try {
+          const res = await fetch('/.netlify/functions/winners', {
+            headers: {
+              authorization: `Bearer ${session.access_token}`
+            }
+          });
+
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            setStatus('');
+            libraryEl.textContent = data.error || 'Could not load winners library.';
+            return;
+          }
+
+          setStatus('');
+          renderLibrary(data.winners);
+        } catch (e) {
+          setStatus('');
+          libraryEl.textContent = String(e);
+        }
+      }
+
+      async function init() {
+        if (!supabase) {
+          setStatus('Supabase client failed to load.');
+          return;
+        }
+
+        const { data } = await supabase.auth.getSession();
+        loadWinners(data.session);
+
+        supabase.auth.onAuthStateChange((_event, session) => {
+          loadWinners(session);
+        });
+      }
+
+      init();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Participants · AI (Hackathon) Series</title>
+    <meta name="description" content="Agentic AI Learning Hub for registered participants in the AI (Hackathon) Series — 2026 AI Collaboration." />
+    <link rel="canonical" href="https://aihackathon.pro/members.html" />
+    <meta name="theme-color" content="#0b1220" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AI (Hackathon) Series" />
+    <meta property="og:title" content="Participants · AI (Hackathon) Series" />
+    <meta property="og:description" content="Sign in to access members-only resources and past sharing." />
+    <meta property="og:url" content="https://aihackathon.pro/members.html" />
+
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="stylesheet" href="/site.css" />
+
+    <script src="/supabase-config.js"></script>
+
+    <script type="module">
+      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+      window.__createSupabaseClient = createClient;
+    </script>
+
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="header">
+      <div class="nav">
+        <a class="brand" href="/">
+          <span class="badge" aria-hidden="true"></span>
+          <span>
+            <strong>AI (Hackathon) Series</strong>
+            <span class="sub">Agentic AI Learning Hub (2026)</span>
+          </span>
+        </a>
+        <nav class="links" aria-label="Primary">
+          <a href="/">Home</a>
+          <a href="/programme.html">Programme</a>
+          <a href="/timeline.html">Timeline</a>
+          <a href="/submissions.html">Submissions</a>
+          <a class="active" href="/members.html" aria-current="page">Participants</a>
+          <a href="/winners.html" id="winnersLink" style="display:none;">Winners</a>
+          <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Register</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main" id="main">
+      <h1>Participants / Learning Hub</h1>
+
+      <section class="card">
+        <img class="img" src="/assets/webpage/Resources.gif" alt="Participants resources" loading="lazy" decoding="async" />
+      </section>
+
+      <section class="card">
+        <h2>Access</h2>
+        <p class="muted">Sign in to access members-only resources.</p>
+
+        <div class="field" style="margin-top: 10px; max-width: 420px;">
+          <label class="small" for="email">Email</label>
+          <input id="email" type="email" autocomplete="email" placeholder="you@example.com" />
+        </div>
+
+        <div class="cta" style="margin-top: 10px;">
+          <button class="btn primary" id="login" type="button">Send sign-in link</button>
+          <button class="btn" id="logout" type="button" style="display:none;">Log out</button>
+          <span class="small" id="who"></span>
+        </div>
+
+        <p class="small warn" style="margin-top: 10px;">Admin setup required: configure Supabase Auth redirect URLs and set the Supabase URL + anon key in this page.</p>
+      </section>
+
+      <section class="card">
+        <h2>How access works</h2>
+        <p class="muted">Principle: everything needed to decide, register, and understand the event stays public. Anything that provides extra training, deep know-how, and detailed submissions is shared here for members/participants.</p>
+        <ul>
+          <li><strong>Public:</strong> objectives, theme &amp; topics, timeline, deliverables overview, judging criteria (high-level), benefits, prizes, venue/Zoom, CPD points, contacts, public social links.</li>
+          <li><strong>Members/participants:</strong> training materials, detailed past submissions, templates, recordings, deep-dive workflows, and internal sharing.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Participants library</h2>
+        <p class="muted">This list is served via a protected Netlify Function.</p>
+        <div id="membersStatus" class="small"></div>
+        <div id="membersContent" class="answer"></div>
+      </section>
+
+      <section class="card">
+        <h2>What you’ll find here</h2>
+        <ul>
+          <li><strong>Agentic AI materials (2026):</strong> curated learning resources, examples, and internal references shared with participants.</li>
+          <li><strong>Detailed past submissions:</strong> full access to 2024/2025 references and any extended write-ups shared within the community.</li>
+          <li><strong>Submission templates:</strong> downloadable 2-page write-up and 10-slide deck templates, plus examples when available.</li>
+          <li><strong>Training materials:</strong> session recordings, slides, notes, and any handouts/exercises.</li>
+          <li><strong>Deep-dive workflows:</strong> tools, pipelines, scripts, and reference implementations shared within the CoPr.</li>
+          <li><strong>Learning paths:</strong> curated tracks linking materials for self-paced upskilling.</li>
+          <li><strong>Community spaces:</strong> links to any private channels and internal Q&amp;A archives (when enabled).</li>
+        </ul>
+      </section>
+
+      <footer class="footer">
+        <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> · <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> · Public: <a href="https://archihackathon.com" target="_blank" rel="noreferrer">archihackathon.com</a>
+      </footer>
+    </main>
+
+    <script>
+      const emailEl = document.getElementById('email');
+      const loginBtn = document.getElementById('login');
+      const logoutBtn = document.getElementById('logout');
+      const whoEl = document.getElementById('who');
+      const winnersLink = document.getElementById('winnersLink');
+      const statusEl = document.getElementById('membersStatus');
+      const contentEl = document.getElementById('membersContent');
+
+      function setStatus(text) {
+        statusEl.textContent = text || '';
+      }
+
+      function setContent(text) {
+        contentEl.textContent = text || '';
+      }
+
+      // TODO: Replace these with your Supabase project values.
+      const SUPABASE_URL = window.SUPABASE_URL || 'https://YOUR_PROJECT_REF.supabase.co';
+      const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+
+      const supabase = window.__createSupabaseClient
+        ? window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        : null;
+
+      function updateUI(session) {
+        const user = session && session.user;
+        if (user) {
+          loginBtn.style.display = 'none';
+          logoutBtn.style.display = '';
+          if (winnersLink) winnersLink.style.display = '';
+          whoEl.textContent = user.email ? `Signed in as ${user.email}` : 'Signed in';
+        } else {
+          loginBtn.style.display = '';
+          logoutBtn.style.display = 'none';
+          if (winnersLink) winnersLink.style.display = 'none';
+          whoEl.textContent = '';
+        }
+      }
+
+      async function loadMembersLibrary(session) {
+        setContent('');
+        if (!session || !session.access_token) {
+          setStatus('Please sign in to view members-only resources.');
+          return;
+        }
+
+        setStatus('Loading members-only resources…');
+        try {
+          const res = await fetch('/.netlify/functions/members-resources', {
+            headers: {
+              authorization: `Bearer ${session.access_token}`
+            }
+          });
+
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            setStatus('');
+            setContent(data.error || 'Could not load members-only resources.');
+            return;
+          }
+
+          const items = Array.isArray(data.resources) ? data.resources : [];
+          if (!items.length) {
+            setStatus('');
+            setContent('No members-only resources configured yet.');
+            return;
+          }
+
+          setStatus('');
+          contentEl.innerHTML = `<ul>${items
+            .map((r) => {
+              const title = String(r.title || '').replace(/</g, '&lt;');
+              const url = String(r.url || '').replace(/</g, '&lt;');
+              const note = String(r.note || '').replace(/</g, '&lt;');
+              const line = note ? `<div class="small">${note}</div>` : '';
+              return `<li><a href="${url}" target="_blank" rel="noreferrer">${title}</a>${line}</li>`;
+            })
+            .join('')}</ul>`;
+        } catch (e) {
+          setStatus('');
+          setContent(String(e));
+        }
+      }
+
+      loginBtn.addEventListener('click', async () => {
+        setContent('');
+        if (!supabase) {
+          setStatus('Supabase client failed to load.');
+          return;
+        }
+
+        const email = String(emailEl.value || '').trim();
+        if (!email) {
+          setStatus('Please enter your email.');
+          return;
+        }
+
+        setStatus('Sending sign-in link…');
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: `${window.location.origin}/members.html`
+          }
+        });
+        if (error) {
+          setStatus(error.message || 'Could not send sign-in link.');
+          return;
+        }
+        setStatus('Check your email for the sign-in link.');
+      });
+
+      logoutBtn.addEventListener('click', async () => {
+        if (!supabase) return;
+        await supabase.auth.signOut();
+      });
+
+      async function init() {
+        if (!supabase) {
+          setStatus('Supabase client failed to load.');
+          return;
+        }
+
+        const { data } = await supabase.auth.getSession();
+        updateUI(data.session);
+        loadMembersLibrary(data.session);
+
+        supabase.auth.onAuthStateChange((_event, session) => {
+          updateUI(session);
+          loadMembersLibrary(session);
+        });
+      }
+
+      init();
+    </script>
+  </body>
+</html>

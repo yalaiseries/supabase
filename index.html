@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI (Hackathon) Series</title>
+    <meta name="description" content="AI (Hackathon) Series — participants learning hub and programme info for the 2026 built environment AI hackathon series." />
+    <link rel="canonical" href="https://aihackathon.pro/" />
+    <meta name="theme-color" content="#0b1220" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AI (Hackathon) Series" />
+    <meta property="og:title" content="AI (Hackathon) Series" />
+    <meta property="og:description" content="A six-month (Jan–Jun) initiative to build practical AI-assisted workflows for the built environment." />
+    <meta property="og:url" content="https://aihackathon.pro/" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="AI (Hackathon) Series" />
+    <meta name="twitter:description" content="Participants learning hub and programme info for 2026." />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="stylesheet" href="/site.css" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Event",
+        "name": "AI (Hackathon) Series — 2026 AI Collaboration",
+        "startDate": "2026-01-01",
+        "endDate": "2026-07-24",
+        "eventAttendanceMode": "https://schema.org/MixedEventAttendanceMode",
+        "eventStatus": "https://schema.org/EventScheduled",
+        "location": {
+          "@type": "Place",
+          "name": "SIA Theatrette",
+          "address": "3rd Level, 79 Neil Road, Singapore 088904"
+        },
+        "url": "https://aihackathon.pro/",
+        "description": "A six-month (Jan–Jun) programme for architects and built environment practitioners to build practical AI-assisted workflows."
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="header">
+      <div class="nav">
+        <a class="brand" href="/">
+          <span class="badge" aria-hidden="true"></span>
+          <span>
+            <strong>AI (Hackathon) Series</strong>
+            <span class="sub">Agentic AI Learning Hub (2026)</span>
+          </span>
+        </a>
+        <nav class="links" aria-label="Primary">
+          <a class="active" href="/" aria-current="page">Home</a>
+          <a href="/programme.html">Programme</a>
+          <a href="/timeline.html">Timeline</a>
+          <a href="/submissions.html">Submissions</a>
+          <a href="/members.html">Participants</a>
+          <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Register</a>
+        </nav>
+      </div>
+    </header>
+    <main class="main" id="main">
+      <div class="hero">
+        <h1>Ground-up solutions by practitioners, for practitioners</h1>
+        <p>
+          A six-month initiative (Jan–Jun) bringing together local and international architects, practitioners, firms, and tech partners to build practical AI-assisted workflows for the built environment.
+        </p>
+        <div class="meta">
+          <span class="pill">Jan–Jun</span>
+          <span class="pill">Singapore + Online</span>
+          <span class="pill">Showcase at ArchiFest 2026</span>
+        </div>
+        <div class="cta">
+          <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Register (2026 AI Collaboration)</a>
+          <a class="btn" href="https://discord.com/invite/nHkhKs75xW" target="_blank" rel="noreferrer">Join Discord</a>
+          <a class="btn" href="/programme.html">See programme</a>
+        </div>
+        <div class="small warn" style="margin-top:10px;">Note: content, dates and terms may be updated by organisers.</div>
+      </div>
+
+      <section class="card">
+        <img class="img" src="/assets/webpage/About.jpg" alt="AI (Hackathon) Series — About" loading="lazy" decoding="async" />
+      </section>
+
+      <div class="grid">
+        <section class="card">
+          <h2>Quick summary</h2>
+          <ul>
+            <li><strong>Theme:</strong> Agentic AI — Collaborate and Innovate</li>
+            <li><strong>Topics:</strong> Design, Checks, Manage, Contract, Fabrication, Construction &amp; O&amp;M, Others</li>
+            <li><strong>Deliverables:</strong> 2-page write-up + max 10-slide deck</li>
+            <li><strong>Submissions:</strong> 18 Mar (prelim), 15 Apr (midterm), 13 May (final); shortlisted present 20 May</li>
+            <li><strong>Prizes:</strong> total pool $8,500 (to be confirmed)</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <h2>Ask AI (simple Q&amp;A)</h2>
+          <div class="qa">
+            <textarea id="q" placeholder="Ask about deadlines, judging criteria, prizes, CPD points, venue, etc."></textarea>
+            <div class="row">
+              <button class="btn primary" id="ask">Ask</button>
+              <span class="small" id="status"></span>
+            </div>
+            <div class="answer" id="a">Tip: after you add `OPENAI_API_KEY` in Netlify, ask “What are the submission deadlines?”</div>
+            <div class="small">Privacy: avoid sensitive data. Answers are based on this website’s info (and optional datasets/search if enabled).</div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="footer">
+        Contact: <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> · <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> · Public: <a href="https://archihackathon.com" target="_blank" rel="noreferrer">archihackathon.com</a>
+      </footer>
+    </main>
+
+    <script>
+      const askBtn = document.getElementById('ask');
+      const qEl = document.getElementById('q');
+      const aEl = document.getElementById('a');
+      const statusEl = document.getElementById('status');
+
+      async function ask() {
+        const question = (qEl.value || '').trim();
+        if (!question) return;
+        statusEl.textContent = 'Thinking…';
+        aEl.textContent = '';
+
+        try {
+          const res = await fetch('/.netlify/functions/chat', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ question })
+          });
+
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            aEl.textContent = data.error || 'Error calling chat function.';
+          } else {
+            aEl.textContent = data.answer || '';
+          }
+        } catch (e) {
+          aEl.textContent = String(e);
+        } finally {
+          statusEl.textContent = '';
+        }
+      }
+
+      askBtn.addEventListener('click', ask);
+      qEl.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') ask();
+      });
+    </script>
+  </body>
+</html>
