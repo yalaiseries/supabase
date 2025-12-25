@@ -132,11 +132,17 @@
 
         try {
           const functionsUrl = window.SUPABASE_FUNCTIONS_URL;
+          const anonKey = String(window.SUPABASE_ANON_KEY || '').trim();
           if (!functionsUrl) throw new Error('Missing SUPABASE_FUNCTIONS_URL (check supabase-config.js).');
+          if (!anonKey) throw new Error('Missing SUPABASE_ANON_KEY (check supabase-config.js).');
 
           const res = await fetch(`${functionsUrl}/chat`, {
             method: 'POST',
-            headers: { 'content-type': 'application/json' },
+            headers: {
+              'content-type': 'application/json',
+              apikey: anonKey,
+              authorization: `Bearer ${anonKey}`
+            },
             body: JSON.stringify({ question })
           });
 

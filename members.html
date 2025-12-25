@@ -170,6 +170,7 @@
 
           const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/members-resources`, {
             headers: {
+              apikey: SUPABASE_ANON_KEY,
               authorization: `Bearer ${session.access_token}`
             }
           });
