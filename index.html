@@ -24,6 +24,11 @@
 
     <script src="supabase-config.js"></script>
 
+    <script type="module">
+      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+      window.__createSupabaseClient = createClient;
+    </script>
+
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -60,6 +65,7 @@
           <a href="timeline.html">Timeline</a>
           <a href="submissions.html">Submissions</a>
           <a href="members.html">Participants</a>
+          <a href="winners.html" id="winnersLink" style="display:none;">Winners</a>
           <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Register</a>
         </nav>
       </div>
@@ -169,6 +175,23 @@
           statusEl.textContent = '';
         }
       }
+
+      // Show members-only nav items when signed in.
+      (async function initMembersNav() {
+        const winnersLink = document.getElementById('winnersLink');
+        if (!winnersLink) return;
+
+        const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
+        const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
+        if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !window.__createSupabaseClient) return;
+
+        const supabase = window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data } = await supabase.auth.getSession();
+        winnersLink.style.display = data?.session?.user ? '' : 'none';
+        supabase.auth.onAuthStateChange((_event, session) => {
+          winnersLink.style.display = session?.user ? '' : 'none';
+        });
+      })();
 
       askBtn.addEventListener('click', ask);
       qEl.addEventListener('keydown', (e) => {
