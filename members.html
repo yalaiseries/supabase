@@ -5,22 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Participants · AI (Hackathon) Series</title>
     <meta name="description" content="Agentic AI Learning Hub for registered participants in the AI (Hackathon) Series — 2026 AI Collaboration." />
-    <link rel="canonical" href="https://aihackathon.pro/members.html" />
+    <link rel="canonical" href="https://yalaiseries.github.io/supabase/members.html" />
     <meta name="theme-color" content="#0b1220" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="AI (Hackathon) Series" />
     <meta property="og:title" content="Participants · AI (Hackathon) Series" />
     <meta property="og:description" content="Sign in to access members-only resources and past sharing." />
-    <meta property="og:url" content="https://aihackathon.pro/members.html" />
+    <meta property="og:url" content="https://yalaiseries.github.io/supabase/members.html" />
 
     <meta name="twitter:card" content="summary" />
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="manifest" href="/site.webmanifest" />
-    <link rel="stylesheet" href="/site.css" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="stylesheet" href="site.css" />
 
-    <script src="/supabase-config.js"></script>
+    <script src="supabase-config.js"></script>
 
     <script type="module">
       import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -32,7 +32,7 @@
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="header">
       <div class="nav">
-        <a class="brand" href="/">
+        <a class="brand" href="index.html">
           <span class="badge" aria-hidden="true"></span>
           <span>
             <strong>AI (Hackathon) Series</strong>
@@ -40,12 +40,12 @@
           </span>
         </a>
         <nav class="links" aria-label="Primary">
-          <a href="/">Home</a>
-          <a href="/programme.html">Programme</a>
-          <a href="/timeline.html">Timeline</a>
-          <a href="/submissions.html">Submissions</a>
-          <a class="active" href="/members.html" aria-current="page">Participants</a>
-          <a href="/winners.html" id="winnersLink" style="display:none;">Winners</a>
+          <a href="index.html">Home</a>
+          <a href="programme.html">Programme</a>
+          <a href="timeline.html">Timeline</a>
+          <a href="submissions.html">Submissions</a>
+          <a class="active" href="members.html" aria-current="page">Participants</a>
+          <a href="winners.html" id="winnersLink" style="display:none;">Winners</a>
           <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Register</a>
         </nav>
       </div>
@@ -55,7 +55,7 @@
       <h1>Participants / Learning Hub</h1>
 
       <section class="card">
-        <img class="img" src="/assets/webpage/Resources.gif" alt="Participants resources" loading="lazy" decoding="async" />
+        <img class="img" src="assets/webpage/Resources.gif" alt="Participants resources" loading="lazy" decoding="async" />
       </section>
 
       <section class="card">
@@ -87,7 +87,7 @@
 
       <section class="card">
         <h2>Participants library</h2>
-        <p class="muted">This list is served via a protected Netlify Function.</p>
+        <p class="muted">This list is served via a protected Supabase Edge Function.</p>
         <div id="membersStatus" class="small"></div>
         <div id="membersContent" class="answer"></div>
       </section>
@@ -127,13 +127,20 @@
         contentEl.textContent = text || '';
       }
 
-      // TODO: Replace these with your Supabase project values.
-      const SUPABASE_URL = window.SUPABASE_URL || 'https://YOUR_PROJECT_REF.supabase.co';
-      const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+      const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
+      const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
+      const SUPABASE_FUNCTIONS_URL = String(window.SUPABASE_FUNCTIONS_URL || '').trim();
 
       const supabase = window.__createSupabaseClient
         ? window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY)
         : null;
+
+      function siteBaseUrl() {
+        const origin = window.location.origin;
+        const path = window.location.pathname;
+        const basePath = path.endsWith('/') ? path : path.substring(0, path.lastIndexOf('/') + 1);
+        return origin + basePath;
+      }
 
       function updateUI(session) {
         const user = session && session.user;
@@ -159,7 +166,9 @@
 
         setStatus('Loading members-only resources…');
         try {
-          const res = await fetch('/.netlify/functions/members-resources', {
+          if (!SUPABASE_FUNCTIONS_URL) throw new Error('Missing SUPABASE_FUNCTIONS_URL (check supabase-config.js).');
+
+          const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/members-resources`, {
             headers: {
               authorization: `Bearer ${session.access_token}`
             }
@@ -212,7 +221,7 @@
         const { error } = await supabase.auth.signInWithOtp({
           email,
           options: {
-            emailRedirectTo: `${window.location.origin}/members.html`
+            emailRedirectTo: `${siteBaseUrl()}members.html`
           }
         });
         if (error) {

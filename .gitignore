@@ -1,9 +1,6 @@
 .DS_Store
 Thumbs.db
 
-# Local tooling
-.netlify/
-
 # Secrets (if you later add them)
 .env
 .env.*

@@ -1,4 +1,4 @@
-# AI (Hackathon) Series — Agentic AI Learning Hub (2026)
+export const websiteKb = String.raw`# AI (Hackathon) Series — Agentic AI Learning Hub (2026)
 
 ## Objectives
 - Upskill local and international young Architects, practitioners and firms in using AI and digital technologies to develop practical data-driven solutions that enhance creativity and productivity.
@@ -95,3 +95,4 @@ BOA-SIA CPD points are awarded upon recorded attendance at sessions shown in the
 
 ## Note & Disclaimer
 The scope, deliverables, timelines, and terms of the AI (Hackathon) Series (2026 AI Collaboration) may change at the organisers’ discretion.
+`;

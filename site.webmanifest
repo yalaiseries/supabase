@@ -1,13 +1,13 @@
 {
   "name": "AI (Hackathon) Series",
   "short_name": "AI Series",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0b1220",
   "theme_color": "#0b1220",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml"
     }

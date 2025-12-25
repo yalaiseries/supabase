@@ -10,3 +10,19 @@
 
 window.SUPABASE_URL = 'https://mckgmiofqxuwfwlszrkc.supabase.co';
 window.SUPABASE_ANON_KEY = 'sb_publishable_MTy4H7a5lmVCVs6c2oMQSw_zAzgNzrm';
+
+// Derived helper for Supabase Edge Functions.
+// Example: https://<project-ref>.functions.supabase.co
+(() => {
+	if (window.SUPABASE_FUNCTIONS_URL) return;
+	try {
+		const supabaseUrl = String(window.SUPABASE_URL || '').trim();
+		if (!supabaseUrl) return;
+		const host = new URL(supabaseUrl).hostname;
+		const projectRef = host.split('.')[0];
+		if (!projectRef) return;
+		window.SUPABASE_FUNCTIONS_URL = `https://${projectRef}.functions.supabase.co`;
+	} catch {
+		// ignore
+	}
+})();

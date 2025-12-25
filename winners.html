@@ -6,22 +6,22 @@
     <title>Winners & Use Cases · AI (Hackathon) Series</title>
     <meta name="description" content="Members-only winners and use cases library (2024–2025)." />
     <meta name="robots" content="noindex, nofollow" />
-    <link rel="canonical" href="https://aihackathon.pro/winners.html" />
+    <link rel="canonical" href="https://yalaiseries.github.io/supabase/winners.html" />
     <meta name="theme-color" content="#0b1220" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="AI (Hackathon) Series" />
     <meta property="og:title" content="Winners & Use Cases · AI (Hackathon) Series" />
     <meta property="og:description" content="Members-only winners and use cases library." />
-    <meta property="og:url" content="https://aihackathon.pro/winners.html" />
+    <meta property="og:url" content="https://yalaiseries.github.io/supabase/winners.html" />
 
     <meta name="twitter:card" content="summary" />
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="manifest" href="/site.webmanifest" />
-    <link rel="stylesheet" href="/site.css" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="stylesheet" href="site.css" />
 
-    <script src="/supabase-config.js"></script>
+    <script src="supabase-config.js"></script>
 
     <script type="module">
       import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -32,7 +32,7 @@
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="header">
       <div class="nav">
-        <a class="brand" href="/">
+        <a class="brand" href="index.html">
           <span class="badge" aria-hidden="true"></span>
           <span>
             <strong>AI (Hackathon) Series</strong>
@@ -40,12 +40,12 @@
           </span>
         </a>
         <nav class="links" aria-label="Primary">
-          <a href="/">Home</a>
-          <a href="/programme.html">Programme</a>
-          <a href="/timeline.html">Timeline</a>
-          <a href="/submissions.html">Submissions</a>
-          <a href="/members.html">Participants</a>
-          <a class="active" href="/winners.html" aria-current="page">Winners</a>
+          <a href="index.html">Home</a>
+          <a href="programme.html">Programme</a>
+          <a href="timeline.html">Timeline</a>
+          <a href="submissions.html">Submissions</a>
+          <a href="members.html">Participants</a>
+          <a class="active" href="winners.html" aria-current="page">Winners</a>
           <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Register</a>
         </nav>
       </div>
@@ -75,9 +75,9 @@
       const yearsNavEl = document.getElementById('yearsNav');
       const libraryEl = document.getElementById('library');
 
-      // TODO: Replace these with your Supabase project values.
-      const SUPABASE_URL = window.SUPABASE_URL || 'https://YOUR_PROJECT_REF.supabase.co';
-      const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+      const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
+      const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
+      const SUPABASE_FUNCTIONS_URL = String(window.SUPABASE_FUNCTIONS_URL || '').trim();
 
       const supabase = window.__createSupabaseClient
         ? window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY)
@@ -192,13 +192,15 @@
         yearsNavEl.innerHTML = '';
 
         if (!session || !session.access_token) {
-          window.location.href = '/members.html';
+          window.location.href = 'members.html';
           return;
         }
 
         setStatus('Loading winners library…');
         try {
-          const res = await fetch('/.netlify/functions/winners', {
+          if (!SUPABASE_FUNCTIONS_URL) throw new Error('Missing SUPABASE_FUNCTIONS_URL (check supabase-config.js).');
+
+          const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/winners`, {
             headers: {
               authorization: `Bearer ${session.access_token}`
             }

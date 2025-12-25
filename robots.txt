@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://aihackathon.pro/sitemap.xml
+Sitemap: https://yalaiseries.github.io/supabase/sitemap.xml
