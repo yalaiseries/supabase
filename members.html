@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Participants · AI (Hackathon) Series</title>
+    <title>AI Sharing · AI (Hackathon) Series</title>
     <meta name="description" content="Agentic AI Learning Hub for registered participants in the AI (Hackathon) Series — 2026 AI Collaboration." />
     <link rel="canonical" href="https://yalaiseries.github.io/supabase/members.html" />
     <meta name="theme-color" content="#0b1220" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="AI (Hackathon) Series" />
-    <meta property="og:title" content="Participants · AI (Hackathon) Series" />
+    <meta property="og:title" content="AI Sharing · AI (Hackathon) Series" />
     <meta property="og:description" content="Sign in to access members-only resources and past sharing." />
     <meta property="og:url" content="https://yalaiseries.github.io/supabase/members.html" />
 
@@ -41,10 +41,8 @@
         </a>
         <nav class="links" aria-label="Primary">
           <a href="index.html">Home</a>
-          <a href="programme.html">Programme</a>
-          <a href="timeline.html">Timeline</a>
-          <a href="submissions.html">Submissions</a>
-          <a class="active" href="members.html" aria-current="page">Participants</a>
+          <a href="collaboration.html">2026 Collaboration</a>
+          <a class="active" href="members.html" aria-current="page">AI Sharing</a>
           <a href="winners.html" id="winnersLink" style="display:none;">Winners</a>
           <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Register</a>
         </nav>
@@ -52,7 +50,7 @@
     </header>
 
     <main class="main" id="main">
-      <h1>Participants / Learning Hub</h1>
+      <h1>AI Sharing / Learning Hub</h1>
 
       <section class="card">
         <img
@@ -62,7 +60,7 @@
           sizes="(max-width: 700px) 94vw, 960px"
           width="748"
           height="498"
-          alt="Participants resources"
+          alt="AI sharing resources"
           loading="eager"
           decoding="async"
           fetchpriority="high"
@@ -84,7 +82,7 @@
           <span class="small" id="who"></span>
         </div>
 
-        <p class="small warn" style="margin-top: 10px;">Admin setup required: configure Supabase Auth redirect URLs and set the Supabase URL + anon key in this page.</p>
+        <p class="small warn" id="adminSetupNote" style="margin-top: 10px; display:none;">Admin setup required: configure Supabase Auth redirect URLs and set the Supabase URL + anon key in this page.</p>
       </section>
 
       <section class="card">
@@ -97,7 +95,7 @@
       </section>
 
       <section class="card">
-        <h2>Participants library</h2>
+        <h2>AI Sharing library</h2>
         <p class="muted">This list is served via a protected Supabase Edge Function.</p>
         <div id="membersStatus" class="small"></div>
         <div id="membersContent" class="answer"></div>
@@ -141,6 +139,10 @@
       const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
       const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
       const SUPABASE_FUNCTIONS_URL = String(window.SUPABASE_FUNCTIONS_URL || '').trim();
+
+      const adminSetupNote = document.getElementById('adminSetupNote');
+      const hasSupabaseConfig = !!SUPABASE_URL && !!SUPABASE_ANON_KEY;
+      if (adminSetupNote) adminSetupNote.style.display = hasSupabaseConfig ? 'none' : '';
 
       const supabase = window.__createSupabaseClient
         ? window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY)
