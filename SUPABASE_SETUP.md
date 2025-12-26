@@ -51,7 +51,8 @@ Do **not** put the service role key into any `.html` or `.js` that ships to the 
 In Supabase Dashboard:
 
 1. **Authentication → Providers → Email**
-   - Enable Email provider (magic link / OTP).
+  - Enable Email provider (email + password).
+  - This site uses email+password for normal sign-in. Users only receive an email when setting/resetting their password.
 
 2. **Authentication → URL Configuration**
 
@@ -234,7 +235,9 @@ python -m http.server 5173
 
 Open: `http://localhost:5173/members.html`
 
-- Enter your email → receive magic link
+- Enter your email + password → sign in
+- First time: click **Create account** to create your account (you may need to confirm your email once)
+- If you forgot your password: click **Forgot / set password** to receive a password reset email
 - After login, the page calls `members-resources` with your access token
 
 ### 7.2 Make yourself a registered member

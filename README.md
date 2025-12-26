@@ -46,8 +46,6 @@ supabase secrets set OPENAI_API_KEY=<your-key>
 supabase secrets set OPENAI_MODEL=gpt-4o-mini
 
 # Secrets (needed for registration enforcement + automation)
-supabase secrets set SUPABASE_URL=https://<project-ref>.supabase.co
-supabase secrets set SUPABASE_ANON_KEY=<your-anon-key>
 supabase secrets set SERVICE_ROLE_KEY=<your-service-role-key>
 supabase secrets set REGISTRATION_WEBHOOK_SECRET=<make-a-long-random-secret>
 
@@ -157,7 +155,9 @@ function onFormSubmit(e) {
 
 ### 3) How access works
 
-- Users must sign in on `members.html` using the same email they registered with.
+- Users sign in on `members.html` using email + password, and must use the same email they registered with.
+- First time, they use **Create account** (they may need to confirm their email once).
+- If they don’t have a password yet (or forgot it), they use **Forgot / set password** (this sends a password reset email).
 - The protected APIs (`winners`, `members-resources`) return **403** if the email is not in `allowed_members`.
 
 ## Local preview

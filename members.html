@@ -76,10 +76,29 @@
           <input id="email" type="email" autocomplete="email" placeholder="you@example.com" />
         </div>
 
+        <div class="field" style="margin-top: 10px; max-width: 420px;">
+          <label class="small" for="password">Password</label>
+          <input id="password" type="password" autocomplete="current-password" placeholder="Your website password" />
+        </div>
+
         <div class="cta" style="margin-top: 10px;">
-          <button class="btn primary" id="login" type="button">Log in (registered email)</button>
+          <button class="btn primary" id="login" type="button">Log in</button>
+          <button class="btn" id="createAccount" type="button">Create account</button>
+          <button class="btn" id="resetPassword" type="button">Forgot / set password</button>
           <button class="btn" id="logout" type="button" style="display:none;">Log out</button>
           <span class="small" id="who"></span>
+        </div>
+
+        <div class="card" id="passwordRecovery" style="margin-top: 12px; display:none;">
+          <h3 style="margin-top: 0;">Set a new password</h3>
+          <p class="muted">Open the password reset email link, then set your new password here.</p>
+          <div class="field" style="margin-top: 10px; max-width: 420px;">
+            <label class="small" for="newPassword">New password</label>
+            <input id="newPassword" type="password" autocomplete="new-password" placeholder="Choose a strong password" />
+          </div>
+          <div class="cta" style="margin-top: 10px;">
+            <button class="btn primary" id="setPassword" type="button">Set password</button>
+          </div>
         </div>
 
         <p class="small warn" id="adminSetupNote" style="margin-top: 10px; display:none;">Admin setup required: configure Supabase Auth redirect URLs and set the Supabase URL + anon key in this page.</p>
@@ -121,12 +140,19 @@
 
     <script>
       const emailEl = document.getElementById('email');
+      const passwordEl = document.getElementById('password');
       const loginBtn = document.getElementById('login');
+      const createAccountBtn = document.getElementById('createAccount');
+      const resetPasswordBtn = document.getElementById('resetPassword');
       const logoutBtn = document.getElementById('logout');
       const whoEl = document.getElementById('who');
       const winnersLink = document.getElementById('winnersLink');
       const statusEl = document.getElementById('membersStatus');
       const contentEl = document.getElementById('membersContent');
+
+      const passwordRecoveryCard = document.getElementById('passwordRecovery');
+      const newPasswordEl = document.getElementById('newPassword');
+      const setPasswordBtn = document.getElementById('setPassword');
 
       function setStatus(text) {
         statusEl.textContent = text || '';
@@ -164,15 +190,24 @@
         return origin + basePath;
       }
 
+      function showPasswordRecovery(show) {
+        if (!passwordRecoveryCard) return;
+        passwordRecoveryCard.style.display = show ? '' : 'none';
+      }
+
       function updateUI(session) {
         const user = session && session.user;
         if (user) {
           loginBtn.style.display = 'none';
+          if (createAccountBtn) createAccountBtn.style.display = 'none';
+          if (resetPasswordBtn) resetPasswordBtn.style.display = 'none';
           logoutBtn.style.display = '';
           if (winnersLink) winnersLink.style.display = '';
           whoEl.textContent = user.email ? `Signed in as ${user.email}` : 'Signed in';
         } else {
           loginBtn.style.display = '';
+          if (createAccountBtn) createAccountBtn.style.display = '';
+          if (resetPasswordBtn) resetPasswordBtn.style.display = '';
           logoutBtn.style.display = 'none';
           if (winnersLink) winnersLink.style.display = 'none';
           whoEl.textContent = '';
@@ -243,24 +278,122 @@
         }
 
         const email = String(emailEl.value || '').trim();
+        const password = String(passwordEl && passwordEl.value ? passwordEl.value : '').trim();
         if (!email) {
           setStatus('Please enter your email.');
           return;
         }
 
-        setStatus('Sending sign-in link…');
-        const { error } = await supabase.auth.signInWithOtp({
-          email,
-          options: {
-            emailRedirectTo: `${siteBaseUrl()}members.html`
-          }
-        });
+        if (!password) {
+          setStatus('Please enter your password. If you do not have one yet, click “Forgot / set password”.');
+          return;
+        }
+
+        setStatus('Signing in…');
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
           setStatus(error.message || 'Could not log in.');
           return;
         }
-        setStatus('Check your email for the sign-in link.');
+
+        setStatus('Signed in.');
       });
+
+      if (createAccountBtn) {
+        createAccountBtn.addEventListener('click', async () => {
+          setContent('');
+          if (!supabase) {
+            setStatus('Supabase client failed to load.');
+            return;
+          }
+
+          const email = String(emailEl.value || '').trim();
+          const password = String(passwordEl && passwordEl.value ? passwordEl.value : '').trim();
+          if (!email) {
+            setStatus('Please enter your email.');
+            return;
+          }
+          if (!password || password.length < 8) {
+            setStatus('Please choose a password (at least 8 characters).');
+            return;
+          }
+
+          setStatus('Creating account…');
+          const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: `${siteBaseUrl()}members.html`
+            }
+          });
+
+          if (error) {
+            setStatus(error.message || 'Could not create account.');
+            return;
+          }
+
+          setStatus('Account created. Check your email to confirm your account, then come back to log in.');
+        });
+      }
+
+      if (resetPasswordBtn) {
+        resetPasswordBtn.addEventListener('click', async () => {
+          setContent('');
+          if (!supabase) {
+            setStatus('Supabase client failed to load.');
+            return;
+          }
+
+          const email = String(emailEl.value || '').trim();
+          if (!email) {
+            setStatus('Please enter your email first.');
+            return;
+          }
+
+          setStatus('Sending password reset email…');
+          const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${siteBaseUrl()}members.html`
+          });
+          if (error) {
+            setStatus(error.message || 'Could not send reset email.');
+            return;
+          }
+
+          setStatus('Password reset email sent. Open it to set a new password, then return here to log in.');
+        });
+      }
+
+      if (setPasswordBtn) {
+        setPasswordBtn.addEventListener('click', async () => {
+          setContent('');
+          if (!supabase) {
+            setStatus('Supabase client failed to load.');
+            return;
+          }
+
+          const newPassword = String(newPasswordEl && newPasswordEl.value ? newPasswordEl.value : '').trim();
+          if (!newPassword || newPassword.length < 8) {
+            setStatus('Please enter a new password (at least 8 characters).');
+            return;
+          }
+
+          setStatus('Updating password…');
+          const { error } = await supabase.auth.updateUser({ password: newPassword });
+          if (error) {
+            setStatus(error.message || 'Could not update password.');
+            return;
+          }
+
+          if (newPasswordEl) newPasswordEl.value = '';
+          showPasswordRecovery(false);
+          try {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } catch {
+            // ignore
+          }
+          setStatus('Password updated. You can now use email + password to sign in.');
+        });
+      }
 
       logoutBtn.addEventListener('click', async () => {
         if (!supabase) return;
@@ -277,7 +410,13 @@
         updateUI(data.session);
         loadMembersLibrary(data.session);
 
-        supabase.auth.onAuthStateChange((_event, session) => {
+        supabase.auth.onAuthStateChange((event, session) => {
+          if (event === 'PASSWORD_RECOVERY') {
+            showPasswordRecovery(true);
+            setStatus('Password recovery: set a new password below.');
+          } else {
+            showPasswordRecovery(false);
+          }
           updateUI(session);
           loadMembersLibrary(session);
         });
