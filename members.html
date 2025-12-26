@@ -136,6 +136,15 @@
         contentEl.textContent = text || '';
       }
 
+      function escapeHtml(value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
       const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
       const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
       const SUPABASE_FUNCTIONS_URL = String(window.SUPABASE_FUNCTIONS_URL || '').trim();
@@ -213,9 +222,9 @@
           setStatus('');
           contentEl.innerHTML = `<ul>${items
             .map((r) => {
-              const title = String(r.title || '').replace(/</g, '&lt;');
-              const url = String(r.url || '').replace(/</g, '&lt;');
-              const note = String(r.note || '').replace(/</g, '&lt;');
+              const title = escapeHtml(r.title || '');
+              const url = escapeHtml(r.url || '');
+              const note = escapeHtml(r.note || '');
               const line = note ? `<div class="small">${note}</div>` : '';
               return `<li><a href="${url}" target="_blank" rel="noreferrer">${title}</a>${line}</li>`;
             })

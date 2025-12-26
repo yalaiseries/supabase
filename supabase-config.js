@@ -8,8 +8,8 @@
 // - The anon key is safe to expose in a browser (it is a public key), but still treat it carefully.
 // - Access control is enforced by your serverless functions verifying the user's JWT.
 
-window.SUPABASE_URL = 'https://mckgmiofqxuwfwlszrkc.supabase.co';
-window.SUPABASE_ANON_KEY = 'sb_publishable_MTy4H7a5lmVCVs6c2oMQSw_zAzgNzrm';
+window.SUPABASE_URL = 'https://xcctqbamimafkkamuwly.supabase.co';
+window.SUPABASE_ANON_KEY = 'sb_publishable_tN9ZtLKiCXPUKIfDR7BzLQ_YAVKtJ7I';
 
 // Derived helper for Supabase Edge Functions.
 // Example: https://<project-ref>.functions.supabase.co

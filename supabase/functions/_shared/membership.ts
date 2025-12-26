@@ -20,7 +20,9 @@ export async function requireRegisteredMember(req: Request): Promise<MembershipC
 
   const supabaseUrl = String(Deno.env.get('SUPABASE_URL') || '').trim();
   const anonKey = String(Deno.env.get('SUPABASE_ANON_KEY') || '').trim();
-  const serviceRoleKey = String(Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '').trim();
+  const serviceRoleKey = String(
+    Deno.env.get('SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+  ).trim();
 
   if (!supabaseUrl || !anonKey || !serviceRoleKey) {
     return { ok: false, status: 500, body: { error: 'Server not configured.', code: 'server_not_configured' } };
@@ -83,7 +85,9 @@ export async function upsertAllowedMember(input: {
   payload?: unknown;
 }): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
   const supabaseUrl = String(Deno.env.get('SUPABASE_URL') || '').trim();
-  const serviceRoleKey = String(Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '').trim();
+  const serviceRoleKey = String(
+    Deno.env.get('SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+  ).trim();
   if (!supabaseUrl || !serviceRoleKey) {
     return { ok: false, status: 500, error: 'Server not configured.' };
   }
