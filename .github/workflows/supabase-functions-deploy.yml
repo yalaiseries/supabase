@@ -18,7 +18,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Uses the official Supabase CLI docker image to avoid installer issues.
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+
       - name: Deploy functions
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
@@ -28,15 +30,9 @@ jobs:
             echo "Missing SUPABASE_ACCESS_TOKEN GitHub secret"; exit 1;
           fi
 
-          # Deploy Edge Functions using the official CLI container (no local install needed).
           for fn in register-sync members-resources winners chat; do
             echo "Deploying $fn..."
-            docker run --rm \
-              -e SUPABASE_ACCESS_TOKEN="$SUPABASE_ACCESS_TOKEN" \
-              -v "$PWD:/work" \
-              -w /work \
-              supabase/cli:latest \
-              supabase functions deploy "$fn" --project-ref "$PROJECT_REF"
+            supabase functions deploy "$fn" --project-ref "$PROJECT_REF"
           done
 
       - name: Reminder: set Supabase secrets

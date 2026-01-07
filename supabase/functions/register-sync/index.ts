@@ -59,3 +59,5 @@ serve(async (req) => {
   return json({ ok: true });
 });
 
+// Deployed via GitHub Actions.
+
