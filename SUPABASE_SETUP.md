@@ -2,7 +2,7 @@
 
 This repo is a static website (HTML/CSS/JS) that uses:
 
-- **Supabase Auth** (magic-link email login) in the browser
+- **Supabase Auth** (email + password) in the browser
 - **Supabase Edge Functions** to serve **members-only** data
 - A simple allowlist table (`allowed_members`) to decide who is “registered”
 
@@ -69,6 +69,8 @@ Set:
   - `http://localhost:5173/winners.html`
 
 Why: the login email link will only redirect to allowlisted URLs.
+
+Why: Supabase will only redirect account confirmation and password reset links to allowlisted URLs.
 
 ---
 
@@ -256,7 +258,7 @@ Then reload `members.html` and you should see resources.
 
 ## Notes / common gotchas
 
-- If the login link redirects to an error page: your **Redirect URLs** in Supabase are missing the exact URL.
+- If a confirmation or password reset link redirects to an error page: your **Redirect URLs** in Supabase are missing the exact URL.
 - If you can log in but get “not registered”: your email is not in `allowed_members`.
 - Keep the **service role key** secret. It is only used inside Edge Functions.
 
