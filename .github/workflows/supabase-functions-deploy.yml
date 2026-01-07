@@ -31,7 +31,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+          if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ]; then
             echo "Missing SUPABASE_ACCESS_TOKEN GitHub secret"; exit 1;
           fi
 
