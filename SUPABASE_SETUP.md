@@ -92,6 +92,8 @@ create table if not exists public.allowed_members (
 
 You’ll populate this either manually, or via the included webhook (Google Form → Edge Function).
 
+Tip: keep `allowed_members` minimal (email + optional name). Store full survey responses elsewhere if needed.
+
 ### 4.2 (Optional) Members-only resources library
 
 ```sql

@@ -5,6 +5,10 @@
 // - Call Supabase Edge Function /register-sync
 // - Supabase writes/updates public.allowed_members
 //
+// Data minimization:
+// - For membership gating, you only need Email address (and optionally Full Name).
+// - This script intentionally does NOT send the entire row / survey answers by default.
+//
 // Setup:
 // 1) In your Supabase project, deploy the Edge Function: register-sync
 // 2) In Supabase Dashboard → Project Settings → Functions → Secrets:
@@ -77,8 +81,7 @@ function onFormSubmit(e) {
     email: normalizeEmail_(email),
     name: name,
     source: 'google_form',
-    submittedAt: new Date().toISOString(),
-    raw: values
+    submittedAt: new Date().toISOString()
   });
 }
 
@@ -114,10 +117,7 @@ function syncNewRows() {
         email,
         name,
         source: 'google_sheet',
-        sheetId: SpreadsheetApp.getActiveSpreadsheet().getId(),
-        sheetName: sheet.getName(),
-        rowNumber: rowNum,
-        row
+        syncedAt: new Date().toISOString()
       });
 
       synced++;

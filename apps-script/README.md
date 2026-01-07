@@ -2,6 +2,9 @@
 
 Use this to automatically sync your registration sheet to Supabase `public.allowed_members`.
 
+By default, this sync only sends **Email address** (and optionally **Full Name**) to Supabase.
+That’s all you need for “recognized members” access control.
+
 ## Files
 
 - `supabase-allowlist.gs` — Apps Script that posts emails to `/register-sync`
