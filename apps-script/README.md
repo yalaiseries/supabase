@@ -14,6 +14,7 @@ Use this to automatically sync your registration sheet to Supabase `public.allow
 
 - `WEBHOOK_SECRET` to match your Supabase secret `REGISTRATION_WEBHOOK_SECRET`
 - Confirm the header name `Email address` matches your sheet’s column header exactly
+- (Optional) Confirm the header name `Full Name` matches your sheet (or update `NAME_HEADER`)
 
 4) Create an Apps Script trigger:
 
