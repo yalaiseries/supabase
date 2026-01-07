@@ -59,5 +59,5 @@ serve(async (req) => {
   return json({ ok: true });
 });
 
-// Deployed via GitHub Actions.
+// Deployed via GitHub Actions (CI).
 
