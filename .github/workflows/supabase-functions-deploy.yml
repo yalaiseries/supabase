@@ -36,5 +36,4 @@ jobs:
           done
 
       - name: Reminder: set Supabase secrets
-        run: |
-          echo "This workflow deploys code only. Configure function secrets in Supabase Dashboard (Project Settings -> Functions -> Secrets) or via CLI."
+        run: echo "This workflow deploys code only. Configure function secrets in Supabase Dashboard (Project Settings > Functions > Secrets) or via CLI."
