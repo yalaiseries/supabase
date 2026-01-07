@@ -21,14 +21,22 @@ jobs:
       - name: Set up Supabase CLI
         uses: supabase/setup-cli@v1
 
+      - name: Supabase CLI version
+        run: supabase --version
+
       - name: Deploy functions
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           PROJECT_REF: xcctqbamimafkkamuwly
         run: |
+          set -euo pipefail
+
           if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
             echo "Missing SUPABASE_ACCESS_TOKEN GitHub secret"; exit 1;
           fi
+
+          # Basic auth sanity check (does not print the token).
+          supabase projects list >/dev/null
 
           for fn in register-sync members-resources winners chat; do
             echo "Deploying $fn..."
