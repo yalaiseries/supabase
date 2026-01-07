@@ -67,6 +67,22 @@ function postToSupabase_(payload) {
   if (code < 200 || code >= 300) {
     throw new Error('register-sync failed: HTTP ' + code + ' ' + resp.getContentText());
   }
+
+  // Helpful for debugging: view in Apps Script → Executions → Logs.
+  console.log('register-sync ok: HTTP ' + code);
+}
+
+// Debug helper: run this once manually to verify the webhook call works.
+// It should create/update a row in public.allowed_members.
+function testWebhook() {
+  const testEmail = 'test+' + new Date().getTime() + '@example.com';
+  postToSupabase_({
+    email: testEmail,
+    name: 'Webhook Test',
+    source: 'apps_script_test',
+    testedAt: new Date().toISOString()
+  });
+  SpreadsheetApp.getUi().alert('Webhook test sent. Check Supabase allowed_members for: ' + testEmail);
 }
 
 // Near real-time: only works when the sheet is a Google Form responses sheet.
@@ -83,6 +99,8 @@ function onFormSubmit(e) {
     source: 'google_form',
     submittedAt: new Date().toISOString()
   });
+
+  console.log('onFormSubmit synced email: ' + normalizeEmail_(email));
 }
 
 // Polling: works for any sheet.
@@ -124,6 +142,7 @@ function syncNewRows() {
       props.setProperty('LAST_SYNC_ROW', String(rowNum));
     }
 
+    console.log('syncNewRows complete. Added/updated: ' + synced);
     SpreadsheetApp.getUi().alert('Sync complete. Added/updated: ' + synced);
   } finally {
     lock.releaseLock();
