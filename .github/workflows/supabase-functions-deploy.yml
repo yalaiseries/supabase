@@ -35,7 +35,10 @@ jobs:
             echo "Missing SUPABASE_ACCESS_TOKEN GitHub secret"; exit 1;
           fi
 
-          # Basic auth sanity check (does not print the token).
+          # Explicit non-interactive auth (keeps CLI behavior consistent across versions).
+          supabase login --token "$SUPABASE_ACCESS_TOKEN" >/dev/null
+
+          # Basic auth sanity check.
           supabase projects list >/dev/null
 
           for fn in register-sync members-resources winners chat; do
@@ -43,5 +46,12 @@ jobs:
             supabase functions deploy "$fn" --project-ref "$PROJECT_REF"
           done
 
-      - name: Reminder: set Supabase secrets
+          # Verify at least one deployed endpoint exists (404 means not deployed).
+          code=$(curl -s -o /dev/null -w "%{http_code}" "https://${PROJECT_REF}.functions.supabase.co/register-sync")
+          echo "register-sync HTTP status: $code"
+          if [ "$code" = "404" ]; then
+            echo "register-sync is not deployed (still 404 NOT_FOUND)."; exit 1;
+          fi
+
+      - name: "Reminder: set Supabase secrets"
         run: echo "This workflow deploys code only. Configure function secrets in Supabase Dashboard (Project Settings > Functions > Secrets) or via CLI."

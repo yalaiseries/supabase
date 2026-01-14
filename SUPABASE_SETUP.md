@@ -78,6 +78,8 @@ Why: Supabase will only redirect account confirmation and password reset links t
 
 Open **SQL Editor** in Supabase and run:
 
+You can also run the bundled schema file at [supabase/sql/schema.sql](supabase/sql/schema.sql).
+
 ### 4.1 Registered members allowlist
 
 ```sql

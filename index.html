@@ -25,8 +25,34 @@
     <script src="supabase-config.js"></script>
 
     <script type="module">
-      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-      window.__createSupabaseClient = createClient;
+      async function loadSupabase() {
+        const urls = [
+          'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm',
+          'https://esm.sh/@supabase/supabase-js@2',
+          'https://unpkg.com/@supabase/supabase-js@2/dist/esm/supabase.js'
+        ];
+        let lastError = '';
+        for (const url of urls) {
+          try {
+            const mod = await import(url);
+            if (mod && typeof mod.createClient === 'function') return { createClient: mod.createClient, url };
+            lastError = `Loaded ${url} but createClient was not found.`;
+          } catch (e) {
+            lastError = String(e && e.message ? e.message : e);
+          }
+        }
+        return { createClient: null, error: lastError || 'Failed to load Supabase client.' };
+      }
+      const loaded = await loadSupabase();
+      if (loaded.createClient) {
+        window.__createSupabaseClient = loaded.createClient;
+        window.__supabaseClientSource = loaded.url;
+        window.__supabaseLoadError = '';
+      } else {
+        window.__createSupabaseClient = null;
+        window.__supabaseClientSource = '';
+        window.__supabaseLoadError = loaded.error || 'Failed to load Supabase client.';
+      }
     </script>
 
     <script type="application/ld+json">

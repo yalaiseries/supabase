@@ -26,7 +26,7 @@ const SHEET_NAME = '';
 
 // Header names (must match your sheet header row exactly)
 const EMAIL_HEADER = 'Email address';
-const NAME_HEADER = 'Full Name'; // optional; adjust if your sheet uses a different header
+const NAME_HEADER = 'Name'; // optional; adjust if your sheet uses a different header
 
 function onOpen() {
   SpreadsheetApp.getUi()

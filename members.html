@@ -23,8 +23,39 @@
     <script src="supabase-config.js"></script>
 
     <script type="module">
-      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-      window.__createSupabaseClient = createClient;
+      async function loadSupabase() {
+        const urls = [
+          'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm',
+          'https://esm.sh/@supabase/supabase-js@2',
+          'https://unpkg.com/@supabase/supabase-js@2/dist/esm/supabase.js'
+        ];
+
+        let lastError = '';
+        for (const url of urls) {
+          try {
+            const mod = await import(url);
+            if (mod && typeof mod.createClient === 'function') {
+              return { createClient: mod.createClient, url };
+            }
+            lastError = `Loaded ${url} but createClient was not found.`;
+          } catch (e) {
+            lastError = String(e && e.message ? e.message : e);
+          }
+        }
+
+        return { createClient: null, error: lastError || 'Failed to load Supabase client.' };
+      }
+
+      const loaded = await loadSupabase();
+      if (loaded.createClient) {
+        window.__createSupabaseClient = loaded.createClient;
+        window.__supabaseClientSource = loaded.url;
+        window.__supabaseLoadError = '';
+      } else {
+        window.__createSupabaseClient = null;
+        window.__supabaseClientSource = '';
+        window.__supabaseLoadError = loaded.error || 'Failed to load Supabase client.';
+      }
     </script>
 
   </head>
@@ -89,6 +120,8 @@
           <span class="small" id="who"></span>
         </div>
 
+        <div class="small" id="accessStatus" style="margin-top: 8px;"></div>
+
         <div class="card" id="passwordRecovery" style="margin-top: 12px; display:none;">
           <h3 style="margin-top: 0;">Set a new password</h3>
           <p class="muted">Open the password reset email link, then set your new password here.</p>
@@ -149,13 +182,16 @@
       const winnersLink = document.getElementById('winnersLink');
       const statusEl = document.getElementById('membersStatus');
       const contentEl = document.getElementById('membersContent');
+      const accessStatusEl = document.getElementById('accessStatus');
 
       const passwordRecoveryCard = document.getElementById('passwordRecovery');
       const newPasswordEl = document.getElementById('newPassword');
       const setPasswordBtn = document.getElementById('setPassword');
 
       function setStatus(text) {
-        statusEl.textContent = text || '';
+        const v = text || '';
+        if (statusEl) statusEl.textContent = v;
+        if (accessStatusEl) accessStatusEl.textContent = v;
       }
 
       function setContent(text) {
@@ -179,9 +215,32 @@
       const hasSupabaseConfig = !!SUPABASE_URL && !!SUPABASE_ANON_KEY;
       if (adminSetupNote) adminSetupNote.style.display = hasSupabaseConfig ? 'none' : '';
 
-      const supabase = window.__createSupabaseClient
-        ? window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-        : null;
+      let supabase = null;
+      let initAttempts = 0;
+
+      function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      async function getSupabaseClient() {
+        if (supabase) return supabase;
+        if (!hasSupabaseConfig) return null;
+
+        // Wait briefly for the module import in <head> to load on slow networks.
+        for (let i = 0; i < 40; i++) {
+          if (window.__createSupabaseClient) break;
+          await sleep(50);
+        }
+
+        if (!window.__createSupabaseClient) return null;
+        try {
+          supabase = window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          return supabase;
+        } catch (_e) {
+          supabase = null;
+          return null;
+        }
+      }
 
       function siteBaseUrl() {
         const origin = window.location.origin;
@@ -193,6 +252,15 @@
       function showPasswordRecovery(show) {
         if (!passwordRecoveryCard) return;
         passwordRecoveryCard.style.display = show ? '' : 'none';
+      }
+
+      function bindEnterKey(el, onEnter) {
+        if (!el) return;
+        el.addEventListener('keydown', (e) => {
+          if (e.key !== 'Enter') return;
+          e.preventDefault();
+          onEnter();
+        });
       }
 
       function updateUI(session) {
@@ -272,8 +340,9 @@
 
       loginBtn.addEventListener('click', async () => {
         setContent('');
-        if (!supabase) {
-          setStatus('Supabase client failed to load.');
+        const sb = await getSupabaseClient();
+        if (!sb) {
+          setStatus('Sign-in is not available right now (Supabase client/config not loaded).');
           return;
         }
 
@@ -290,7 +359,7 @@
         }
 
         setStatus('Signing in…');
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await sb.auth.signInWithPassword({ email, password });
         if (error) {
           setStatus(error.message || 'Could not log in.');
           return;
@@ -299,11 +368,17 @@
         setStatus('Signed in.');
       });
 
+      // Keyboard UX: hitting Enter submits the relevant action.
+      bindEnterKey(emailEl, () => loginBtn.click());
+      bindEnterKey(passwordEl, () => loginBtn.click());
+      bindEnterKey(newPasswordEl, () => setPasswordBtn && setPasswordBtn.click());
+
       if (createAccountBtn) {
         createAccountBtn.addEventListener('click', async () => {
           setContent('');
-          if (!supabase) {
-            setStatus('Supabase client failed to load.');
+          const sb = await getSupabaseClient();
+          if (!sb) {
+            setStatus('Account creation is not available right now (Supabase client/config not loaded).');
             return;
           }
 
@@ -319,7 +394,7 @@
           }
 
           setStatus('Creating account…');
-          const { error } = await supabase.auth.signUp({
+          const { error } = await sb.auth.signUp({
             email,
             password,
             options: {
@@ -339,8 +414,9 @@
       if (resetPasswordBtn) {
         resetPasswordBtn.addEventListener('click', async () => {
           setContent('');
-          if (!supabase) {
-            setStatus('Supabase client failed to load.');
+          const sb = await getSupabaseClient();
+          if (!sb) {
+            setStatus('Password reset is not available right now (Supabase client/config not loaded).');
             return;
           }
 
@@ -351,7 +427,7 @@
           }
 
           setStatus('Sending password reset email…');
-          const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          const { error } = await sb.auth.resetPasswordForEmail(email, {
             redirectTo: `${siteBaseUrl()}members.html`
           });
           if (error) {
@@ -366,8 +442,9 @@
       if (setPasswordBtn) {
         setPasswordBtn.addEventListener('click', async () => {
           setContent('');
-          if (!supabase) {
-            setStatus('Supabase client failed to load.');
+          const sb = await getSupabaseClient();
+          if (!sb) {
+            setStatus('Password update is not available right now (Supabase client/config not loaded).');
             return;
           }
 
@@ -378,7 +455,7 @@
           }
 
           setStatus('Updating password…');
-          const { error } = await supabase.auth.updateUser({ password: newPassword });
+          const { error } = await sb.auth.updateUser({ password: newPassword });
           if (error) {
             setStatus(error.message || 'Could not update password.');
             return;
@@ -396,21 +473,41 @@
       }
 
       logoutBtn.addEventListener('click', async () => {
-        if (!supabase) return;
-        await supabase.auth.signOut();
+        const sb = await getSupabaseClient();
+        if (!sb) return;
+        await sb.auth.signOut();
       });
 
       async function init() {
-        if (!supabase) {
-          setStatus('Supabase client failed to load.');
+        const sb = await getSupabaseClient();
+        if (!sb) {
+          if (!hasSupabaseConfig) {
+            setStatus('Admin setup required: configure Supabase URL + anon key for this site.');
+          } else {
+            const err = String(window.__supabaseLoadError || '').trim();
+            if (err) {
+              setStatus(
+                'Sign-in is not available because the Supabase client failed to load. ' +
+                  'This is often caused by a blocked CDN/network. ' +
+                  'Details: ' +
+                  err
+              );
+            } else {
+              setStatus('Loading sign-in… (waiting for Supabase client)');
+              if (initAttempts < 5) {
+                initAttempts++;
+                setTimeout(init, 800);
+              }
+            }
+          }
           return;
         }
 
-        const { data } = await supabase.auth.getSession();
+        const { data } = await sb.auth.getSession();
         updateUI(data.session);
         loadMembersLibrary(data.session);
 
-        supabase.auth.onAuthStateChange((event, session) => {
+        sb.auth.onAuthStateChange((event, session) => {
           if (event === 'PASSWORD_RECOVERY') {
             showPasswordRecovery(true);
             setStatus('Password recovery: set a new password below.');

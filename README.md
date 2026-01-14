@@ -71,7 +71,7 @@ This repo enforces **registered-only** access using an allowlist table in Supaba
 
 ### 1) Create allowlist table
 
-In Supabase SQL editor, run:
+In Supabase SQL editor, run (or use [supabase/sql/schema.sql](supabase/sql/schema.sql)):
 
 ```sql
 create table if not exists public.allowed_members (

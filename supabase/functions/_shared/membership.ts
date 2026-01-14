@@ -59,6 +59,17 @@ export async function requireRegisteredMember(req: Request): Promise<MembershipC
     }
   });
 
+  if (allowResp.status === 404) {
+    return {
+      ok: false,
+      status: 500,
+      body: {
+        error: 'Server not configured. Database table "public.allowed_members" was not found.',
+        code: 'allowlist_table_missing'
+      }
+    };
+  }
+
   if (!allowResp.ok) {
     return { ok: false, status: 500, body: { error: 'Could not verify registration.', code: 'membership_check_failed' } };
   }
@@ -112,6 +123,10 @@ export async function upsertAllowedMember(input: {
     },
     body: JSON.stringify(body)
   });
+
+  if (resp.status === 404) {
+    return { ok: false, status: 500, error: 'Server not configured. Database table "public.allowed_members" was not found.' };
+  }
 
   if (!resp.ok) {
     const text = await resp.text().catch(() => '');

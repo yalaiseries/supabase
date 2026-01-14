@@ -117,6 +117,19 @@ a:hover { text-decoration: underline; }
   color: var(--text);
   font-weight: 600;
   text-decoration: none;
+  cursor: pointer;
+}
+
+button.btn {
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 .btn.primary {
   border-color: rgba(122,162,255,0.55);
