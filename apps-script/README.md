@@ -31,3 +31,13 @@ That’s all you need for “recognized members” access control.
 - Supabase Function Secrets include:
   - `SERVICE_ROLE_KEY`
   - `REGISTRATION_WEBHOOK_SECRET`
+
+## Where to verify
+
+- Supabase Dashboard → **Table Editor → allowed_members**
+  - If emails appear here, your sheet → webhook sync is working.
+
+## Important: allowlist vs login accounts
+
+This sync only manages the **allowlist** (`allowed_members`). It does **not** create Supabase Auth accounts.
+Each participant still needs to create an account once on the site (same email), confirm their email, then they can log in normally.

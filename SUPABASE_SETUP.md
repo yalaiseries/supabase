@@ -263,8 +263,21 @@ Then reload `members.html` and you should see resources.
 ## Notes / common gotchas
 
 - If a confirmation or password reset link redirects to an error page: your **Redirect URLs** in Supabase are missing the exact URL.
+- If a confirmation/reset email link sends you to `http://localhost:3000` (or any localhost URL): your **Authentication → URL Configuration** is still set to localhost. Update it to your real site URL, then re-send the email (old emails keep the old redirect).
 - If you can log in but get “not registered”: your email is not in `allowed_members`.
 - Keep the **service role key** secret. It is only used inside Edge Functions.
+
+### “Registered” vs “Account” (important)
+
+This system intentionally separates:
+
+- **Account (can sign in)** — Supabase Auth user
+  - View in Supabase Dashboard → **Authentication → Users**
+
+- **Registered participant (can access members-only content)** — allowlist row
+  - View in Supabase Dashboard → **Table Editor → allowed_members**
+
+Your Google Sheet sync populates the allowlist. Each participant still needs to create their Auth account once (same email), then they can log in directly thereafter.
 
 ---
 
