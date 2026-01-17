@@ -122,6 +122,21 @@ values
   ('Session recordings', 'https://example.com', 'Internal links for participants.', 20);
 ```
 
+### 4.3 Winners content (private, stored in DB)
+
+To keep the GitHub repo public **without leaking winners content**, winners data is stored in a table and served via the `winners` Edge Function (membership-gated).
+
+```sql
+create table if not exists public.winners_payload (
+  year int primary key,
+  payload jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists winners_payload_updated_at
+  on public.winners_payload (updated_at);
+```
+
 ---
 
 ## 5) Install Supabase CLI (Windows)
@@ -194,6 +209,9 @@ supabase secrets set REGISTRATION_WEBHOOK_SECRET=<make-a-long-random-secret>
 # For homepage Q&A (if you’re using it)
 supabase secrets set OPENAI_API_KEY=<your-key>
 supabase secrets set OPENAI_MODEL=gpt-4o-mini
+
+# For winners content upload (server-side admin function)
+supabase secrets set WINNERS_ADMIN_TOKEN=<make-a-long-random-secret>
 ```
 
 Note: Supabase reserves secret names starting with `SUPABASE_`. The Edge Functions already have `SUPABASE_URL` and `SUPABASE_ANON_KEY` available in the runtime. You only need to set `SERVICE_ROLE_KEY` (and your other app secrets).
@@ -203,9 +221,45 @@ Deploy:
 ```powershell
 supabase functions deploy members-resources
 supabase functions deploy winners
+supabase functions deploy winners-admin
 supabase functions deploy chat
 supabase functions deploy register-sync
 ```
+
+---
+
+## 7) Seed winners content (without committing to Git)
+
+Winners content should be uploaded into `public.winners_payload` via the `winners-admin` Edge Function.
+
+### 7.1 Create a JSON payload locally
+
+Create a local JSON file (do **not** commit it) like `winners-2025.json`.
+
+### 7.2 Upload via PowerShell
+
+```powershell
+$SUPABASE_URL = 'https://<project-ref>.supabase.co'
+$ADMIN_TOKEN = '<your-WINNERS_ADMIN_TOKEN>'
+
+# Example: upload 2025 payload
+$body = @{
+  year = 2025
+  payload = (Get-Content -Raw -Path .\winners-2025.json | ConvertFrom-Json)
+} | ConvertTo-Json -Depth 100
+
+Invoke-RestMethod `
+  -Method Post `
+  -Uri "$SUPABASE_URL/functions/v1/winners-admin" `
+  -Headers @{ 'content-type'='application/json'; 'x-admin-token'=$ADMIN_TOKEN } `
+  -Body $body
+```
+
+Repeat for other years (e.g. 2024).
+
+### 7.3 Verify the members-only API reads from DB
+
+When logged in as an allowlisted user, the `winners` API should return `source: "db"` once rows exist in `public.winners_payload`.
 
 ---
 

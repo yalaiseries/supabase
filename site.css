@@ -224,6 +224,37 @@ button.btn {
 .small { font-size: 13px; color: var(--muted); }
 .warn { color: #ffd2a6; }
 
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 720px) {
+  .status-grid { grid-template-columns: 1fr; }
+}
+
+.status-item {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: rgba(11, 18, 32, 0.25);
+}
+
+.status-value {
+  margin-top: 4px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.status-value.ok {
+  color: #b8f7d0;
+}
+
+.status-value.warn {
+  color: #ffd2a6;
+}
+
 .img {
   width: 100%;
   height: auto;
@@ -318,4 +349,55 @@ button.btn {
   margin-top: 8px;
   font-size: 13px;
   color: var(--muted);
+}
+
+.usecase-details {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(11, 18, 32, 0.22);
+  padding: 10px 12px;
+}
+
+.usecase-details > summary {
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.usecase-dl {
+  margin: 10px 0 0;
+}
+
+.usecase-dl dt {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.usecase-dl dt:first-child {
+  margin-top: 0;
+}
+
+.usecase-dl dd {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.usecase-people {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.usecase-people > div {
+  margin-top: 8px;
+}
+
+.usecase-people > div:first-child {
+  margin-top: 0;
 }

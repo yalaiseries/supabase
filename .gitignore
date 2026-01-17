@@ -4,3 +4,25 @@ Thumbs.db
 # Secrets (if you later add them)
 .env
 .env.*
+
+# Local tooling / editor
+.vscode/
+.venv/
+__pycache__/
+*.pyc
+
+# Large raw source files (keep private/local)
+data/*.docx
+data/*.xlsx
+
+# Generated extraction artifacts (keep private/local)
+scripts/*.out.json
+scripts/*_generated.json
+scripts/source_extract*.json
+
+# Local data-extraction scripts (keep private/local)
+scripts/*.py
+
+# Winners payloads used for seeding (keep private/local)
+winners-*.json
+winners_payload*.json

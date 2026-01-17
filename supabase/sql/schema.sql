@@ -28,3 +28,14 @@ create table if not exists public.members_resources (
 
 create index if not exists members_resources_active_sort
   on public.members_resources (active, sort_order, created_at);
+
+-- 3) Optional: store members-only winners content in the database (instead of committing it to git).
+-- The `winners` Edge Function can read this table using the service role key after verifying membership.
+create table if not exists public.winners_payload (
+  year int primary key,
+  payload jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists winners_payload_updated_at
+  on public.winners_payload (updated_at);

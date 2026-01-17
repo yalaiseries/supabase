@@ -87,12 +87,181 @@
     <main class="main" id="main">
       <h1>Resources</h1>
       <section class="card">
-        <p class="muted">Resources, recordings, templates, and detailed past submissions are available to registered participants.</p>
-        <p><a class="btn primary" href="members.html">Go to AI Sharing hub</a></p>
+        <p class="muted">This page is members-only. Sign in to view resources, recordings, templates, and detailed past submissions.</p>
+        <p><a class="btn primary" href="members.html">Sign in</a></p>
+      </section>
+
+      <section class="card">
+        <h2>Library</h2>
+        <p class="muted">Loaded via a protected Supabase Edge Function.</p>
+        <div id="resourcesStatus" class="small"></div>
+        <div id="resourcesDebug" class="small muted" style="margin-top: 6px;"></div>
+        <div id="resourcesContent" class="answer"></div>
       </section>
       <footer class="footer">
         <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> · <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> · Public: <a href="https://archihackathon.com" target="_blank" rel="noreferrer">archihackathon.com</a>
       </footer>
     </main>
+
+    <script>
+      const statusEl = document.getElementById('resourcesStatus');
+      const debugEl = document.getElementById('resourcesDebug');
+      const contentEl = document.getElementById('resourcesContent');
+
+      function setStatus(text) {
+        if (statusEl) statusEl.textContent = text || '';
+      }
+
+      function setDebug(text) {
+        if (debugEl) debugEl.textContent = text || '';
+      }
+
+      function escapeHtml(value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
+      const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
+      const SUPABASE_FUNCTIONS_URL = String(window.SUPABASE_FUNCTIONS_URL || '').trim();
+
+      function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      let supabase = null;
+      async function getSupabaseClient() {
+        if (supabase) return supabase;
+        if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
+
+        for (let i = 0; i < 40; i++) {
+          if (window.__createSupabaseClient) break;
+          await sleep(50);
+        }
+        if (!window.__createSupabaseClient) return null;
+        supabase = window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        return supabase;
+      }
+
+      function splitTopicTitle(title) {
+        const t = String(title || '').trim();
+        if (!t) return { topic: 'All', title: '' };
+        const parts = t.split(' · ');
+        if (parts.length >= 2) {
+          const topic = parts.shift().trim() || 'All';
+          return { topic, title: parts.join(' · ').trim() };
+        }
+        return { topic: 'All', title: t };
+      }
+
+      async function loadResources(session) {
+        contentEl.textContent = '';
+
+        if (!session || !session.access_token) {
+          setStatus('Not signed in.');
+          setDebug(
+            `Functions URL: ${SUPABASE_FUNCTIONS_URL || '(missing)'} · Supabase URL: ${SUPABASE_URL || '(missing)'} · Client load error: ${
+              window.__supabaseLoadError || 'none'
+            }`
+          );
+          return;
+        }
+
+        const email = session.user && session.user.email ? String(session.user.email) : '';
+        setStatus(`Signed in${email ? ` as ${email}` : ''}. Loading resources…`);
+        setDebug(`Functions URL: ${SUPABASE_FUNCTIONS_URL || '(missing)'}`);
+        try {
+          if (!SUPABASE_FUNCTIONS_URL) throw new Error('Missing SUPABASE_FUNCTIONS_URL (check supabase-config.js).');
+          const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/members-resources`, {
+            headers: {
+              apikey: SUPABASE_ANON_KEY,
+              authorization: `Bearer ${session.access_token}`
+            }
+          });
+
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            setStatus(`Resources API error: HTTP ${res.status}`);
+            if (res.status === 403) {
+              contentEl.innerHTML = `
+                <p><strong>Signed in, but not registered yet.</strong></p>
+                <p class="muted">Please submit the registration form using the same email address, then try again.</p>
+                <p><a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Open registration form</a></p>
+              `;
+            } else {
+              contentEl.textContent = data.error || 'Could not load resources.';
+            }
+            return;
+          }
+
+          const items = Array.isArray(data.resources) ? data.resources : [];
+          if (!items.length) {
+            setStatus('Loaded resources: 0 items');
+            contentEl.textContent = 'No members-only resources configured yet.';
+            return;
+          }
+
+          const normalized = items
+            .map((r) => {
+              const rawTitle = String(r.title || '').trim();
+              const rawUrl = String(r.url || '').trim();
+              const rawNote = String(r.note || '').trim();
+              const split = splitTopicTitle(rawTitle);
+              return { topic: split.topic, title: split.title, url: rawUrl, note: rawNote };
+            })
+            .filter((r) => r.title && r.url);
+
+          const byTopic = new Map();
+          for (const r of normalized) {
+            const arr = byTopic.get(r.topic) || [];
+            arr.push(r);
+            byTopic.set(r.topic, arr);
+          }
+
+          setStatus(`Loaded resources: ${normalized.length} items`);
+          contentEl.innerHTML = Array.from(byTopic.entries())
+            .sort((a, b) => String(a[0]).localeCompare(String(b[0])))
+            .map(([topic, rows]) => {
+              const itemsHtml = rows
+                .map((r) => {
+                  const title = escapeHtml(r.title);
+                  const url = escapeHtml(r.url);
+                  const note = escapeHtml(r.note || '');
+                  const line = note ? `<div class="small">${note}</div>` : '';
+                  return `<li><a href="${url}" target="_blank" rel="noreferrer">${title}</a>${line}</li>`;
+                })
+                .join('');
+
+              return `
+                <section style="margin: 12px 0;">
+                  <h3 style="margin: 0 0 6px;">${escapeHtml(topic)}</h3>
+                  <ul>${itemsHtml}</ul>
+                </section>
+              `;
+            })
+            .join('');
+        } catch (e) {
+          setStatus('');
+          contentEl.textContent = String(e);
+        }
+      }
+
+      (async function init() {
+        const sb = await getSupabaseClient();
+        if (!sb) {
+          setStatus('Sign-in is not available right now (Supabase client/config not loaded).');
+          return;
+        }
+        const { data } = await sb.auth.getSession();
+        await loadResources(data && data.session ? data.session : null);
+        sb.auth.onAuthStateChange(async (_event, session) => {
+          await loadResources(session);
+        });
+      })();
+    </script>
   </body>
 </html>

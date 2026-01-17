@@ -82,6 +82,20 @@
       <section class="card">
         <h2>Status</h2>
         <div class="small" id="status" style="margin-top: 10px;"></div>
+        <div class="status-grid" style="margin-top: 10px;">
+          <div class="status-item">
+            <div class="small muted">Winners API</div>
+            <div id="apiStatus" class="status-value">—</div>
+          </div>
+          <div class="status-item">
+            <div class="small muted">Data source</div>
+            <div id="dataSource" class="status-value">—</div>
+          </div>
+          <div class="status-item">
+            <div class="small muted">Years</div>
+            <div id="yearsLoaded" class="status-value">—</div>
+          </div>
+        </div>
       </section>
 
       <section class="card" id="libraryCard">
@@ -96,8 +110,16 @@
 
     <script>
       const statusEl = document.getElementById('status');
+      const apiStatusEl = document.getElementById('apiStatus');
+      const dataSourceEl = document.getElementById('dataSource');
+      const yearsLoadedEl = document.getElementById('yearsLoaded');
       const yearsNavEl = document.getElementById('yearsNav');
       const libraryEl = document.getElementById('library');
+
+      const debugEl = document.createElement('div');
+      debugEl.className = 'small muted';
+      debugEl.style.marginTop = '6px';
+      if (statusEl && statusEl.parentElement) statusEl.parentElement.appendChild(debugEl);
 
       const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
       const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
@@ -131,6 +153,19 @@
 
       function setStatus(text) {
         statusEl.textContent = text || '';
+      }
+
+      function setStatusKvp({ api, source, years } = {}) {
+        if (apiStatusEl) apiStatusEl.textContent = api || '—';
+        if (dataSourceEl) {
+          dataSourceEl.textContent = source || '—';
+          dataSourceEl.className = `status-value ${source === 'db' ? 'ok' : source === 'code' ? 'warn' : ''}`;
+        }
+        if (yearsLoadedEl) yearsLoadedEl.textContent = years || '—';
+      }
+
+      function setDebug(text) {
+        if (debugEl) debugEl.textContent = text || '';
       }
 
       function escapeHtml(value) {
@@ -187,6 +222,52 @@
                     const summary = escapeHtml(u.summary);
                     const links = Array.isArray(u.links) ? u.links : [];
 
+                    const people = (u && typeof u === 'object' ? u.people : null) || {};
+                    const rep = escapeHtml(people.representativeSpeaker);
+                    const designation = escapeHtml(people.designation);
+                    const lead = escapeHtml(people.lead);
+                    const coLeads = Array.isArray(people.coLeads) ? people.coLeads : [];
+                    const teamMembers = Array.isArray(people.teamMembers) ? people.teamMembers : [];
+
+                    const peopleBits = [];
+                    if (rep || designation) peopleBits.push(`<div><strong>Rep:</strong> ${[rep, designation].filter(Boolean).join(' — ')}</div>`);
+                    if (lead) peopleBits.push(`<div><strong>Lead:</strong> ${lead}</div>`);
+                    if (coLeads.length) peopleBits.push(`<div><strong>Co-leads:</strong> ${escapeHtml(coLeads.join(' / '))}</div>`);
+                    if (teamMembers.length) peopleBits.push(`<div><strong>Team:</strong> ${escapeHtml(teamMembers.join(' / '))}</div>`);
+
+                    const peopleHtml = peopleBits.length
+                      ? `<details class="usecase-details">
+                          <summary>Acknowledgements</summary>
+                          <div class="usecase-people">${peopleBits.join('')}</div>
+                        </details>`
+                      : '';
+
+                    const sc = u && typeof u === 'object' ? u.showcase || {} : {};
+                    const showcaseSections = [
+                      ['Problem', sc.problem],
+                      ['Existing solutions', sc.existingSolutions],
+                      ['Gap', sc.gap],
+                      ['Proposed solution', sc.proposedSolution],
+                      ['Approach', sc.approach],
+                      ['Methods', sc.methods],
+                      ['Tools', sc.tools],
+                      ['Strategy', sc.strategy],
+                      ['Impact', sc.impact]
+                    ].filter((pair) => pair && String(pair[1] || '').trim().length);
+
+                    const showcaseHtml = showcaseSections.length
+                      ? `<details class="usecase-details">
+                          <summary>Structured summary</summary>
+                          <dl class="usecase-dl">
+                            ${showcaseSections
+                              .map(([label, value]) => {
+                                return `<dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd>`;
+                              })
+                              .join('')}
+                          </dl>
+                        </details>`
+                      : '';
+
                     const linksHtml = links.length
                       ? `<div class="usecase-links">${links
                           .map((l) => {
@@ -205,6 +286,8 @@
                         <h4>${uTitle}</h4>
                         ${metaHtml}
                         ${summary ? `<p class="muted">${summary}</p>` : ''}
+                        ${peopleHtml}
+                        ${showcaseHtml}
                         ${linksHtml}
                       </article>
                     `;
@@ -236,13 +319,22 @@
       async function loadWinners(session) {
         libraryEl.innerHTML = '';
         yearsNavEl.innerHTML = '';
+        setStatusKvp({ api: '—', source: '—', years: '—' });
 
         if (!session || !session.access_token) {
-          window.location.href = 'members.html';
+          const fnUrl = escapeHtml(SUPABASE_FUNCTIONS_URL || '(missing)');
+          setStatus(`Not signed in. Functions URL: ${fnUrl}`);
+          setStatusKvp({ api: 'Not signed in', source: '—', years: '—' });
+          libraryEl.innerHTML = `
+            <p><strong>Please sign in to view the winners library.</strong></p>
+            <p class="muted">This page calls a protected Supabase Edge Function and requires a valid session.</p>
+            <p><a class="btn primary" href="members.html">Go to sign-in</a></p>
+          `;
           return;
         }
 
-        setStatus('Loading winners library…');
+        const email = (session.user && session.user.email) ? String(session.user.email) : '';
+        setStatus(`Signed in${email ? ` as ${email}` : ''}. Loading winners…`);
         try {
           if (!SUPABASE_FUNCTIONS_URL) throw new Error('Missing SUPABASE_FUNCTIONS_URL (check supabase-config.js).');
 
@@ -255,7 +347,8 @@
 
           const data = await res.json().catch(() => ({}));
           if (!res.ok) {
-            setStatus('');
+            setStatus(`Winners API error: HTTP ${res.status}`);
+            setStatusKvp({ api: `HTTP ${res.status}`, source: '—', years: '—' });
             if (res.status === 403) {
               libraryEl.innerHTML = `
                 <p><strong>Signed in, but not registered yet.</strong></p>
@@ -268,22 +361,38 @@
             return;
           }
 
-          setStatus('');
+          const years = (Array.isArray(data.winners) ? data.winners : [])
+            .map((y) => Number(y.year))
+            .filter((y) => Number.isFinite(y))
+            .sort((a, b) => a - b);
+          const yearsText = years.length ? years.join(', ') : 'none';
+          const source = String(data.source || '').toLowerCase();
+
+          setStatus(`Loaded winners. Functions URL: ${escapeHtml(SUPABASE_FUNCTIONS_URL)}`);
+          setStatusKvp({ api: 'OK', source: source || 'unknown', years: yearsText });
           renderLibrary(data.winners);
         } catch (e) {
           setStatus('');
+          setStatusKvp({ api: 'Error', source: '—', years: '—' });
           libraryEl.textContent = String(e);
         }
       }
 
       async function init() {
+        setDebug(
+          `Functions URL: ${SUPABASE_FUNCTIONS_URL || '(missing)'} · Supabase URL: ${SUPABASE_URL || '(missing)'} · Client load error: ${
+            window.__supabaseLoadError || 'none'
+          }`
+        );
+
+        supabase = await getSupabaseClient();
         if (!supabase) {
-          setStatus('Supabase client failed to load.');
+          setStatus('Supabase client failed to load (check network/CDN/config).');
           return;
         }
 
         const { data } = await supabase.auth.getSession();
-        loadWinners(data.session);
+        loadWinners(data && data.session ? data.session : null);
 
         supabase.auth.onAuthStateChange((_event, session) => {
           loadWinners(session);
