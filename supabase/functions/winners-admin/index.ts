@@ -13,7 +13,8 @@ function json(body: unknown, status = 200): Response {
 }
 
 function getSupabaseUrl(): string {
-  return String(Deno.env.get('URL') || Deno.env.get('SUPABASE_URL') || '').trim();
+  // Prefer SUPABASE_URL. Some runtimes set URL to the function URL, which would break REST calls.
+  return String(Deno.env.get('SUPABASE_URL') || Deno.env.get('URL') || '').trim();
 }
 
 function getServiceRoleKey(): string {
@@ -62,15 +63,21 @@ async function upsertYearPayload(year: number, payload: unknown): Promise<{ ok: 
     return { ok: false, status: 400, error: 'Invalid year.' };
   }
 
-  const resp = await fetch(`${supabaseUrl}/rest/v1/winners_payload`, {
+  const url = new URL(`${supabaseUrl}/rest/v1/winners_payload`);
+  // Make the upsert explicit and stable across PostgREST configs.
+  url.searchParams.set('on_conflict', 'year');
+
+  const resp = await fetch(url.toString(), {
     method: 'POST',
     headers: {
       apikey: serviceRoleKey,
       authorization: `Bearer ${serviceRoleKey}`,
       'content-type': 'application/json',
-      prefer: 'resolution=merge-duplicates'
+      // Return representation so callers can confirm the row exists.
+      prefer: 'resolution=merge-duplicates,return=representation'
     },
-    body: JSON.stringify({ year: y, payload, updated_at: new Date().toISOString() })
+    // PostgREST reliably supports arrays for inserts/upserts.
+    body: JSON.stringify([{ year: y, payload, updated_at: new Date().toISOString() }])
   });
 
   if (resp.status === 404) {
@@ -80,6 +87,19 @@ async function upsertYearPayload(year: number, payload: unknown): Promise<{ ok: 
   if (!resp.ok) {
     const text = await resp.text().catch(() => '');
     return { ok: false, status: 502, error: `Upsert failed: ${text}` };
+  }
+
+  // Best-effort confirmation: we asked for return=representation.
+  // If the API returns no body (204), still treat as success.
+  try {
+    const json = await resp.json();
+    const row = Array.isArray(json) ? json[0] : json;
+    if (!row || Number(row.year) !== y) {
+      // Still ok, but the response didn't include what we expected.
+      return { ok: true };
+    }
+  } catch {
+    // ignore
   }
 
   return { ok: true };

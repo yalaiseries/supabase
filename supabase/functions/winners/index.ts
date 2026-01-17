@@ -21,7 +21,8 @@ function json(body: unknown, status = 200): Response {
 }
 
 function getSupabaseUrl(): string {
-  return String(Deno.env.get('URL') || Deno.env.get('SUPABASE_URL') || '').trim();
+  // Prefer SUPABASE_URL. Some runtimes set URL to the function URL.
+  return String(Deno.env.get('SUPABASE_URL') || Deno.env.get('URL') || '').trim();
 }
 
 function getServiceRoleKey(): string {
