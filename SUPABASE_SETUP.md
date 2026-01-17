@@ -277,7 +277,9 @@ This system intentionally separates:
 - **Registered participant (can access members-only content)** — allowlist row
   - View in Supabase Dashboard → **Table Editor → allowed_members**
 
-Your Google Sheet sync populates the allowlist. Each participant still needs to create their Auth account once (same email), then they can log in directly thereafter.
+Your Google Sheet sync populates the allowlist. For a user-friendly password setup flow, participants use **Request access / set password** on the members page (same email). Supabase sends them a one-time link to set a password, then they can log in normally thereafter.
+
+If a participant forgets their password later, they can use **Forgot password** on the members page to receive a reset email.
 
 ---
 

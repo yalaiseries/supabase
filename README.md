@@ -54,6 +54,8 @@ supabase functions deploy winners
 supabase functions deploy members-resources
 supabase functions deploy chat
 supabase functions deploy register-sync
+supabase functions deploy register-reconcile
+supabase functions deploy request-access
 ```
 
 Members-only data endpoints (require `Authorization: Bearer <access_token>`):
@@ -61,9 +63,20 @@ Members-only data endpoints (require `Authorization: Bearer <access_token>`):
 - `https://<project-ref>.functions.supabase.co/winners`
 - `https://<project-ref>.functions.supabase.co/members-resources`
 
-Homepage Q&A endpoint (public):
+Homepage Q&A endpoint:
 
-- `https://<project-ref>.functions.supabase.co/chat`
+- `https://<project-ref>.functions.supabase.co/chat` (now requires a signed-in allowlisted user)
+
+## Password setup (user-friendly)
+
+This site uses a **registration allowlist** (from your spreadsheet) plus **Supabase Auth**.
+
+- Participants register via your registration form (their email appears in `public.allowed_members`).
+- On the members page, participants click **Request access / set password**.
+  - If allowlisted, they receive an email to set their password.
+  - After that, they log in normally with email + password.
+
+If a user forgets their password, **Forgot password** on the members page will send a reset email.
 
 ## Fully automated registration (Google Form → members-only access)
 

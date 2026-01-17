@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.register-reconcile]
 verify_jwt = false
+
+[functions.request-access]
+verify_jwt = false

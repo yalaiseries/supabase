@@ -100,7 +100,7 @@
 
       <section class="card">
         <h2>Access</h2>
-        <p class="muted">Sign in to access members-only resources.</p>
+        <p class="muted">Sign in to access members-only resources. First time here? Request access to set your password.</p>
 
         <div class="field" style="margin-top: 10px; max-width: 420px;">
           <label class="small" for="email">Email</label>
@@ -114,8 +114,8 @@
 
         <div class="cta" style="margin-top: 10px;">
           <button class="btn primary" id="login" type="button">Log in</button>
-          <button class="btn" id="createAccount" type="button">Create account</button>
-          <button class="btn" id="resetPassword" type="button">Forgot / set password</button>
+          <button class="btn" id="requestAccess" type="button">Request access / set password</button>
+          <button class="btn" id="resetPassword" type="button">Forgot password</button>
           <button class="btn" id="logout" type="button" style="display:none;">Log out</button>
           <span class="small" id="who"></span>
         </div>
@@ -175,7 +175,7 @@
       const emailEl = document.getElementById('email');
       const passwordEl = document.getElementById('password');
       const loginBtn = document.getElementById('login');
-      const createAccountBtn = document.getElementById('createAccount');
+      const requestAccessBtn = document.getElementById('requestAccess');
       const resetPasswordBtn = document.getElementById('resetPassword');
       const logoutBtn = document.getElementById('logout');
       const whoEl = document.getElementById('who');
@@ -267,14 +267,14 @@
         const user = session && session.user;
         if (user) {
           loginBtn.style.display = 'none';
-          if (createAccountBtn) createAccountBtn.style.display = 'none';
+          if (requestAccessBtn) requestAccessBtn.style.display = 'none';
           if (resetPasswordBtn) resetPasswordBtn.style.display = 'none';
           logoutBtn.style.display = '';
           if (winnersLink) winnersLink.style.display = '';
           whoEl.textContent = user.email ? `Signed in as ${user.email}` : 'Signed in';
         } else {
           loginBtn.style.display = '';
-          if (createAccountBtn) createAccountBtn.style.display = '';
+          if (requestAccessBtn) requestAccessBtn.style.display = '';
           if (resetPasswordBtn) resetPasswordBtn.style.display = '';
           logoutBtn.style.display = 'none';
           if (winnersLink) winnersLink.style.display = 'none';
@@ -354,7 +354,7 @@
         }
 
         if (!password) {
-          setStatus('Please enter your password. If you do not have one yet, click “Forgot / set password”.');
+          setStatus('Please enter your password. If this is your first time, click “Request access / set password”.');
           return;
         }
 
@@ -373,41 +373,43 @@
       bindEnterKey(passwordEl, () => loginBtn.click());
       bindEnterKey(newPasswordEl, () => setPasswordBtn && setPasswordBtn.click());
 
-      if (createAccountBtn) {
-        createAccountBtn.addEventListener('click', async () => {
+      if (requestAccessBtn) {
+        requestAccessBtn.addEventListener('click', async () => {
           setContent('');
-          const sb = await getSupabaseClient();
-          if (!sb) {
-            setStatus('Account creation is not available right now (Supabase client/config not loaded).');
-            return;
-          }
 
           const email = String(emailEl.value || '').trim();
-          const password = String(passwordEl && passwordEl.value ? passwordEl.value : '').trim();
           if (!email) {
-            setStatus('Please enter your email.');
-            return;
-          }
-          if (!password || password.length < 8) {
-            setStatus('Please choose a password (at least 8 characters).');
+            setStatus('Please enter your email first.');
             return;
           }
 
-          setStatus('Creating account…');
-          const { error } = await sb.auth.signUp({
-            email,
-            password,
-            options: {
-              emailRedirectTo: `${siteBaseUrl()}members.html`
+          if (!SUPABASE_FUNCTIONS_URL) {
+            setStatus('Request access is not available (missing SUPABASE_FUNCTIONS_URL).');
+            return;
+          }
+
+          setStatus('Requesting access…');
+          try {
+            const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/request-access`, {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json',
+                apikey: SUPABASE_ANON_KEY,
+                authorization: `Bearer ${SUPABASE_ANON_KEY}`
+              },
+              body: JSON.stringify({ email })
+            });
+
+            // Privacy: regardless of allowlist status, show the same message.
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              setStatus(data.error || 'Could not request access right now.');
+              return;
             }
-          });
-
-          if (error) {
-            setStatus(error.message || 'Could not create account.');
-            return;
+            setStatus('If your email is eligible, you will receive an email to set your password.');
+          } catch (e) {
+            setStatus(String(e));
           }
-
-          setStatus('Account created. Check your email to confirm your account, then come back to log in.');
         });
       }
 
