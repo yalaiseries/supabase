@@ -20,7 +20,13 @@
 
 const SUPABASE_FUNCTION_URL = 'https://xcctqbamimafkkamuwly.functions.supabase.co/register-sync';
 const SUPABASE_RECONCILE_URL = 'https://xcctqbamimafkkamuwly.functions.supabase.co/register-reconcile';
+// Back-compat fallback only. Prefer Script Properties (see getWebhookSecret_()).
 const WEBHOOK_SECRET = '<REGISTRATION_WEBHOOK_SECRET>';
+
+// Script Property key name.
+// Set via: Extensions → Apps Script → Project Settings → Script properties
+// or use the menu item "Supabase → Set webhook secret".
+const WEBHOOK_SECRET_PROP = 'REGISTRATION_WEBHOOK_SECRET';
 
 // Optional: set to a specific tab name. If blank, uses the active sheet.
 const SHEET_NAME = '';
@@ -65,11 +71,25 @@ function findHeaderIndex_(headerRow, candidates) {
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('Supabase')
+    .addItem('Set webhook secret', 'setWebhookSecret')
     .addItem('Sync new rows', 'syncNewRows')
     .addItem('Sync ALL rows (force re-sync)', 'syncAllRows')
     .addItem('Mirror ALL rows (reconcile deletes)', 'mirrorAllRows')
     .addItem('Reset cursor (re-sync from top)', 'resetSyncCursor')
     .addToUi();
+}
+
+function setWebhookSecret() {
+  const ui = SpreadsheetApp.getUi();
+  const resp = ui.prompt('Set webhook secret', 'Paste your REGISTRATION_WEBHOOK_SECRET (it will be saved in Script Properties).', ui.ButtonSet.OK_CANCEL);
+  if (resp.getSelectedButton() !== ui.Button.OK) return;
+  const value = String(resp.getResponseText() || '').trim();
+  if (!value) {
+    ui.alert('No value entered.');
+    return;
+  }
+  PropertiesService.getScriptProperties().setProperty(WEBHOOK_SECRET_PROP, value);
+  ui.alert('Saved Script Property: ' + WEBHOOK_SECRET_PROP);
 }
 
 function getTargetSheet_() {
@@ -91,14 +111,27 @@ function resetSyncCursor() {
   SpreadsheetApp.getUi().alert('Cursor cleared. Next sync will start from the header row + 1.');
 }
 
+function getWebhookSecret_() {
+  const fromProps = String(PropertiesService.getScriptProperties().getProperty(WEBHOOK_SECRET_PROP) || '').trim();
+  if (fromProps) return fromProps;
+
+  // Fallback for older setups where people hard-coded it.
+  if (WEBHOOK_SECRET && WEBHOOK_SECRET.indexOf('<') === -1) return String(WEBHOOK_SECRET).trim();
+
+  throw new Error(
+    'Missing webhook secret. Set Script Property ' + WEBHOOK_SECRET_PROP +
+    ' (Project Settings → Script properties) or use Supabase → Set webhook secret.'
+  );
+}
+
 function postJson_(url, payload) {
   if (!url) throw new Error('Missing URL');
-  if (!WEBHOOK_SECRET || WEBHOOK_SECRET.indexOf('<') !== -1) throw new Error('Set WEBHOOK_SECRET');
+  const secret = getWebhookSecret_();
 
   const resp = UrlFetchApp.fetch(url, {
     method: 'post',
     contentType: 'application/json',
-    headers: { 'x-webhook-secret': WEBHOOK_SECRET },
+    headers: { 'x-webhook-secret': secret },
     payload: JSON.stringify(payload),
     muteHttpExceptions: true
   });
@@ -112,6 +145,19 @@ function postJson_(url, payload) {
   // Helpful for debugging: view in Apps Script → Executions → Logs.
   console.log('Supabase webhook ok: HTTP ' + code + ' ' + bodyText);
   return { code: code, bodyText: bodyText };
+}
+
+// Quick diagnostic: confirms URL + secret are correct without relying on sheet parsing.
+function testWebhookQuick() {
+  const testEmail = 'test+' + new Date().getTime() + '@example.com';
+  console.log('testWebhookQuick sending email=' + testEmail + ' url=' + SUPABASE_FUNCTION_URL);
+  const resp = postJson_(SUPABASE_FUNCTION_URL, {
+    email: testEmail,
+    name: 'Webhook Test',
+    source: 'apps_script_test',
+    testedAt: new Date().toISOString()
+  });
+  SpreadsheetApp.getUi().alert('register-sync OK. Response: ' + resp.bodyText + '\nEmail: ' + testEmail);
 }
 
 function postToSupabase_(payload) {

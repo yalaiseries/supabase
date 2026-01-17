@@ -33,7 +33,8 @@ Recommended setup:
 2) Create a new script and paste in `supabase-allowlist.gs`
 3) Set:
 
-- `WEBHOOK_SECRET` to match your Supabase secret `REGISTRATION_WEBHOOK_SECRET`
+- Recommended: store `REGISTRATION_WEBHOOK_SECRET` in **Script Properties** (Project Settings → Script properties)
+  - Or use **Supabase → Set webhook secret** from the Sheet menu
 - Confirm the header name `Email address` matches your sheet’s column header exactly
 - (Optional) Confirm the header name `Name` matches your sheet (or update `NAME_HEADER`)
 
