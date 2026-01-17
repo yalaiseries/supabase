@@ -9,6 +9,24 @@ That’s all you need for “recognized members” access control.
 
 - `supabase-allowlist.gs` — Apps Script that posts emails to `/register-sync`
 
+## Two-way / delete sync note ("mirror" mode)
+
+Google Sheets does not reliably emit a "row deleted" event you can consume.
+So if the spreadsheet is the **source of truth**, the practical way to sync deletes is to run a periodic **full mirror**.
+
+This repo includes a second Edge Function:
+
+- `/register-reconcile` — accepts the full set of sheet emails and makes Supabase match it (including removals)
+
+In the Apps Script menu this appears as:
+
+- **Supabase → Mirror ALL rows (reconcile deletes)**
+
+Recommended setup:
+
+- Keep `onFormSubmit` / `syncNewRows` for near real-time adds/updates
+- Add a time-based trigger for `mirrorAllRows` every 1–5 minutes to handle deletes/revocations
+
 ## Quick steps
 
 1) Open your Google Sheet → **Extensions → Apps Script**
@@ -28,6 +46,7 @@ That’s all you need for “recognized members” access control.
 
 - Table `public.allowed_members` exists
 - Edge Function `register-sync` is deployed
+- Edge Function `register-reconcile` is deployed
 - Supabase Function Secrets include:
   - `SERVICE_ROLE_KEY`
   - `REGISTRATION_WEBHOOK_SECRET`

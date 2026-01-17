@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.register-sync]
 verify_jwt = false
+
+[functions.register-reconcile]
+verify_jwt = false

@@ -12,17 +12,30 @@ function parseBearerToken(req: Request): string {
   return auth.slice(7).trim();
 }
 
+function getSupabaseUrl(): string {
+  // Prefer function-level secret "URL", fall back to project-level SUPABASE_URL
+  return String(Deno.env.get('URL') || Deno.env.get('SUPABASE_URL') || '').trim();
+}
+
+function getAnonKey(): string {
+  // Prefer function-level secret "ANON_KEY", fall back to SUPABASE_ANON_KEY
+  return String(Deno.env.get('ANON_KEY') || Deno.env.get('SUPABASE_ANON_KEY') || '').trim();
+}
+
+function getServiceRoleKey(): string {
+  // Prefer function-level secret "SERVICE_ROLE_KEY", fall back to SUPABASE_SERVICE_ROLE_KEY
+  return String(Deno.env.get('SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '').trim();
+}
+
 export async function requireRegisteredMember(req: Request): Promise<MembershipCheckResult> {
   const accessToken = parseBearerToken(req);
   if (!accessToken) {
     return { ok: false, status: 401, body: { error: 'Unauthorized. Please sign in.', code: 'unauthorized' } };
   }
 
-  const supabaseUrl = String(Deno.env.get('SUPABASE_URL') || '').trim();
-  const anonKey = String(Deno.env.get('SUPABASE_ANON_KEY') || '').trim();
-  const serviceRoleKey = String(
-    Deno.env.get('SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
-  ).trim();
+  const supabaseUrl = getSupabaseUrl();
+  const anonKey = getAnonKey();
+  const serviceRoleKey = getServiceRoleKey();
 
   if (!supabaseUrl || !anonKey || !serviceRoleKey) {
     return { ok: false, status: 500, body: { error: 'Server not configured.', code: 'server_not_configured' } };
@@ -95,10 +108,8 @@ export async function upsertAllowedMember(input: {
   source?: string;
   payload?: unknown;
 }): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
-  const supabaseUrl = String(Deno.env.get('SUPABASE_URL') || '').trim();
-  const serviceRoleKey = String(
-    Deno.env.get('SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
-  ).trim();
+  const supabaseUrl = getSupabaseUrl();
+  const serviceRoleKey = getServiceRoleKey();
   if (!supabaseUrl || !serviceRoleKey) {
     return { ok: false, status: 500, error: 'Server not configured.' };
   }
