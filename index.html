@@ -174,15 +174,26 @@
         try {
           const functionsUrl = window.SUPABASE_FUNCTIONS_URL;
           const anonKey = String(window.SUPABASE_ANON_KEY || '').trim();
+          const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
           if (!functionsUrl) throw new Error('Missing SUPABASE_FUNCTIONS_URL (check supabase-config.js).');
           if (!anonKey) throw new Error('Missing SUPABASE_ANON_KEY (check supabase-config.js).');
+          if (!SUPABASE_URL) throw new Error('Missing SUPABASE_URL (check supabase-config.js).');
+          if (!window.__createSupabaseClient) throw new Error('Supabase client not available.');
+
+          const supabase = window.__createSupabaseClient(SUPABASE_URL, anonKey);
+          const { data } = await supabase.auth.getSession();
+          const accessToken = String(data?.session?.access_token || '').trim();
+          if (!accessToken) {
+            aEl.textContent = 'Please sign in (Members) to use chat.';
+            return;
+          }
 
           const res = await fetch(`${functionsUrl}/chat`, {
             method: 'POST',
             headers: {
               'content-type': 'application/json',
               apikey: anonKey,
-              authorization: `Bearer ${anonKey}`
+              authorization: `Bearer ${accessToken}`
             },
             body: JSON.stringify({ question })
           });

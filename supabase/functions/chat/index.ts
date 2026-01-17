@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 import { websiteKb } from '../_shared/kb.ts';
+import { requireRegisteredMember } from '../_shared/membership.ts';
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -24,6 +25,11 @@ serve(async (req) => {
 
   if (req.method !== 'POST') {
     return json({ error: 'Method not allowed' }, 405);
+  }
+
+  const member = await requireRegisteredMember(req);
+  if (!member.ok) {
+    return json(member.body, member.status);
   }
 
   const apiKey = Deno.env.get('OPENAI_API_KEY') || '';
