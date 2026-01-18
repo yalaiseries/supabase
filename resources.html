@@ -1,12 +1,17 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Resources · AI (Hackathon) Series</title>
-    <meta name="description" content="Resources are available to registered participants." />
-    <link rel="canonical" href="https://yalaiseries.github.io/supabase/resources.html" />
+    <title>AI/AECO Resources · AI (Hackathon) Series</title>
+    <meta name="description" content="Comprehensive AI frameworks, tools, platforms, and resources for architecture, engineering, and construction." />
+    <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#0b1220" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AI (Hackathon) Series" />
+    <meta property="og:title" content="AI/AECO Resources · AI (Hackathon) Series" />
+    <meta property="og:description" content="Comprehensive AI frameworks, tools, platforms, and resources for AECO professionals." />
 
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="site.webmanifest" />
@@ -60,60 +65,64 @@
           <a href="index.html">Home</a>
           <a href="collaboration.html">2026 Collaboration</a>
           <a href="members.html">AI Sharing</a>
-          <a href="winners.html" id="winnersLink" style="display:none;">Winners</a>
+          <a href="winners.html">Winners</a>
+          <a class="active" href="resources.html" aria-current="page">Resources</a>
           <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Register</a>
         </nav>
       </div>
     </header>
 
-    <script>
-      (async function initMembersNav() {
-        const winnersLink = document.getElementById('winnersLink');
-        if (!winnersLink) return;
-
-        const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
-        const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
-        if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !window.__createSupabaseClient) return;
-
-        const supabase = window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const { data } = await supabase.auth.getSession();
-        winnersLink.style.display = data?.session?.user ? '' : 'none';
-        supabase.auth.onAuthStateChange((_event, session) => {
-          winnersLink.style.display = session?.user ? '' : 'none';
-        });
-      })();
-    </script>
-
     <main class="main" id="main">
-      <h1>Resources</h1>
-      <section class="card">
-        <p class="muted">This page is members-only. Sign in to view resources, recordings, templates, and detailed past submissions.</p>
-        <p><a class="btn primary" href="members.html">Sign in</a></p>
-      </section>
+      <h1>AI/AECO Resources (Members-only)</h1>
+      <p class="muted">Curated collection of AI frameworks, tools, platforms, and resources for AECO professionals.</p>
 
       <section class="card">
-        <h2>Library</h2>
-        <p class="muted">Loaded via a protected Supabase Edge Function.</p>
-        <div id="resourcesStatus" class="small"></div>
-        <div id="resourcesDebug" class="small muted" style="margin-top: 6px;"></div>
-        <div id="resourcesContent" class="answer"></div>
+        <h2>Status</h2>
+        <div class="small" id="status" style="margin-top: 10px;"></div>
       </section>
+
+      <div id="resourcesContent"></div>
+
       <footer class="footer">
         <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> · <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> · Public: <a href="https://archihackathon.com" target="_blank" rel="noreferrer">archihackathon.com</a>
       </footer>
     </main>
 
     <script>
-      const statusEl = document.getElementById('resourcesStatus');
-      const debugEl = document.getElementById('resourcesDebug');
+      const statusEl = document.getElementById('status');
       const contentEl = document.getElementById('resourcesContent');
 
-      function setStatus(text) {
-        if (statusEl) statusEl.textContent = text || '';
+      const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
+      const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
+
+      const hasSupabaseConfig = !!SUPABASE_URL && !!SUPABASE_ANON_KEY;
+      let supabase = null;
+
+      function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
       }
 
-      function setDebug(text) {
-        if (debugEl) debugEl.textContent = text || '';
+      async function getSupabaseClient() {
+        if (supabase) return supabase;
+        if (!hasSupabaseConfig) return null;
+
+        for (let i = 0; i < 40; i++) {
+          if (window.__createSupabaseClient) break;
+          await sleep(50);
+        }
+
+        if (!window.__createSupabaseClient) return null;
+        try {
+          supabase = window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          return supabase;
+        } catch (_e) {
+          supabase = null;
+          return null;
+        }
+      }
+
+      function setStatus(text) {
+        statusEl.textContent = text || '';
       }
 
       function escapeHtml(value) {
@@ -125,143 +134,256 @@
           .replace(/'/g, '&#39;');
       }
 
-      const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
-      const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
-      const SUPABASE_FUNCTIONS_URL = String(window.SUPABASE_FUNCTIONS_URL || '').trim();
+      function renderResources() {
+        const resources = {
+          'AI Frameworks & Models': {
+            description: 'Core AI platforms and models for various applications',
+            items: [
+              { name: 'ChatGPT', url: 'https://chat.openai.com', desc: 'OpenAI conversational AI with GPT-4 and custom GPTs' },
+              { name: 'Claude', url: 'https://claude.ai', desc: 'Anthropic large language model with extended context and artifacts' },
+              { name: 'Gemini', url: 'https://gemini.google.com', desc: 'Google multimodal AI with integration to Google Workspace' },
+              { name: 'Microsoft Copilot', url: 'https://copilot.microsoft.com', desc: 'AI assistant integrated across Microsoft 365 and Windows' },
+              { name: 'Perplexity AI', url: 'https://www.perplexity.ai', desc: 'AI-powered search and research assistant with citations' },
+              { name: 'Meta Llama', url: 'https://llama.meta.com', desc: 'Open-source large language models from Meta' },
+              { name: 'Mistral AI', url: 'https://mistral.ai', desc: 'European open-source LLM provider with powerful models' },
+              { name: 'Stable Diffusion', url: 'https://stability.ai', desc: 'Open-source image generation and computer vision' },
+              { name: 'Midjourney', url: 'https://www.midjourney.com', desc: 'AI image generation for creative and design work' },
+              { name: 'DALL·E', url: 'https://openai.com/dall-e', desc: 'OpenAI text-to-image generation model' },
+              { name: 'AutoGPT', url: 'https://github.com/Significant-Gravitas/AutoGPT', desc: 'Autonomous AI agent framework for task automation' },
+              { name: 'LangChain', url: 'https://www.langchain.com', desc: 'Framework for building LLM-powered applications' },
+              { name: 'LlamaIndex', url: 'https://www.llamaindex.ai', desc: 'Data framework for LLM applications with RAG support' }
+            ]
+          },
+          'AECO-Specific AI Tools': {
+            description: 'AI tools designed for architecture, engineering, construction, and operations',
+            items: [
+              { name: 'TestFit', url: 'https://testfit.io', desc: 'Generative design for real estate feasibility and site planning' },
+              { name: 'Spacemaker', url: 'https://www.spacemakerai.com', desc: 'AI-powered urban planning and site design optimization' },
+              { name: 'Finch', url: 'https://finch3d.com', desc: 'Generative design for architects with building code compliance' },
+              { name: 'Hypar', url: 'https://hypar.io', desc: 'Algorithmic building design and automation platform' },
+              { name: 'Gendo', url: 'https://www.gendo.ai', desc: 'AI visualization and image generation for architecture' },
+              { name: 'Architechtures', url: 'https://www.architechtures.com', desc: 'AI-assisted architectural design and visualization' },
+              { name: 'ProtoAI', url: 'https://proto.cx', desc: 'AI-powered design assistant integrated with Rhino/Grasshopper' },
+              { name: 'Snaptrude', url: 'https://snaptrude.com', desc: 'Collaborative BIM with AI-powered design suggestions' },
+              { name: 'Maket', url: 'https://www.maket.ai', desc: 'Generative design for floor plans and layouts' },
+              { name: 'Archistar', url: 'https://archistar.ai', desc: 'AI for property development feasibility and planning' },
+              { name: 'CoveAI', url: 'https://www.cove.ai', desc: 'AI compliance checking and building code analysis' },
+              { name: 'UpCodes Copilot', url: 'https://up.codes', desc: 'AI-powered building code search and compliance' },
+              { name: 'Augmenta', url: 'https://www.augmenta.ai', desc: 'Automated MEP design and building systems engineering' },
+              { name: 'OriginAI', url: 'https://www.origin.ai', desc: 'AI for MEP clash detection and coordination' },
+              { name: 'Reconstruct', url: 'https://reconstructinc.com', desc: 'Computer vision for construction progress tracking' },
+              { name: 'OpenSpace', url: 'https://www.openspace.ai', desc: 'AI-powered construction documentation and progress monitoring' },
+              { name: 'Buildots', url: 'https://buildots.com', desc: 'AI construction site monitoring and analytics' },
+              { name: 'Alice Technologies', url: 'https://alicetechnologies.com', desc: 'AI for construction scheduling and project simulation' },
+              { name: 'nPlan', url: 'https://www.nplan.io', desc: 'AI-powered construction project risk analysis' },
+              { name: 'Togal.AI', url: 'https://togal.ai', desc: 'AI takeoff and estimating from drawings' }
+            ]
+          },
+          'BIM & Design Tools': {
+            description: 'Building Information Modeling and computational design platforms',
+            items: [
+              { name: 'Autodesk Revit', url: 'https://www.autodesk.com/products/revit', desc: 'Leading BIM software for building design and documentation' },
+              { name: 'Autodesk FormIt', url: 'https://formit.autodesk.com', desc: 'Conceptual design tool with AI-powered insights' },
+              { name: 'Rhino + Grasshopper', url: 'https://www.rhino3d.com', desc: 'Parametric design and visual programming for complex geometry' },
+              { name: 'Dynamo', url: 'https://dynamobim.org', desc: 'Visual programming for Revit automation and generative design' },
+              { name: 'ArchiCAD', url: 'https://graphisoft.com/solutions/archicad', desc: 'BIM software with AI-powered design automation features' },
+              { name: 'Unity Reflect', url: 'https://unity.com/products/unity-reflect', desc: 'Real-time 3D visualization and collaboration for BIM' },
+              { name: 'Unreal Engine', url: 'https://www.unrealengine.com', desc: 'High-fidelity visualization and virtual reality for architecture' },
+              { name: 'VIKTOR', url: 'https://www.viktor.ai', desc: 'Platform for building engineering automation apps' },
+              { name: 'Speckle', url: 'https://speckle.systems', desc: 'Open-source data platform for AEC collaboration' }
+            ]
+          },
+          'Development Platforms & APIs': {
+            description: 'Cloud platforms, AI APIs, and infrastructure for building applications',
+            items: [
+              { name: 'OpenAI API', url: 'https://platform.openai.com', desc: 'API access to GPT models and DALL-E' },
+              { name: 'Anthropic API', url: 'https://www.anthropic.com/api', desc: 'Claude API for advanced language processing' },
+              { name: 'Google AI Studio', url: 'https://ai.google.dev', desc: 'Gemini API and generative AI development tools' },
+              { name: 'Azure OpenAI', url: 'https://azure.microsoft.com/en-us/products/ai-services/openai-service', desc: 'Enterprise OpenAI models on Microsoft Azure' },
+              { name: 'AWS Bedrock', url: 'https://aws.amazon.com/bedrock', desc: 'Managed service for foundation models on AWS' },
+              { name: 'Google Cloud Vertex AI', url: 'https://cloud.google.com/vertex-ai', desc: 'Unified AI platform for ML and generative AI' },
+              { name: 'Hugging Face', url: 'https://huggingface.co', desc: 'Open-source ML models, datasets, and deployment' },
+              { name: 'Replicate', url: 'https://replicate.com', desc: 'Run and deploy ML models via API' },
+              { name: 'Together AI', url: 'https://www.together.ai', desc: 'Open-source model inference and fine-tuning' },
+              { name: 'Cohere', url: 'https://cohere.com', desc: 'Enterprise LLM platform with embeddings and retrieval' },
+              { name: 'Pinecone', url: 'https://www.pinecone.io', desc: 'Vector database for AI applications and semantic search' },
+              { name: 'Weaviate', url: 'https://weaviate.io', desc: 'Open-source vector database with hybrid search' },
+              { name: 'Qdrant', url: 'https://qdrant.tech', desc: 'High-performance vector database for neural search' },
+              { name: 'Supabase', url: 'https://supabase.com', desc: 'Open-source Firebase alternative with PostgreSQL and vector support' },
+              { name: 'Vercel AI SDK', url: 'https://sdk.vercel.ai', desc: 'TypeScript toolkit for building AI applications' },
+              { name: 'LangSmith', url: 'https://www.langchain.com/langsmith', desc: 'Platform for debugging and monitoring LLM apps' }
+            ]
+          },
+          'Learning Resources': {
+            description: 'Courses, tutorials, research, and community resources',
+            items: [
+              { name: 'DeepLearning.AI', url: 'https://www.deeplearning.ai', desc: 'AI courses by Andrew Ng covering LLMs, ML, and applications' },
+              { name: 'Fast.ai', url: 'https://www.fast.ai', desc: 'Practical deep learning courses and research' },
+              { name: 'OpenAI Cookbook', url: 'https://cookbook.openai.com', desc: 'Code examples and guides for OpenAI API' },
+              { name: 'Prompt Engineering Guide', url: 'https://www.promptingguide.ai', desc: 'Comprehensive guide to prompting techniques' },
+              { name: 'Learn Prompting', url: 'https://learnprompting.org', desc: 'Free course on prompt engineering' },
+              { name: 'AI Canon by Andreessen Horowitz', url: 'https://a16z.com/ai-canon', desc: 'Curated list of AI resources and readings' },
+              { name: 'Papers with Code', url: 'https://paperswithcode.com', desc: 'ML papers with code implementations' },
+              { name: 'arXiv.org', url: 'https://arxiv.org/list/cs.AI/recent', desc: 'Preprints in AI and computer science' },
+              { name: 'ACM SIGGRAPH', url: 'https://www.siggraph.org', desc: 'Computer graphics research and innovation' },
+              { name: 'ArchDaily', url: 'https://www.archdaily.com/tag/artificial-intelligence', desc: 'Architecture news and AI in design articles' },
+              { name: 'Dezeen AI', url: 'https://www.dezeen.com/tag/artificial-intelligence', desc: 'Design and architecture AI coverage' },
+              { name: 'r/MachineLearning', url: 'https://www.reddit.com/r/MachineLearning', desc: 'Reddit community for ML discussions' },
+              { name: 'r/architecture', url: 'https://www.reddit.com/r/architecture', desc: 'Architecture community discussions' },
+              { name: 'Stack Overflow', url: 'https://stackoverflow.com/questions/tagged/artificial-intelligence', desc: 'Developer Q&A for AI implementation' }
+            ]
+          },
+          'Datasets & Model Hubs': {
+            description: 'Building data, open datasets, and pre-trained model repositories',
+            items: [
+              { name: 'Hugging Face Hub', url: 'https://huggingface.co/models', desc: 'Repository of ML models, datasets, and demos' },
+              { name: 'BuildingNet', url: 'https://buildingnet.org', desc: 'Large-scale 3D building dataset' },
+              { name: 'ShapeNet', url: 'https://shapenet.org', desc: 'Richly-annotated 3D shapes and models' },
+              { name: 'ModelNet', url: 'https://modelnet.cs.princeton.edu', desc: '3D CAD models dataset for research' },
+              { name: 'ABC Dataset', url: 'https://deep-geometry.github.io/abc-dataset', desc: 'One million CAD models for geometric deep learning' },
+              { name: 'Open Images', url: 'https://storage.googleapis.com/openimages/web/index.html', desc: 'Large-scale image dataset by Google' },
+              { name: 'COCO Dataset', url: 'https://cocodataset.org', desc: 'Common Objects in Context for computer vision' },
+              { name: 'Kaggle Datasets', url: 'https://www.kaggle.com/datasets', desc: 'Community datasets for ML competitions' },
+              { name: 'UCI ML Repository', url: 'https://archive.ics.uci.edu', desc: 'Classic machine learning datasets' },
+              { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org', desc: 'Open geographic data for building footprints and urban analysis' }
+            ]
+          },
+          'News & Industry Updates': {
+            description: 'Stay current with AI and AECO industry developments',
+            items: [
+              { name: 'The Batch (DeepLearning.AI)', url: 'https://www.deeplearning.ai/the-batch', desc: 'Weekly AI news and insights' },
+              { name: 'Import AI', url: 'https://jack-clark.net', desc: 'Weekly newsletter on AI developments by Jack Clark' },
+              { name: 'TLDR AI', url: 'https://tldr.tech/ai', desc: 'Daily AI news and research summaries' },
+              { name: 'Artificial Intelligence News', url: 'https://www.artificialintelligence-news.com', desc: 'Latest AI industry news and analysis' },
+              { name: 'Building Design + Construction', url: 'https://www.bdcnetwork.com', desc: 'AECO industry news and trends' },
+              { name: 'Construction Dive', url: 'https://www.constructiondive.com', desc: 'Construction industry news and insights' },
+              { name: 'AEC Magazine', url: 'https://aecmag.com', desc: 'Technology for architecture, engineering, and construction' },
+              { name: 'designboom', url: 'https://www.designboom.com/technology/ai', desc: 'Design and architecture with AI focus' }
+            ]
+          }
+        };
 
-      function sleep(ms) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
-      }
+        let html = '';
+        for (const [category, data] of Object.entries(resources)) {
+          const items = data.items
+            .map(
+              (item) => `
+            <article class="resource-item">
+              <h4><a href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.name)}</a></h4>
+              <p class="muted">${escapeHtml(item.desc)}</p>
+            </article>
+          `
+            )
+            .join('');
 
-      let supabase = null;
-      async function getSupabaseClient() {
-        if (supabase) return supabase;
-        if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
-
-        for (let i = 0; i < 40; i++) {
-          if (window.__createSupabaseClient) break;
-          await sleep(50);
+          html += `
+          <section class="card resource-category">
+            <h2>${escapeHtml(category)}</h2>
+            <p class="muted" style="margin-top: 4px; margin-bottom: 14px;">${escapeHtml(data.description)}</p>
+            <div class="resource-grid">${items}</div>
+          </section>
+        `;
         }
-        if (!window.__createSupabaseClient) return null;
-        supabase = window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        return supabase;
+
+        return html;
       }
 
-      function splitTopicTitle(title) {
-        const t = String(title || '').trim();
-        if (!t) return { topic: 'All', title: '' };
-        const parts = t.split(' · ');
-        if (parts.length >= 2) {
-          const topic = parts.shift().trim() || 'All';
-          return { topic, title: parts.join(' · ').trim() };
-        }
-        return { topic: 'All', title: t };
-      }
-
-      async function loadResources(session) {
-        contentEl.textContent = '';
+      async function checkAuthAndRender(session) {
+        contentEl.innerHTML = '';
 
         if (!session || !session.access_token) {
           setStatus('Not signed in.');
-          setDebug(
-            `Functions URL: ${SUPABASE_FUNCTIONS_URL || '(missing)'} · Supabase URL: ${SUPABASE_URL || '(missing)'} · Client load error: ${
-              window.__supabaseLoadError || 'none'
-            }`
-          );
+          contentEl.innerHTML = `
+            <section class="card">
+              <p><strong>Please sign in to view AI/AECO resources.</strong></p>
+              <p class="muted">This page requires members-only authentication.</p>
+              <p><a class="btn primary" href="members.html">Go to sign-in</a></p>
+            </section>
+          `;
           return;
         }
 
-        const email = session.user && session.user.email ? String(session.user.email) : '';
-        setStatus(`Signed in${email ? ` as ${email}` : ''}. Loading resources…`);
-        setDebug(`Functions URL: ${SUPABASE_FUNCTIONS_URL || '(missing)'}`);
-        try {
-          if (!SUPABASE_FUNCTIONS_URL) throw new Error('Missing SUPABASE_FUNCTIONS_URL (check supabase-config.js).');
-          const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/members-resources`, {
-            headers: {
-              apikey: SUPABASE_ANON_KEY,
-              authorization: `Bearer ${session.access_token}`
-            }
-          });
-
-          const data = await res.json().catch(() => ({}));
-          if (!res.ok) {
-            setStatus(`Resources API error: HTTP ${res.status}`);
-            if (res.status === 403) {
-              contentEl.innerHTML = `
-                <p><strong>Signed in, but not registered yet.</strong></p>
-                <p class="muted">Please submit the registration form using the same email address, then try again.</p>
-                <p><a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Open registration form</a></p>
-              `;
-            } else {
-              contentEl.textContent = data.error || 'Could not load resources.';
-            }
-            return;
-          }
-
-          const items = Array.isArray(data.resources) ? data.resources : [];
-          if (!items.length) {
-            setStatus('Loaded resources: 0 items');
-            contentEl.textContent = 'No members-only resources configured yet.';
-            return;
-          }
-
-          const normalized = items
-            .map((r) => {
-              const rawTitle = String(r.title || '').trim();
-              const rawUrl = String(r.url || '').trim();
-              const rawNote = String(r.note || '').trim();
-              const split = splitTopicTitle(rawTitle);
-              return { topic: split.topic, title: split.title, url: rawUrl, note: rawNote };
-            })
-            .filter((r) => r.title && r.url);
-
-          const byTopic = new Map();
-          for (const r of normalized) {
-            const arr = byTopic.get(r.topic) || [];
-            arr.push(r);
-            byTopic.set(r.topic, arr);
-          }
-
-          setStatus(`Loaded resources: ${normalized.length} items`);
-          contentEl.innerHTML = Array.from(byTopic.entries())
-            .sort((a, b) => String(a[0]).localeCompare(String(b[0])))
-            .map(([topic, rows]) => {
-              const itemsHtml = rows
-                .map((r) => {
-                  const title = escapeHtml(r.title);
-                  const url = escapeHtml(r.url);
-                  const note = escapeHtml(r.note || '');
-                  const line = note ? `<div class="small">${note}</div>` : '';
-                  return `<li><a href="${url}" target="_blank" rel="noreferrer">${title}</a>${line}</li>`;
-                })
-                .join('');
-
-              return `
-                <section style="margin: 12px 0;">
-                  <h3 style="margin: 0 0 6px;">${escapeHtml(topic)}</h3>
-                  <ul>${itemsHtml}</ul>
-                </section>
-              `;
-            })
-            .join('');
-        } catch (e) {
-          setStatus('');
-          contentEl.textContent = String(e);
-        }
+        const email = (session.user && session.user.email) ? String(session.user.email) : '';
+        setStatus(`Signed in${email ? ` as ${email}` : ''}. Access granted.`);
+        
+        contentEl.innerHTML = renderResources();
       }
 
-      (async function init() {
-        const sb = await getSupabaseClient();
-        if (!sb) {
-          setStatus('Sign-in is not available right now (Supabase client/config not loaded).');
+      async function init() {
+        supabase = await getSupabaseClient();
+        if (!supabase) {
+          setStatus('Supabase client failed to load (check network/CDN/config).');
+          contentEl.innerHTML = `
+            <section class="card">
+              <p><strong>Error loading authentication system.</strong></p>
+              <p class="muted">Please check your network connection and try refreshing the page.</p>
+            </section>
+          `;
           return;
         }
-        const { data } = await sb.auth.getSession();
-        await loadResources(data && data.session ? data.session : null);
-        sb.auth.onAuthStateChange(async (_event, session) => {
-          await loadResources(session);
+
+        const { data } = await supabase.auth.getSession();
+        checkAuthAndRender(data && data.session ? data.session : null);
+
+        supabase.auth.onAuthStateChange((_event, session) => {
+          checkAuthAndRender(session);
         });
-      })();
+      }
+
+      init();
     </script>
+
+    <style>
+      .resource-category {
+        margin-top: 20px;
+      }
+
+      .resource-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 14px;
+      }
+
+      .resource-item {
+        padding: 14px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: rgba(11, 18, 32, 0.25);
+        transition: all 0.2s ease;
+      }
+
+      .resource-item:hover {
+        border-color: rgba(122, 162, 255, 0.4);
+        background: rgba(18, 28, 47, 0.5);
+        transform: translateY(-2px);
+      }
+
+      .resource-item h4 {
+        margin: 0 0 6px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .resource-item h4 a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .resource-item h4 a:hover {
+        text-decoration: underline;
+      }
+
+      .resource-item p {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 720px) {
+        .resource-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </body>
 </html>
