@@ -32,6 +32,8 @@ function getServiceRoleKey(): string {
 async function loadWinnersFromDb(): Promise<{ ok: true; entries: YearEntry[] } | { ok: false; status: number; error: string }> {
   const supabaseUrl = getSupabaseUrl();
   const serviceRoleKey = getServiceRoleKey();
+  console.log('[loadWinnersFromDb] URL:', supabaseUrl || '(missing)', '| Key:', serviceRoleKey ? `${serviceRoleKey.substring(0, 20)}...` : '(missing)');
+  
   if (!supabaseUrl || !serviceRoleKey) {
     return { ok: false, status: 500, error: 'Server not configured.' };
   }
@@ -40,6 +42,7 @@ async function loadWinnersFromDb(): Promise<{ ok: true; entries: YearEntry[] } |
   url.searchParams.set('select', 'year,payload');
   url.searchParams.set('order', 'year.desc');
 
+  console.log('[loadWinnersFromDb] Fetching:', url.toString());
   const resp = await fetch(url.toString(), {
     headers: {
       apikey: serviceRoleKey,
@@ -47,18 +50,24 @@ async function loadWinnersFromDb(): Promise<{ ok: true; entries: YearEntry[] } |
     }
   });
 
+  console.log('[loadWinnersFromDb] Response status:', resp.status);
   if (resp.status === 404) {
     return { ok: false, status: 404, error: 'Table public.winners_payload not found.' };
   }
   if (!resp.ok) {
     const text = await resp.text().catch(() => '');
+    console.log('[loadWinnersFromDb] Error response:', text);
     return { ok: false, status: resp.status, error: text || 'Failed to load winners from DB.' };
   }
 
   const rows = (await resp.json().catch(() => [])) as Array<{ year?: number; payload?: unknown }>;
+  console.log('[loadWinnersFromDb] Rows fetched:', rows.length);
+  
   const entries: YearEntry[] = [];
   for (const row of rows) {
     const payload = (row as any)?.payload;
+    console.log('[loadWinnersFromDb] Row year:', row.year, '| Payload type:', typeof payload, '| Is array:', Array.isArray(payload));
+    
     if (!payload) continue;
     if (Array.isArray(payload)) {
       for (const item of payload) {
@@ -67,10 +76,12 @@ async function loadWinnersFromDb(): Promise<{ ok: true; entries: YearEntry[] } |
       continue;
     }
     if (payload && typeof payload === 'object' && Number((payload as any).year)) {
+      console.log('[loadWinnersFromDb] Adding year entry:', (payload as any).year, '| Categories:', Array.isArray((payload as any).categories) ? (payload as any).categories.length : 'none');
       entries.push(payload as YearEntry);
     }
   }
 
+  console.log('[loadWinnersFromDb] Total entries extracted:', entries.length);
   return { ok: true, entries };
 }
 
@@ -84,9 +95,16 @@ serve(async (req) => {
 
   // Prefer DB-backed winners content (keeps sensitive content out of git).
   const db = await loadWinnersFromDb();
+  const dbDebug = {
+    dbOk: db.ok,
+    dbEntriesLength: db.ok ? db.entries.length : 0,
+    dbError: !db.ok ? db.error : undefined,
+    dbStatus: !db.ok ? db.status : undefined
+  };
+  
   if (db.ok && db.entries.length > 0) {
     const winners = mergeYearEntries(db.entries);
-    return json({ winners, source: 'db' });
+    return json({ winners, source: 'db', debug: dbDebug });
   }
 
   const yearEntries: Array<YearEntry | null> = [];
@@ -130,5 +148,5 @@ serve(async (req) => {
 
   const winners = mergeYearEntries(yearEntries.concat(extras));
 
-  return json({ winners, source: 'code' });
+  return json({ winners, source: 'code', debug: dbDebug });
 });

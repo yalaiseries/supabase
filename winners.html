@@ -379,7 +379,17 @@
           const yearsText = years.length ? years.join(', ') : 'none';
           const source = String(data.source || '').toLowerCase();
 
-          setStatus(`Loaded winners. Functions URL: ${escapeHtml(SUPABASE_FUNCTIONS_URL)}`);
+          // Display debug info if available
+          let debugInfo = '';
+          if (data.debug) {
+            const dbg = data.debug;
+            debugInfo = ` | DB: ${dbg.dbOk ? 'OK' : 'FAILED'} (${dbg.dbEntriesLength || 0} entries)`;
+            if (!dbg.dbOk && dbg.dbError) {
+              debugInfo += ` | Error: ${escapeHtml(String(dbg.dbError).substring(0, 100))}`;
+            }
+          }
+
+          setStatus(`Loaded winners. Functions URL: ${escapeHtml(SUPABASE_FUNCTIONS_URL)}${debugInfo}`);
           setStatusKvp({ api: 'OK', source: source || 'unknown', years: yearsText });
           renderLibrary(data.winners);
         } catch (e) {
