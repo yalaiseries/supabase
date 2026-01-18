@@ -187,7 +187,7 @@
           .join('');
       }
 
-      function renderLibrary(winners) {
+      function renderLibrary(winners, challengeTopics) {
         const years = (Array.isArray(winners) ? winners : [])
           .map((y) => Number(y.year))
           .filter((y) => Number.isFinite(y))
@@ -206,6 +206,39 @@
           .map((year) => {
             const yearEntry = byYear.get(year) || {};
             const categories = Array.isArray(yearEntry.categories) ? yearEntry.categories : [];
+
+            // Render challenge topics for this year if available
+            let challengeHtml = '';
+            if (challengeTopics && challengeTopics[year]) {
+              const topics = Array.isArray(challengeTopics[year]) 
+                ? challengeTopics[year] 
+                : (Array.isArray(challengeTopics[year].challenge_topics) 
+                    ? challengeTopics[year].challenge_topics 
+                    : []);
+              
+              if (topics.length > 0) {
+                const topicsHtml = topics.map((topic, idx) => {
+                  const code = topic.code ? `<span class="topic-code">${escapeHtml(topic.code)}</span> ` : '';
+                  const title = escapeHtml(topic.title || 'Challenge');
+                  const desc = escapeHtml(topic.description || '');
+                  return `
+                    <div class="challenge-topic">
+                      <h4>${code}${title}</h4>
+                      ${desc ? `<p class="muted small">${desc}</p>` : ''}
+                    </div>
+                  `;
+                }).join('');
+
+                challengeHtml = `
+                  <details class="challenge-section" open>
+                    <summary><strong>Challenge Topics</strong> · ${year}</summary>
+                    <div class="challenge-topics-grid">
+                      ${topicsHtml}
+                    </div>
+                  </details>
+                `;
+              }
+            }
 
             const columns = categories
               .slice()
@@ -309,6 +342,7 @@
                   <h2>${year}</h2>
                   <a class="small" href="#main">Back to top</a>
                 </div>
+                ${challengeHtml}
                 <div class="columns">${columns || '<p class="muted">No categories yet.</p>'}</div>
               </section>
             `;
@@ -381,7 +415,7 @@
 
           setStatus(`Loaded winners. Functions URL: ${escapeHtml(SUPABASE_FUNCTIONS_URL)}`);
           setStatusKvp({ api: 'OK', source: source || 'unknown', years: yearsText });
-          renderLibrary(data.winners);
+          renderLibrary(data.winners, data.challengeTopics);
         } catch (e) {
           setStatus('');
           setStatusKvp({ api: 'Error', source: '—', years: '—' });

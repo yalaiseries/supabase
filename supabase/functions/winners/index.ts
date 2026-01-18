@@ -29,7 +29,7 @@ function getServiceRoleKey(): string {
   return String(Deno.env.get('SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '').trim();
 }
 
-async function loadWinnersFromDb(): Promise<{ ok: true; entries: YearEntry[] } | { ok: false; status: number; error: string }> {
+async function loadWinnersFromDb(): Promise<{ ok: true; entries: YearEntry[]; challengeTopics?: Record<number, unknown> } | { ok: false; status: number; error: string }> {
   const supabaseUrl = getSupabaseUrl();
   const serviceRoleKey = getServiceRoleKey();
   
@@ -38,7 +38,7 @@ async function loadWinnersFromDb(): Promise<{ ok: true; entries: YearEntry[] } |
   }
 
   const url = new URL(`${supabaseUrl}/rest/v1/winners_payload`);
-  url.searchParams.set('select', 'year,payload');
+  url.searchParams.set('select', 'year,payload,challenge_topics');
   url.searchParams.set('order', 'year.desc');
 
   const resp = await fetch(url.toString(), {
@@ -56,12 +56,18 @@ async function loadWinnersFromDb(): Promise<{ ok: true; entries: YearEntry[] } |
     return { ok: false, status: resp.status, error: text || 'Failed to load winners from DB.' };
   }
 
-  const rows = (await resp.json().catch(() => [])) as Array<{ year?: number; payload?: unknown }>;
+  const rows = (await resp.json().catch(() => [])) as Array<{ year?: number; payload?: unknown; challenge_topics?: unknown }>;
   const entries: YearEntry[] = [];
+  const challengeTopics: Record<number, unknown> = {};
   
   for (const row of rows) {
     const payload = (row as any)?.payload;
     const dbYear = Number(row.year);
+    
+    // Store challenge_topics for this year if available
+    if (row.challenge_topics && Number.isFinite(dbYear)) {
+      challengeTopics[dbYear] = row.challenge_topics;
+    }
     
     if (!payload) continue;
     
@@ -88,7 +94,7 @@ async function loadWinnersFromDb(): Promise<{ ok: true; entries: YearEntry[] } |
     }
   }
 
-  return { ok: true, entries };
+  return { ok: true, entries, challengeTopics: Object.keys(challengeTopics).length > 0 ? challengeTopics : undefined };
 }
 
 serve(async (req) => {
@@ -104,7 +110,11 @@ serve(async (req) => {
   
   if (db.ok && db.entries.length > 0) {
     const winners = mergeYearEntries(db.entries);
-    return json({ winners, source: 'db' });
+    const response: { winners: YearEntry[]; source: string; challengeTopics?: Record<number, unknown> } = { winners, source: 'db' };
+    if (db.challengeTopics) {
+      response.challengeTopics = db.challengeTopics;
+    }
+    return json(response);
   }
 
   const yearEntries: Array<YearEntry | null> = [];

@@ -48,11 +48,11 @@ function requireAdmin(req: Request): { ok: true } | { ok: false; status: number;
 }
 
 type UpsertRequest =
-  | { year: number; payload: unknown }
-  | { year: number; categories: unknown }
-  | { entries: Array<{ year: number; categories: unknown }> };
+  | { year: number; payload: unknown; challenge_topics?: unknown }
+  | { year: number; categories: unknown; challenge_topics?: unknown }
+  | { entries: Array<{ year: number; categories: unknown; challenge_topics?: unknown }> };
 
-async function upsertYearPayload(year: number, payload: unknown): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
+async function upsertYearPayload(year: number, payload: unknown, challengeTopics?: unknown): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
   const supabaseUrl = getSupabaseUrl();
   const serviceRoleKey = getServiceRoleKey();
   if (!supabaseUrl || !serviceRoleKey) {
@@ -68,6 +68,16 @@ async function upsertYearPayload(year: number, payload: unknown): Promise<{ ok: 
   // Make the upsert explicit and stable across PostgREST configs.
   url.searchParams.set('on_conflict', 'year');
 
+  const rowData: { year: number; payload: unknown; updated_at: string; challenge_topics?: unknown } = {
+    year: y,
+    payload,
+    updated_at: new Date().toISOString()
+  };
+
+  if (challengeTopics !== undefined) {
+    rowData.challenge_topics = challengeTopics;
+  }
+
   const resp = await fetch(url.toString(), {
     method: 'POST',
     headers: {
@@ -78,7 +88,7 @@ async function upsertYearPayload(year: number, payload: unknown): Promise<{ ok: 
       prefer: 'resolution=merge-duplicates,return=representation'
     },
     // PostgREST reliably supports arrays for inserts/upserts.
-    body: JSON.stringify([{ year: y, payload, updated_at: new Date().toISOString() }])
+    body: JSON.stringify([rowData])
   });
 
   if (resp.status === 404) {
@@ -125,11 +135,12 @@ serve(async (req: Request) => {
   if ('year' in body) {
     const raw = body as any;
     const year = Number(raw.year);
+    const challengeTopics = raw.challenge_topics;
     const payload = 'payload' in raw ? raw.payload : (() => {
-      const { year: _year, ...rest } = raw;
+      const { year: _year, challenge_topics: _ct, ...rest } = raw;
       return rest;
     })();
-    const res = await upsertYearPayload(year, payload);
+    const res = await upsertYearPayload(year, payload, challengeTopics);
     if (!res.ok) return json({ error: res.error }, res.status);
     return json({ ok: true });
   }
@@ -150,7 +161,9 @@ serve(async (req: Request) => {
     for (const [year, list] of byYear.entries()) {
       // Store the single YearEntry if only one, else store array.
       const payload = list.length === 1 ? list[0] : list;
-      const res = await upsertYearPayload(year, payload);
+      // Extract challenge_topics from first entry (assumes all entries for same year share topics)
+      const challengeTopics = list[0]?.challenge_topics;
+      const res = await upsertYearPayload(year, payload, challengeTopics);
       results.push({ year, ok: res.ok, ...(res.ok ? {} : { error: (res as any).error }) });
     }
 

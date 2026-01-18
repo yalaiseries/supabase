@@ -1,0 +1,35 @@
+{
+  "year": 2025,
+  "challenge_topics": [
+    {
+      "code": "Design",
+      "title": "Generative AI for Design Competency and Sustainability",
+      "description": "Helps create better designs by optimising layouts, improving resource use, and reducing costs through data-driven simulations and analysis, achieving more efficient and sustainable outcomes."
+    },
+    {
+      "code": "Checks",
+      "title": "AI Integrated Design and Regulatory Compliance approach",
+      "description": "Ensures designs meet project requirements and authority regulations by automating compliance checks, improving teamwork using tools such as algorithmic programming, AI, BIM, cloud computing, and common data environments, resulting in better coordination and increased productivity."
+    },
+    {
+      "code": "Manage",
+      "title": "AI-Enhanced Project and Change Management",
+      "description": "Simplifies project management by predicting delays, tracking changes, and updating schedules automatically and systematically, leading to improved project outcomes, greater efficiency, and better adaptability."
+    },
+    {
+      "code": "Contract",
+      "title": "Smart Contracts and AI for Contract Administration",
+      "description": "Streamlines contract management by automating tracking, reducing risks, and ensuring payments and deadlines are met according to contract requirements, resulting in AI-driven, on-time, on-budget, and high-quality project delivery."
+    },
+    {
+      "code": "Fabrication",
+      "title": "AI for Digital Fabrication, Digital Construction and Digital Assets Deliveries",
+      "description": "Enhances fabrication, construction, and digital assets delivery by using digital tools such as AR/VR, digital twins, modular DfMA/PPVC, and intelligent systems, resulting in optimised fabrication and construction processes and improved project deliveries."
+    },
+    {
+      "code": "Others",
+      "title": "Self-defined problem statement with AI-driven solutions and agentic workflows",
+      "description": "Exploring Proof of Concept development to use AI agentic workflows in solving practical issues encountered in your practice."
+    }
+  ]
+}
