@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.request-access]
 verify_jwt = false
+
+[functions.winners-admin]
+verify_jwt = false

@@ -49,6 +49,7 @@ function requireAdmin(req: Request): { ok: true } | { ok: false; status: number;
 
 type UpsertRequest =
   | { year: number; payload: unknown }
+  | { year: number; categories: unknown }
   | { entries: Array<{ year: number; categories: unknown }> };
 
 async function upsertYearPayload(year: number, payload: unknown): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
@@ -122,7 +123,13 @@ serve(async (req: Request) => {
 
   // Mode A: upsert one year
   if ('year' in body) {
-    const res = await upsertYearPayload(Number((body as any).year), (body as any).payload);
+    const raw = body as any;
+    const year = Number(raw.year);
+    const payload = 'payload' in raw ? raw.payload : (() => {
+      const { year: _year, ...rest } = raw;
+      return rest;
+    })();
+    const res = await upsertYearPayload(year, payload);
     if (!res.ok) return json({ error: res.error }, res.status);
     return json({ ok: true });
   }

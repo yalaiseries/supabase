@@ -316,7 +316,7 @@
           .join('');
       }
 
-      async function loadWinners(session) {
+      async function loadWinners(session, retry = true) {
         libraryEl.innerHTML = '';
         yearsNavEl.innerHTML = '';
         setStatusKvp({ api: '—', source: '—', years: '—' });
@@ -347,6 +347,17 @@
 
           const data = await res.json().catch(() => ({}));
           if (!res.ok) {
+            if (res.status === 401 && retry && supabase) {
+              try {
+                const refreshed = await supabase.auth.refreshSession();
+                const newSession = refreshed?.data?.session || null;
+                if (newSession && newSession.access_token) {
+                  return loadWinners(newSession, false);
+                }
+              } catch (_e) {
+                // ignore refresh errors and continue with original handling
+              }
+            }
             setStatus(`Winners API error: HTTP ${res.status}`);
             setStatusKvp({ api: `HTTP ${res.status}`, source: '—', years: '—' });
             if (res.status === 403) {
