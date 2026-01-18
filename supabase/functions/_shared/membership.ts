@@ -13,8 +13,8 @@ function parseBearerToken(req: Request): string {
 }
 
 function getSupabaseUrl(): string {
-  // Prefer function-level secret "URL", fall back to project-level SUPABASE_URL
-  return String(Deno.env.get('URL') || Deno.env.get('SUPABASE_URL') || '').trim();
+  // Prefer project-level SUPABASE_URL. Function-level URL can point to the function URL.
+  return String(Deno.env.get('SUPABASE_URL') || Deno.env.get('URL') || '').trim();
 }
 
 function getAnonKey(): string {
