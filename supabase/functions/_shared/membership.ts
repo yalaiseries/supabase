@@ -12,9 +12,26 @@ function parseBearerToken(req: Request): string {
   return auth.slice(7).trim();
 }
 
+function normalizeSupabaseUrl(raw: string): string {
+  const value = String(raw || '').trim();
+  if (!value) return '';
+  try {
+    const url = new URL(value);
+    const host = url.hostname;
+    if (host.includes('.functions.supabase.co')) {
+      const projectRef = host.split('.')[0];
+      if (projectRef) return `https://${projectRef}.supabase.co`;
+    }
+  } catch {
+    // ignore
+  }
+  return value;
+}
+
 function getSupabaseUrl(): string {
-  // Prefer project-level SUPABASE_URL. Function-level URL can point to the function URL.
-  return String(Deno.env.get('SUPABASE_URL') || Deno.env.get('URL') || '').trim();
+  // Prefer project-level SUPABASE_URL. If URL points to functions host, normalize it.
+  const raw = Deno.env.get('SUPABASE_URL') || Deno.env.get('URL') || '';
+  return normalizeSupabaseUrl(raw);
 }
 
 function getAnonKey(): string {
