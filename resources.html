@@ -79,7 +79,7 @@
       <div id="resourcesContent"></div>
 
       <footer class="footer">
-        <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> � <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> � Public: <a href="https://archihackathon.com" target="_blank" rel="noreferrer">archihackathon.com</a>
+        <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> · <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> · Public: <a href="https://archihackathon.com" target="_blank" rel="noreferrer">archihackathon.com</a>
       </footer>
     </main>
 
@@ -356,20 +356,13 @@
       async function checkAuthAndRender(session) {
         contentEl.innerHTML = '';
 
-        if (!session || !session.access_token) {
-          setStatus('Not signed in.');
-          contentEl.innerHTML = `
-            <section class="card">
-              <p><strong>Please sign in to view AI/AECO resources.</strong></p>
-              <p class="muted">This page requires members-only authentication.</p>
-              <p><a class="btn primary" href="members.html">Go to sign-in</a></p>
-            </section>
-          `;
-          return;
+        // Resources are public tools - no authentication required
+        const email = (session && session.user && session.user.email) ? String(session.user.email) : '';
+        if (email) {
+          setStatus(`Signed in as ${email}.`);
+        } else {
+          setStatus('Public access - resources are freely available.');
         }
-
-        const email = (session.user && session.user.email) ? String(session.user.email) : '';
-        setStatus(`Signed in${email ? ` as ${email}` : ''}. Access granted.`);
         
         console.log('Rendering resources...');
         console.log('contentEl:', contentEl);
