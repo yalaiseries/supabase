@@ -414,9 +414,17 @@ button.btn {
   color: var(--muted);
 }
 
+.usecase-team {
+  margin: 4px 0;
+}
+
 .usecase-people {
-  margin-top: 8px;
-  line-height: 1.6;
+  margin-top: 0;
+  line-height: 1.7;
+}
+
+.usecase-people > div {
+  margin: 6px 0;
 }
 
 .usecase-links {

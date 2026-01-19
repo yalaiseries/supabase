@@ -262,13 +262,16 @@
                   const teamMembers = Array.isArray(people.teamMembers) ? people.teamMembers : [];
 
                   const peopleBits = [];
-                  if (rep || designation) peopleBits.push(`${[rep, designation].filter(Boolean).join(' — ')}`);
-                  if (lead) peopleBits.push(`<strong>Lead:</strong> ${lead}`);
-                  if (coLeads.length) peopleBits.push(`<strong>Co-leads:</strong> ${escapeHtml(coLeads.join(', '))}`);
-                  if (teamMembers.length) peopleBits.push(`<strong>Team:</strong> ${escapeHtml(teamMembers.join(', '))}`);
+                  if (rep || designation) peopleBits.push(`<div><strong>Representative Speaker:</strong> ${[rep, designation].filter(Boolean).join(' — ')}</div>`);
+                  if (lead) peopleBits.push(`<div><strong>Team Lead:</strong> ${lead}</div>`);
+                  if (coLeads.length) peopleBits.push(`<div><strong>Co-leads:</strong> ${escapeHtml(coLeads.join(', '))}</div>`);
+                  if (teamMembers.length) peopleBits.push(`<div><strong>Team Members:</strong> ${escapeHtml(teamMembers.join(', '))}</div>`);
 
                   const peopleHtml = peopleBits.length
-                    ? `<div class="usecase-people small muted">${peopleBits.join(' · ')}</div>`
+                    ? `<details class="usecase-details" open>
+                        <summary>Acknowledgements</summary>
+                        <div class="usecase-people">${peopleBits.join('')}</div>
+                      </details>`
                     : '';
 
                   const sc = u && typeof u === 'object' ? u.showcase || {} : {};
@@ -308,15 +311,15 @@
                     : '';
 
                   const awardHtml = award ? `<div class="usecase-award"><strong>${award}</strong></div>` : '';
-                  const teamHtml = team ? `<div class="usecase-meta small muted">${team}</div>` : '';
+                  const teamHtml = team ? `<div class="usecase-team small muted">${team}</div>` : '';
 
                   return `
                     <article class="usecase">
                       <h4>${uTitle}</h4>
                       ${awardHtml}
                       ${teamHtml}
-                      ${peopleHtml}
                       ${summary ? `<p class="muted">${summary}</p>` : ''}
+                      ${peopleHtml}
                       ${showcaseHtml}
                       ${linksHtml}
                     </article>

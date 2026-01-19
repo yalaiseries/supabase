@@ -1,0 +1,172 @@
+﻿{
+    "year":  2025,
+    "payload":  {
+                    "year":  2025,
+                    "categories":  [
+                                       {
+                                           "category":  "Top Winners",
+                                           "useCases":  [
+                                                            {
+                                                                "title":  "AI BIM Coordinator",
+                                                                "award":  "1st Prize ($2500)",
+                                                                "people":  {
+                                                                               "lead":  "Samuel OOI",
+                                                                               "coLeads":  [
+                                                                                               "Lucas LEE"
+                                                                                           ]
+                                                                           },
+                                                                "showcase":  {
+                                                                                 "problem":  "Rising complexity and responsibility in BIM coordination under Singapore\u0027s Corenet X mandate, which requires fully coordinated BIM models for design gateway submissions. Traditional clash detection generates thousands of unstructured clashes, many false positives or minor errors, overwhelming coordinators and diverting focus from critical design issues.",
+                                                                                 "proposedSolution":  "AI-driven solution leveraging Google Gemini 2.0 for advanced clash analysis, using n8n for data processing and PyRevit for Revit integration. The AI filters out low-priority clashes, assigns actionable items to the right disciplines, and provides resolution instructions.",
+                                                                                 "approach":  "Integrated workflow using Google Gemini 2.0, n8n for automation, and PyRevit for Revit integration to process and prioritize clash detection results.",
+                                                                                 "methods":  "AI-powered filtering and classification of clashes, automated assignment to disciplines, intelligent resolution recommendations.",
+                                                                                 "tools":  "Google Gemini 2.0, n8n, PyRevit, Navisworks, Revit",
+                                                                                 "impact":  "Substantial reductions in irrelevant clashes, faster processing, improved accuracy in identifying high-impact issues, accelerated feedback loops, cost savings, and more efficient design resolution. Future plans include platform-agnostic tools and automated reporting."
+                                                                             }
+                                                            },
+                                                            {
+                                                                "title":  "SketchUp IFC AI-Classifier",
+                                                                "award":  "2nd Prize ($1500)",
+                                                                "people":  {
+                                                                               "lead":  "Jason LI",
+                                                                               "teamMembers":  [
+                                                                                                   "Mustafa TOFUR, M Moser Associates",
+                                                                                                   "Kim LAW, M Moser Associates",
+                                                                                                   "Jonathan LIM, OpenAI",
+                                                                                                   "Bryan CHEUNG, Cloudtim"
+                                                                                               ]
+                                                                           },
+                                                                "showcase":  {
+                                                                                 "problem":  "Unstructured and poorly classified BIM components disrupt downstream workflows and reduce digital coordination credibility. SketchUp models contain thousands of objects from various sources lacking proper IFC classification, metadata, or layer assignment, leading to delays, errors, and significant manual cleanup.",
+                                                                                 "proposedSolution":  "SketchUp plugin integrated with agentic AI workflow: TensorFlow for visual recognition, GPT-4o for initial classification and metadata, GPT-o3-mini for validation and reasoning, and GPT-4o-mini for clean BIM data output.",
+                                                                                 "approach":  "Multi-stage AI pipeline combining computer vision and language models for intelligent classification and validation.",
+                                                                                 "methods":  "Visual recognition using TensorFlow, AI-powered classification and metadata assignment, validation through reasoning models, automated BIM data structuring.",
+                                                                                 "tools":  "SketchUp, TensorFlow, GPT-4o, GPT-o3-mini, GPT-4o-mini",
+                                                                                 "impact":  "95% classification accuracy, 18 seconds average processing per object, dramatic reduction in manual workload, ensures compliance and collaboration readiness, raises overall productivity. Next steps include user-supplied API keys and Revit compatibility."
+                                                                             }
+                                                            },
+                                                            {
+                                                                "title":  "LLMs Augmented Generative Design",
+                                                                "award":  "3rd Prize ($1000)",
+                                                                "people":  {
+                                                                               "coLeads":  [
+                                                                                               "CHONG Wen Jin",
+                                                                                               "HUANG Ranzi"
+                                                                                           ]
+                                                                           },
+                                                                "showcase":  {
+                                                                                 "problem":  "Current generative design tools in Rhino-Grasshopper demand extensive human input, making the process labor-intensive and limiting creative exploration. Core challenges include extracting rich geometric information from images, deploying LLM agents to interact with parametric scripts, and generating accurate GhPython code for complex design tasks.",
+                                                                                 "proposedSolution":  "Proof of concept exploring how LLMs and Retrieval-Augmented Generation (RAG) can automate geometry extraction, code generation, and iterative design refinement in Rhino-Grasshopper environment.",
+                                                                                 "approach":  "Investigating LLM agents to interact with parametric scripts, potentially leveraging RAG for improved accuracy in automated design workflows.",
+                                                                                 "methods":  "Automated geometry extraction from images, AI-powered GhPython code generation, iterative design refinement through LLM agents.",
+                                                                                 "tools":  "Rhino, Grasshopper, LLMs, RAG, GhPython",
+                                                                                 "impact":  "Highlights potential to make computational design faster, more accessible, and intuitive. Future development focuses on expanding input methods, refining prompts, introducing specialized geometry agents, and integrating with ETABS and Revit."
+                                                                             }
+                                                            },
+                                                            {
+                                                                "title":  "Deffy AI â€“ TOP Inspection",
+                                                                "award":  "3rd Prize ($1000)",
+                                                                "people":  {
+                                                                               "lead":  "YANG Fan",
+                                                                               "teamMembers":  [
+                                                                                                   "BAEY Yan Ling",
+                                                                                                   "CHEI Ji Hyo",
+                                                                                                   "Darius CHEN",
+                                                                                                   "Derrick WONG Kar Wai",
+                                                                                                   "Ethan OW",
+                                                                                                   "LOH Kah Miin"
+                                                                                               ]
+                                                                           },
+                                                                "showcase":  {
+                                                                                 "problem":  "Manual site inspections and report generation in construction are inefficient and risky. Site teams spend hours recording defects, cross-referencing codes, and compiling reports, leading to delays, errors, and commercial risks.",
+                                                                                 "proposedSolution":  "Telegram-based AI chatbot powered by OpenAI GPT-4.1, enabling users to input unstructured data (images, text, voice) during site walks. AI processes data, cross-references regulatory codes using RAG, assesses defect severity, and generates standardized inspection reports.",
+                                                                                 "approach":  "Mobile-first chatbot interface integrated with AI processing pipeline and regulatory knowledge base through RAG.",
+                                                                                 "methods":  "Multimodal input processing (images, text, voice), RAG-based code compliance checking, automated defect severity assessment, standardized report generation.",
+                                                                                 "tools":  "Telegram, OpenAI GPT-4.1, RAG (Retrieval-Augmented Generation)",
+                                                                                 "impact":  "5X productivity boost, reducing report generation from 150 to 30 minutes, 80% accuracy in compliance checks. Frees professionals for higher-value tasks, improves report quality and code compliance, serves as learning tool. Planned enhancements include expanded code coverage, plan drawing integration, and real-time rectification tracking."
+                                                                             }
+                                                            }
+                                                        ]
+                                       },
+                                       {
+                                           "category":  "Innovation Awards",
+                                           "useCases":  [
+                                                            {
+                                                                "title":  "ThinkSync AI Notes Processor",
+                                                                "award":  "Innovation Award ($500)",
+                                                                "people":  {
+                                                                               "lead":  "Frederico Ramos",
+                                                                               "teamMembers":  [
+                                                                                                   "Brendan CHEONG",
+                                                                                                   "PHUAH Lin",
+                                                                                                   "YEOW Yann Herng"
+                                                                                               ]
+                                                                           }
+                                                            },
+                                                            {
+                                                                "title":  "BIM 3D to 5D/6D Spec AI Agent",
+                                                                "award":  "Innovation Award ($500)",
+                                                                "people":  {
+                                                                               "lead":  "SEAH Kwee Yong",
+                                                                               "coLeads":  [
+                                                                                               "CHENG Tai Fatt"
+                                                                                           ],
+                                                                               "teamMembers":  [
+                                                                                                   "Gary ANG Chun Li",
+                                                                                                   "Jacky CHIN Kong Hin",
+                                                                                                   "LIM Wai Sing",
+                                                                                                   "Augustine YEE Meng Yew",
+                                                                                                   "Daniel CHOO"
+                                                                                               ]
+                                                                           }
+                                                            },
+                                                            {
+                                                                "title":  "AI Contract Management",
+                                                                "award":  "Innovation Award ($500)",
+                                                                "people":  {
+                                                                               "lead":  "CHAK Lee Meng",
+                                                                               "coLeads":  [
+                                                                                               "TAN Tian Chong"
+                                                                                           ]
+                                                                           }
+                                                            }
+                                                        ]
+                                       }
+                                   ]
+                },
+    "challenge_topics":  {
+                             "year":  2025,
+                             "challenge_topics":  [
+                                                      {
+                                                          "code":  "Design",
+                                                          "title":  "Generative AI for Design Competency and Sustainability",
+                                                          "description":  "Helps create better designs by optimising layouts, improving resource use, and reducing costs through data-driven simulations and analysis, achieving more efficient and sustainable outcomes."
+                                                      },
+                                                      {
+                                                          "code":  "Checks",
+                                                          "title":  "AI Integrated Design and Regulatory Compliance approach",
+                                                          "description":  "Ensures designs meet project requirements and authority regulations by automating compliance checks, improving teamwork using tools such as algorithmic programming, AI, BIM, cloud computing, and common data environments, resulting in better coordination and increased productivity."
+                                                      },
+                                                      {
+                                                          "code":  "Manage",
+                                                          "title":  "AI-Enhanced Project and Change Management",
+                                                          "description":  "Simplifies project management by predicting delays, tracking changes, and updating schedules automatically and systematically, leading to improved project outcomes, greater efficiency, and better adaptability."
+                                                      },
+                                                      {
+                                                          "code":  "Contract",
+                                                          "title":  "Smart Contracts and AI for Contract Administration",
+                                                          "description":  "Streamlines contract management by automating tracking, reducing risks, and ensuring payments and deadlines are met according to contract requirements, resulting in AI-driven, on-time, on-budget, and high-quality project delivery."
+                                                      },
+                                                      {
+                                                          "code":  "Fabrication",
+                                                          "title":  "AI for Digital Fabrication, Digital Construction and Digital Assets Deliveries",
+                                                          "description":  "Enhances fabrication, construction, and digital assets delivery by using digital tools such as AR/VR, digital twins, modular DfMA/PPVC, and intelligent systems, resulting in optimised fabrication and construction processes and improved project deliveries."
+                                                      },
+                                                      {
+                                                          "code":  "Others",
+                                                          "title":  "Self-defined problem statement with AI-driven solutions and agentic workflows",
+                                                          "description":  "Exploring Proof of Concept development to use AI agentic workflows in solving practical issues encountered in your practice."
+                                                      }
+                                                  ]
+                         }
+}
