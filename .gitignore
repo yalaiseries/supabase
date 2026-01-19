@@ -24,5 +24,8 @@ scripts/source_extract*.json
 scripts/*.py
 
 # Winners payloads used for seeding (keep private/local)
+data/winners-*.json
+data/*winners*.json
+data/temp-upload-*.json
 winners-*.json
 winners_payload*.json
