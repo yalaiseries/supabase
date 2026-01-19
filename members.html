@@ -101,14 +101,6 @@
         <h2>Access</h2>
         <p class="muted">Sign in to access members-only resources. First time or forgot your password? Email yourself a link to set/reset your password.</p>
 
-        <div id="browserWarning" style="display:none; padding: 12px; background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 8px; margin-bottom: 12px;">
-          <p class="small" style="margin: 0;"><strong>⚠️ Browser Compatibility Issue:</strong> If you're using Microsoft Edge and having trouble logging in, please check your browser settings:</p>
-          <ul class="small" style="margin: 8px 0 0 20px;">
-            <li>Edge Settings → Privacy, search, and services → Tracking prevention: Set to "Balanced" (not Strict)</li>
-            <li>Or try using Chrome, Firefox, or Safari</li>
-          </ul>
-        </div>
-
         <div class="field" style="margin-top: 10px; max-width: 420px;">
           <label class="small" for="email">Email</label>
           <input id="email" type="email" autocomplete="email" placeholder="you@example.com" />
@@ -255,7 +247,14 @@
 
         if (!window.__createSupabaseClient) return null;
         try {
-          supabase = window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          supabase = window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+              persistSession: true,
+              autoRefreshToken: true,
+              detectSessionInUrl: true,
+              flowType: 'pkce'
+            }
+          });
           return supabase;
         } catch (_e) {
           supabase = null;
@@ -615,17 +614,6 @@
         });
       }
 
-      // Detect Microsoft Edge and show compatibility warning
-      function checkBrowser() {
-        const userAgent = navigator.userAgent || '';
-        const isEdge = /Edg\//.test(userAgent);
-        const browserWarning = document.getElementById('browserWarning');
-        if (isEdge && browserWarning) {
-          browserWarning.style.display = 'block';
-        }
-      }
-
-      checkBrowser();
       init();
     </script>
   </body>
