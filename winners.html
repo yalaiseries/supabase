@@ -240,101 +240,113 @@
               }
             }
 
-            const columns = categories
-              .slice()
-              .sort((a, b) => String(a.category || '').localeCompare(String(b.category || '')))
-              .map((cat) => {
-                const title = escapeHtml(cat.category || 'Uncategorized');
-                const useCases = Array.isArray(cat.useCases) ? cat.useCases : [];
+            // Helper function to render a category
+            const renderCategory = (cat) => {
+              if (!cat) return '';
+              const title = escapeHtml(cat.category || 'Uncategorized');
+              const useCases = Array.isArray(cat.useCases) ? cat.useCases : [];
 
-                const cards = useCases
-                  .map((u) => {
-                    const uTitle = escapeHtml(u.title);
-                    const team = escapeHtml(u.team);
-                    const award = escapeHtml(u.award);
-                    const summary = escapeHtml(u.summary);
-                    const links = Array.isArray(u.links) ? u.links : [];
+              const cards = useCases
+                .map((u) => {
+                  const uTitle = escapeHtml(u.title);
+                  const team = escapeHtml(u.team);
+                  const award = escapeHtml(u.award);
+                  const summary = escapeHtml(u.summary);
+                  const links = Array.isArray(u.links) ? u.links : [];
 
-                    const people = (u && typeof u === 'object' ? u.people : null) || {};
-                    const rep = escapeHtml(people.representativeSpeaker);
-                    const designation = escapeHtml(people.designation);
-                    const lead = escapeHtml(people.lead);
-                    const coLeads = Array.isArray(people.coLeads) ? people.coLeads : [];
-                    const teamMembers = Array.isArray(people.teamMembers) ? people.teamMembers : [];
+                  const people = (u && typeof u === 'object' ? u.people : null) || {};
+                  const rep = escapeHtml(people.representativeSpeaker);
+                  const designation = escapeHtml(people.designation);
+                  const lead = escapeHtml(people.lead);
+                  const coLeads = Array.isArray(people.coLeads) ? people.coLeads : [];
+                  const teamMembers = Array.isArray(people.teamMembers) ? people.teamMembers : [];
 
-                    const peopleBits = [];
-                    if (rep || designation) peopleBits.push(`<div><strong>Rep:</strong> ${[rep, designation].filter(Boolean).join(' — ')}</div>`);
-                    if (lead) peopleBits.push(`<div><strong>Lead:</strong> ${lead}</div>`);
-                    if (coLeads.length) peopleBits.push(`<div><strong>Co-leads:</strong> ${escapeHtml(coLeads.join(' / '))}</div>`);
-                    if (teamMembers.length) peopleBits.push(`<div><strong>Team:</strong> ${escapeHtml(teamMembers.join(' / '))}</div>`);
+                  const peopleBits = [];
+                  if (rep || designation) peopleBits.push(`<div><strong>Rep:</strong> ${[rep, designation].filter(Boolean).join(' — ')}</div>`);
+                  if (lead) peopleBits.push(`<div><strong>Lead:</strong> ${lead}</div>`);
+                  if (coLeads.length) peopleBits.push(`<div><strong>Co-leads:</strong> ${escapeHtml(coLeads.join(' / '))}</div>`);
+                  if (teamMembers.length) peopleBits.push(`<div><strong>Team:</strong> ${escapeHtml(teamMembers.join(' / '))}</div>`);
 
-                    const peopleHtml = peopleBits.length
-                      ? `<details class="usecase-details" open>
-                          <summary>Acknowledgements</summary>
-                          <div class="usecase-people">${peopleBits.join('')}</div>
-                        </details>`
-                      : '';
+                  const peopleHtml = peopleBits.length
+                    ? `<details class="usecase-details" open>
+                        <summary>Acknowledgements</summary>
+                        <div class="usecase-people">${peopleBits.join('')}</div>
+                      </details>`
+                    : '';
 
-                    const sc = u && typeof u === 'object' ? u.showcase || {} : {};
-                    const showcaseSections = [
-                      ['Problem', sc.problem],
-                      ['Existing solutions', sc.existingSolutions],
-                      ['Gap', sc.gap],
-                      ['Proposed solution', sc.proposedSolution],
-                      ['Approach', sc.approach],
-                      ['Methods', sc.methods],
-                      ['Tools', sc.tools],
-                      ['Strategy', sc.strategy],
-                      ['Impact', sc.impact]
-                    ].filter((pair) => pair && String(pair[1] || '').trim().length);
+                  const sc = u && typeof u === 'object' ? u.showcase || {} : {};
+                  const showcaseSections = [
+                    ['Problem', sc.problem],
+                    ['Existing solutions', sc.existingSolutions],
+                    ['Gap', sc.gap],
+                    ['Proposed solution', sc.proposedSolution],
+                    ['Approach', sc.approach],
+                    ['Methods', sc.methods],
+                    ['Tools', sc.tools],
+                    ['Strategy', sc.strategy],
+                    ['Impact', sc.impact]
+                  ].filter((pair) => pair && String(pair[1] || '').trim().length);
 
-                    const showcaseHtml = showcaseSections.length
-                      ? `<details class="usecase-details" open>
-                          <summary>Structured summary</summary>
-                          <dl class="usecase-dl">
-                            ${showcaseSections
-                              .map(([label, value]) => {
-                                return `<dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd>`;
-                              })
-                              .join('')}
-                          </dl>
-                        </details>`
-                      : '';
+                  const showcaseHtml = showcaseSections.length
+                    ? `<details class="usecase-details" open>
+                        <summary>Structured summary</summary>
+                        <dl class="usecase-dl">
+                          ${showcaseSections
+                            .map(([label, value]) => {
+                              return `<dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd>`;
+                            })
+                            .join('')}
+                        </dl>
+                      </details>`
+                    : '';
 
-                    const linksHtml = links.length
-                      ? `<div class="usecase-links">${links
-                          .map((l) => {
-                            const label = escapeHtml(l.label || l.url || 'Link');
-                            const url = escapeHtml(l.url || '#');
-                            return `<a href="${url}" target="_blank" rel="noreferrer">${label}</a>`;
-                          })
-                          .join(' · ')}</div>`
-                      : '';
+                  const linksHtml = links.length
+                    ? `<div class="usecase-links">${links
+                        .map((l) => {
+                          const label = escapeHtml(l.label || l.url || 'Link');
+                          const url = escapeHtml(l.url || '#');
+                          return `<a href="${url}" target="_blank" rel="noreferrer">${label}</a>`;
+                        })
+                        .join(' · ')}</div>`
+                    : '';
 
-                    const metaBits = [team, award].filter(Boolean).join(' · ');
-                    const metaHtml = metaBits ? `<div class="usecase-meta">${metaBits}</div>` : '';
+                  const metaBits = [team, award].filter(Boolean).join(' · ');
+                  const metaHtml = metaBits ? `<div class="usecase-meta">${metaBits}</div>` : '';
 
-                    return `
-                      <article class="usecase">
-                        <h4>${uTitle}</h4>
-                        ${metaHtml}
-                        ${summary ? `<p class="muted">${summary}</p>` : ''}
-                        ${peopleHtml}
-                        ${showcaseHtml}
-                        ${linksHtml}
-                      </article>
-                    `;
-                  })
-                  .join('');
+                  return `
+                    <article class="usecase">
+                      <h4>${uTitle}</h4>
+                      ${metaHtml}
+                      ${summary ? `<p class="muted">${summary}</p>` : ''}
+                      ${peopleHtml}
+                      ${showcaseHtml}
+                      ${linksHtml}
+                    </article>
+                  `;
+                })
+                .join('');
 
-                return `
-                  <section class="category-col">
-                    <h3>${title}</h3>
-                    ${cards || '<p class="small muted">No use cases listed yet.</p>'}
-                  </section>
-                `;
-              })
-              .join('');
+              return `
+                <section class="category-col">
+                  <h3>${title}</h3>
+                  ${cards || '<p class="small muted">No use cases listed yet.</p>'}
+                </section>
+              `;
+            };
+
+            // Separate categories into left and right columns based on year
+            // 2025: Left = "Top Winners", Right = "Innovation Awards"
+            // 2024: Left = "Prize Winners", Right = "Merit Awards"
+            const leftCategory = categories.find(cat => 
+              cat.category === 'Top Winners' || cat.category === 'Prize Winners'
+            );
+            const rightCategory = categories.find(cat => 
+              cat.category === 'Innovation Awards' || cat.category === 'Merit Awards'
+            );
+
+            const leftCol = renderCategory(leftCategory);
+            const rightCol = renderCategory(rightCategory);
+            const columns = leftCol + rightCol;
 
             return `
               <section class="year" id="year-${year}">
