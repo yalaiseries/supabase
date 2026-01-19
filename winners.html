@@ -321,10 +321,10 @@
             const columns = leftCol + rightCol;
 
             return `
-              <details class="year-section" open>
-                <summary class="year-head">
-                  <h2>${year}</h2>
-                  <a class="small" href="#main" onclick="event.stopPropagation();">Back to top</a>
+              <details class="year-section">
+                <summary class="year-head" style="background: rgba(78, 162, 253, 0.1); padding: 16px; border-radius: 12px; cursor: pointer; margin-bottom: 20px; border: 1px solid rgba(78, 162, 253, 0.2); transition: all 0.2s ease;" onmouseover="this.style.background='rgba(78, 162, 253, 0.15)'" onmouseout="this.style.background='rgba(78, 162, 253, 0.1)'">
+                  <h2 style="display: inline; margin: 0;">${year}</h2>
+                  <a class="small" href="#main" onclick="event.stopPropagation();" style="float: right;">Back to top</a>
                 </summary>
                 <div class="year-content">
                   ${challengeHtml}
