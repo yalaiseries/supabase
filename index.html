@@ -90,6 +90,7 @@
           <a href="collaboration.html">2026 Collaboration</a>
           <a href="members.html">AI Sharing</a>
           <a href="winners.html" id="winnersLink" style="display:none;">Winners</a>
+          <a href="resources.html" id="resourcesLink" style="display:none;">Resources</a>
           <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Register</a>
         </nav>
       </div>
@@ -214,7 +215,8 @@
       // Show members-only nav items when signed in.
       (async function initMembersNav() {
         const winnersLink = document.getElementById('winnersLink');
-        if (!winnersLink) return;
+        const resourcesLink = document.getElementById('resourcesLink');
+        if (!winnersLink && !resourcesLink) return;
 
         const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
         const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
@@ -222,9 +224,13 @@
 
         const supabase = window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const { data } = await supabase.auth.getSession();
-        winnersLink.style.display = data?.session?.user ? '' : 'none';
+        const isSignedIn = data?.session?.user ? '' : 'none';
+        if (winnersLink) winnersLink.style.display = isSignedIn;
+        if (resourcesLink) resourcesLink.style.display = isSignedIn;
         supabase.auth.onAuthStateChange((_event, session) => {
-          winnersLink.style.display = session?.user ? '' : 'none';
+          const display = session?.user ? '' : 'none';
+          if (winnersLink) winnersLink.style.display = display;
+          if (resourcesLink) resourcesLink.style.display = display;
         });
       })();
 

@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI/AECO Resources · AI (Hackathon) Series</title>
+    <title>AI/AECO Resources ï¿½ AI (Hackathon) Series</title>
     <meta name="description" content="Comprehensive AI frameworks, tools, platforms, and resources for architecture, engineering, and construction." />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#0b1220" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="AI (Hackathon) Series" />
-    <meta property="og:title" content="AI/AECO Resources · AI (Hackathon) Series" />
+    <meta property="og:title" content="AI/AECO Resources ï¿½ AI (Hackathon) Series" />
     <meta property="og:description" content="Comprehensive AI frameworks, tools, platforms, and resources for AECO professionals." />
 
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -79,7 +79,7 @@
       <div id="resourcesContent"></div>
 
       <footer class="footer">
-        <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> · <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> · Public: <a href="https://archihackathon.com" target="_blank" rel="noreferrer">archihackathon.com</a>
+        <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> ï¿½ <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> ï¿½ Public: <a href="https://archihackathon.com" target="_blank" rel="noreferrer">archihackathon.com</a>
       </footer>
     </main>
 
@@ -126,6 +126,10 @@
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;')
           .replace(/'/g, '&#39;');
+      }
+
+      function setStatus(text) {
+        // Status display removed - silently ignore
       }
 
       function renderResources() {
@@ -336,7 +340,7 @@
             
             for (const item of category.items) {
               const videoLink = item.video ? ` (<a href="${escapeHtml(item.video)}" target="_blank" rel="noreferrer">video</a>)` : '';
-              sectionHtml += `<li><a href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.name)}</a> – ${escapeHtml(item.desc)}${videoLink}</li>`;
+              sectionHtml += `<li><a href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.name)}</a> ï¿½ ${escapeHtml(item.desc)}${videoLink}</li>`;
             }
             
             sectionHtml += `</ul></div>`;
