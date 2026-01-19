@@ -83,7 +83,7 @@
       <div id="debugStatus" style="padding: 12px; margin-bottom: 16px; background: rgba(255,200,0,0.1); border: 1px solid rgba(255,200,0,0.3); border-radius: 8px; font-size: 14px;"></div>
 
       <section class="card" id="libraryCard">
-        <div class="years-nav" id="yearsNav" aria-label="Jump to year"></div>
+        <div class="years-nav" id="yearsNav" aria-label="Jump to year" style="display: none;"></div>
         <div id="library" class="winners"></div>
       </section>
 
@@ -201,7 +201,7 @@
                 }).join('');
 
                 challengeHtml = `
-                  <details class="challenge-section" open>
+                  <details class="challenge-section">
                     <summary><strong>Challenge Topics</strong> · ${year}</summary>
                     <div class="challenge-topics-grid">
                       ${topicsHtml}
@@ -239,7 +239,7 @@
                   if (teamMembers.length) peopleBits.push(`<div><strong>Team Members:</strong> ${escapeHtml(teamMembers.join(', '))}</div>`);
 
                   const peopleHtml = peopleBits.length
-                    ? `<details class="usecase-details" open>
+                    ? `<details class="usecase-details">
                         <summary>Project Team</summary>
                         <div class="usecase-people">${peopleBits.join('')}</div>
                       </details>`
@@ -259,7 +259,7 @@
                   ].filter((pair) => pair && String(pair[1] || '').trim().length);
 
                   const showcaseHtml = showcaseSections.length
-                    ? `<details class="usecase-details" open>
+                    ? `<details class="usecase-details">
                         <summary>Structured summary</summary>
                         <dl class="usecase-dl">
                           ${showcaseSections
