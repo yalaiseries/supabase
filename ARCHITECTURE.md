@@ -549,9 +549,10 @@ const SUPABASE_ANON_KEY = 'eyJh...'; // Public key
 ## Contact & Support
 
 **Project Repository**: https://github.com/yalaiseries/supabase  
-**Live Site**: https://yalaiseries.github.io/supabase/  
+**Live Site**: https://aihackathon.pro  
+**GitHub Pages (alternate)**: https://yalaiseries.github.io/supabase/  
 **Supabase Project**: xcctqbamimafkkamuwly.supabase.co  
-**Deployment**: GitHub Pages (auto-deploy from main branch)
+**Deployment**: GitHub Pages with custom domain (auto-deploy from main branch)
 
 For questions or issues, refer to:
 - This documentation
