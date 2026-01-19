@@ -162,12 +162,6 @@
           box-shadow: 0 4px 12px rgba(78, 162, 253, 0.2);
         }
       </style>
-      <section class="card" id="aiSharingLibrary" style="display:none;">
-        <h2>AI Sharing Library</h2>
-        <p class="muted">This list is served via a protected Supabase Edge Function.</p>
-        <div id="membersStatus" class="small"></div>
-        <div id="membersContent" class="answer"></div>
-      </section>
 
       <section class="card">
         <h2>What you'll find here</h2>
@@ -595,7 +589,7 @@
 
         const { data } = await sb.auth.getSession();
         updateUI(data.session);
-        loadMembersLibrary(data.session);
+        // loadMembersLibrary(data.session); // Deprecated - using Winners Library card instead
 
         sb.auth.onAuthStateChange((event, session) => {
           if (event === 'PASSWORD_RECOVERY') {
@@ -605,7 +599,7 @@
             showPasswordRecovery(false);
           }
           updateUI(session);
-          loadMembersLibrary(session);
+          // loadMembersLibrary(session); // Deprecated - using Winners Library card instead
         });
       }
 
