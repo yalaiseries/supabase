@@ -75,6 +75,7 @@
           <a href="collaboration.html">2026 Collaboration</a>
           <a class="active" href="members.html" aria-current="page">AI Sharing</a>
           <a href="winners.html" id="winnersLink" style="display:none;">Winners</a>
+          <a href="resources.html" id="resourcesLink" style="display:none;">Resources</a>
           <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Register</a>
         </nav>
       </div>
@@ -178,6 +179,7 @@
       const logoutBtn = document.getElementById('logout');
       const whoEl = document.getElementById('who');
       const winnersLink = document.getElementById('winnersLink');
+      const resourcesLink = document.getElementById('resourcesLink');
       const statusEl = document.getElementById('membersStatus');
       const contentEl = document.getElementById('membersContent');
       const accessStatusEl = document.getElementById('accessStatus');
@@ -268,12 +270,14 @@
           if (passwordEmailBtn) passwordEmailBtn.style.display = 'none';
           logoutBtn.style.display = '';
           if (winnersLink) winnersLink.style.display = '';
+          if (resourcesLink) resourcesLink.style.display = '';
           whoEl.textContent = user.email ? `Signed in as ${user.email}` : 'Signed in';
         } else {
           loginBtn.style.display = '';
           if (passwordEmailBtn) passwordEmailBtn.style.display = '';
           logoutBtn.style.display = 'none';
           if (winnersLink) winnersLink.style.display = 'none';
+          if (resourcesLink) resourcesLink.style.display = 'none';
           whoEl.textContent = '';
         }
       }
