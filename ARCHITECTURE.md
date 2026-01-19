@@ -273,9 +273,17 @@ User fills form → Supabase Auth.signUp()
 
 #### 2. User Login
 ```
-User enters email → Supabase Auth.signInWithOtp() 
-  → Magic link sent → User clicks link 
-  → Session created (JWT) → Redirected to app
+User enters email + password → Supabase Auth.signInWithPassword() 
+  → Session created (JWT) → Redirected to members page
+  → Access protected resources
+```
+
+**Password Reset Flow**:
+```
+User clicks "Email me a link" → Supabase Auth.resetPasswordForEmail()
+  → Password reset email sent → User clicks link
+  → Opens members page with recovery token → User sets new password
+  → Supabase Auth.updateUser() → Password updated
 ```
 
 #### 3. Session Management
@@ -472,7 +480,8 @@ const SUPABASE_ANON_KEY = 'eyJh...'; // Public key
 
 ### 1. Authentication
 - ✅ JWT-based session management
-- ✅ Magic link login (passwordless)
+- ✅ Email + password authentication
+- ✅ Password reset via email link
 - ✅ Email verification required
 
 ### 2. Authorization
