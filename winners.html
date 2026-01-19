@@ -337,12 +337,8 @@
       async function loadWinners(session, retry = true) {
         libraryEl.innerHTML = '';
         yearsNavEl.innerHTML = '';
-        setStatusKvp({ api: '—', source: '—', years: '—' });
 
         if (!session || !session.access_token) {
-          const fnUrl = escapeHtml(SUPABASE_FUNCTIONS_URL || '(missing)');
-          setStatus(`Not signed in. Functions URL: ${fnUrl}`);
-          setStatusKvp({ api: 'Not signed in', source: '—', years: '—' });
           libraryEl.innerHTML = `
             <p><strong>Please sign in to view the winners library.</strong></p>
             <p class="muted">This page calls a protected Supabase Edge Function and requires a valid session.</p>
@@ -352,7 +348,6 @@
         }
 
         const email = (session.user && session.user.email) ? String(session.user.email) : '';
-        setStatus(`Signed in${email ? ` as ${email}` : ''}. Loading winners…`);
         try {
           if (!SUPABASE_FUNCTIONS_URL) throw new Error('Missing SUPABASE_FUNCTIONS_URL (check supabase-config.js).');
 
@@ -376,8 +371,6 @@
                 // ignore refresh errors and continue with original handling
               }
             }
-            setStatus(`Winners API error: HTTP ${res.status}`);
-            setStatusKvp({ api: `HTTP ${res.status}`, source: '—', years: '—' });
             if (res.status === 403) {
               libraryEl.innerHTML = `
                 <p><strong>Signed in, but not registered yet.</strong></p>
@@ -397,12 +390,8 @@
           const yearsText = years.length ? years.join(', ') : 'none';
           const source = String(data.source || '').toLowerCase();
 
-          setStatus(`Loaded winners. Functions URL: ${escapeHtml(SUPABASE_FUNCTIONS_URL)}`);
-          setStatusKvp({ api: 'OK', source: source || 'unknown', years: yearsText });
           renderLibrary(data.winners, data.challengeTopics);
         } catch (e) {
-          setStatus('');
-          setStatusKvp({ api: 'Error', source: '—', years: '—' });
           libraryEl.textContent = String(e);
         }
       }
@@ -416,7 +405,6 @@
 
         supabase = await getSupabaseClient();
         if (!supabase) {
-          setStatus('Supabase client failed to load (check network/CDN/config).');
           return;
         }
 
