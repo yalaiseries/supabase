@@ -76,11 +76,6 @@
       <h1>AI/AECO Resources</h1>
       <p class="muted">This comprehensive resource hub, curated for the AI Hackathon Challenge, spans Singapore's national AI governance frameworks and emerging 2025 trends while providing a structured showcase of tools for autonomous agents, generative visualization, and engineering automation across the AECO industry.</p>
 
-      <section class="card">
-        <h2>Status</h2>
-        <div class="small" id="status" style="margin-top: 10px;"></div>
-      </section>
-
       <div id="resourcesContent"></div>
 
       <footer class="footer">
@@ -89,7 +84,6 @@
     </main>
 
     <script>
-      const statusEl = document.getElementById('status');
       const contentEl = document.getElementById('resourcesContent');
 
       const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
@@ -122,7 +116,7 @@
       }
 
       function setStatus(text) {
-        statusEl.textContent = text || '';
+        // Status display removed - silently ignore
       }
 
       function escapeHtml(value) {
