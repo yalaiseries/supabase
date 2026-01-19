@@ -170,11 +170,11 @@
             return;
           }
 
-          // Fetch resources data from Supabase (year 2025)
+          // Fetch resources data from Supabase (year 3000 for resources)
           const { data, error } = await supabase
             .from('winners_payload')
             .select('payload')
-            .eq('year', 2025)
+            .eq('year', 3000)
             .single();
 
           if (error) {

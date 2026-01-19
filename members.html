@@ -1,16 +1,16 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Sharing · AI (Hackathon) Series</title>
-    <meta name="description" content="Agentic AI Learning Hub for registered participants in the AI (Hackathon) Series — 2026 AI Collaboration." />
+    <title>AI Sharing Â· AI (Hackathon) Series</title>
+    <meta name="description" content="Agentic AI Learning Hub for registered participants in the AI (Hackathon) Series â€” 2026 AI Collaboration." />
     <link rel="canonical" href="https://yalaiseries.github.io/supabase/members.html" />
     <meta name="theme-color" content="#0b1220" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="AI (Hackathon) Series" />
-    <meta property="og:title" content="AI Sharing · AI (Hackathon) Series" />
+    <meta property="og:title" content="AI Sharing Â· AI (Hackathon) Series" />
     <meta property="og:description" content="Sign in to access members-only resources and past sharing." />
     <meta property="og:url" content="https://yalaiseries.github.io/supabase/members.html" />
 
@@ -74,8 +74,6 @@
           <a href="index.html">Home</a>
           <a href="collaboration.html">2026 Collaboration</a>
           <a class="active" href="members.html" aria-current="page">AI Sharing</a>
-          <a href="winners.html" id="winnersLink" style="display:none;">Winners</a>
-          <a href="resources.html" id="resourcesLink" style="display:none;">Resources</a>
           <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Register</a>
         </nav>
       </div>
@@ -146,15 +144,37 @@
         </ul>
       </section>
 
-      <section class="card">
-        <h2>AI Sharing library</h2>
+      <section class="card" id="membersSection" style="display:none;">
+        <h2>Members-Only Resources</h2>
+        <p class="muted">Access exclusive content for participants and members.</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 20px;">
+          <a href="winners.html" class="resource-card" style="display: block; padding: 20px; background: rgba(78, 162, 253, 0.1); border: 1px solid rgba(78, 162, 253, 0.2); border-radius: 12px; text-decoration: none; transition: all 0.2s ease;">
+            <h3 style="margin: 0 0 8px 0; color: #4ea2fd;"> Winners Library</h3>
+            <p class="muted" style="margin: 0;">Explore winning projects from 2024 and 2025, featuring detailed showcases, presentations, and innovation awards.</p>
+          </a>
+          <a href="resources.html" class="resource-card" style="display: block; padding: 20px; background: rgba(78, 162, 253, 0.1); border: 1px solid rgba(78, 162, 253, 0.2); border-radius: 12px; text-decoration: none; transition: all 0.2s ease;">
+            <h3 style="margin: 0 0 8px 0; color: #4ea2fd;"> AI/AECO Resources</h3>
+            <p class="muted" style="margin: 0;">Comprehensive resource hub covering Singapore's AI frameworks, generative tools, workflow automation, and engineering platforms.</p>
+          </a>
+        </div>
+      </section>
+
+      <style>
+        .resource-card:hover {
+          background: rgba(78, 162, 253, 0.15) !important;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(78, 162, 253, 0.2);
+        }
+      </style>
+      <section class="card" id="aiSharingLibrary">
+        <h2>AI Sharing Library</h2>
         <p class="muted">This list is served via a protected Supabase Edge Function.</p>
         <div id="membersStatus" class="small"></div>
         <div id="membersContent" class="answer"></div>
       </section>
 
       <section class="card">
-        <h2>What you’ll find here</h2>
+        <h2>What youâ€™ll find here</h2>
         <ul>
           <li><strong>Agentic AI materials (2026):</strong> curated learning resources, examples, and internal references shared with participants.</li>
           <li><strong>Detailed past submissions:</strong> full access to 2024/2025 references and any extended write-ups shared within the community.</li>
@@ -167,7 +187,7 @@
       </section>
 
       <footer class="footer">
-        <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> · <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> · Public: <a href="https://archihackathon.com" target="_blank" rel="noreferrer">archihackathon.com</a>
+        <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> Â· <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> Â· Public: <a href="https://archihackathon.com" target="_blank" rel="noreferrer">archihackathon.com</a>
       </footer>
     </main>
 
@@ -178,8 +198,7 @@
       const passwordEmailBtn = document.getElementById('passwordEmail');
       const logoutBtn = document.getElementById('logout');
       const whoEl = document.getElementById('who');
-      const winnersLink = document.getElementById('winnersLink');
-      const resourcesLink = document.getElementById('resourcesLink');
+      const membersSection = document.getElementById('membersSection');
       const statusEl = document.getElementById('membersStatus');
       const contentEl = document.getElementById('membersContent');
       const accessStatusEl = document.getElementById('accessStatus');
@@ -269,15 +288,13 @@
           loginBtn.style.display = 'none';
           if (passwordEmailBtn) passwordEmailBtn.style.display = 'none';
           logoutBtn.style.display = '';
-          if (winnersLink) winnersLink.style.display = '';
-          if (resourcesLink) resourcesLink.style.display = '';
+          if (membersSection) membersSection.style.display = '';
           whoEl.textContent = user.email ? `Signed in as ${user.email}` : 'Signed in';
         } else {
           loginBtn.style.display = '';
           if (passwordEmailBtn) passwordEmailBtn.style.display = '';
           logoutBtn.style.display = 'none';
-          if (winnersLink) winnersLink.style.display = 'none';
-          if (resourcesLink) resourcesLink.style.display = 'none';
+          if (membersSection) membersSection.style.display = 'none';
           whoEl.textContent = '';
         }
       }
@@ -289,7 +306,7 @@
           return;
         }
 
-        setStatus('Loading members-only resources…');
+        setStatus('Loading members-only resourcesâ€¦');
         try {
           if (!SUPABASE_FUNCTIONS_URL) throw new Error('Missing SUPABASE_FUNCTIONS_URL (check supabase-config.js).');
 
@@ -327,10 +344,10 @@
           function splitTopicTitle(title) {
             const t = String(title || '').trim();
             if (!t) return { topic: 'All', title: '' };
-            const parts = t.split(' · ');
+            const parts = t.split(' Â· ');
             if (parts.length >= 2) {
               const topic = parts.shift().trim() || 'All';
-              return { topic, title: parts.join(' · ').trim() };
+              return { topic, title: parts.join(' Â· ').trim() };
             }
             return { topic: 'All', title: t };
           }
@@ -366,8 +383,8 @@
           contentEl.innerHTML = `
             <div class="field" style="max-width: 640px; margin-bottom: 10px;">
               <label class="small" for="resourceSearch">Search</label>
-              <input id="resourceSearch" type="search" placeholder="Try: agent, RAG, template, slides…" />
-              <div class="small muted" style="margin-top: 6px;">Tip: use the format <strong>Topic · Title</strong> in the database to auto-group resources.</div>
+              <input id="resourceSearch" type="search" placeholder="Try: agent, RAG, template, slidesâ€¦" />
+              <div class="small muted" style="margin-top: 6px;">Tip: use the format <strong>Topic Â· Title</strong> in the database to auto-group resources.</div>
             </div>
             <div class="cta" style="flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
               <button class="btn primary" type="button" data-topic="__all">All (${normalized.length})</button>
@@ -457,11 +474,11 @@
         }
 
         if (!password) {
-          setStatus('Please enter your password. If you need to set or reset it, click “Email me a password link”.');
+          setStatus('Please enter your password. If you need to set or reset it, click â€œEmail me a password linkâ€.');
           return;
         }
 
-        setStatus('Signing in…');
+        setStatus('Signing inâ€¦');
         const { error } = await sb.auth.signInWithPassword({ email, password });
         if (error) {
           setStatus(error.message || 'Could not log in.');
@@ -486,10 +503,10 @@
             return;
           }
 
-          setStatus('Sending email…');
+          setStatus('Sending emailâ€¦');
 
-          // 1) Invite flow (first-time setup) — allowlist gated, does not reveal eligibility.
-          // 2) Reset flow (existing accounts) — standard Supabase password reset.
+          // 1) Invite flow (first-time setup) â€” allowlist gated, does not reveal eligibility.
+          // 2) Reset flow (existing accounts) â€” standard Supabase password reset.
           // We run both and show a generic message.
           try {
             if (SUPABASE_FUNCTIONS_URL) {
@@ -531,7 +548,7 @@
             return;
           }
 
-          setStatus('Updating password…');
+          setStatus('Updating passwordâ€¦');
           const { error } = await sb.auth.updateUser({ password: newPassword });
           if (error) {
             setStatus(error.message || 'Could not update password.');
@@ -570,7 +587,7 @@
                   err
               );
             } else {
-              setStatus('Loading sign-in… (waiting for Supabase client)');
+              setStatus('Loading sign-inâ€¦ (waiting for Supabase client)');
               if (initAttempts < 5) {
                 initAttempts++;
                 setTimeout(init, 800);
@@ -600,3 +617,4 @@
     </script>
   </body>
 </html>
+

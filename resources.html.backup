@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI/AECO Resources � AI (Hackathon) Series</title>
+    <meta name="description" content="Comprehensive AI frameworks, tools, platforms, and resources for architecture, engineering, and construction." />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#0b1220" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AI (Hackathon) Series" />
+    <meta property="og:title" content="AI/AECO Resources � AI (Hackathon) Series" />
+    <meta property="og:description" content="Comprehensive AI frameworks, tools, platforms, and resources for AECO professionals." />
+
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="stylesheet" href="site.css" />
+
+    <script src="supabase-config.js"></script>
+
+    <script type="module">
+      async function loadSupabase() {
+        const urls = [
+          'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm',
+          'https://esm.sh/@supabase/supabase-js@2',
+          'https://unpkg.com/@supabase/supabase-js@2/dist/esm/supabase.js'
+        ];
+        let lastError = '';
+        for (const url of urls) {
+          try {
+            const mod = await import(url);
+            if (mod && typeof mod.createClient === 'function') return { createClient: mod.createClient, url };
+            lastError = `Loaded ${url} but createClient was not found.`;
+          } catch (e) {
+            lastError = String(e && e.message ? e.message : e);
+          }
+        }
+        return { createClient: null, error: lastError || 'Failed to load Supabase client.' };
+      }
+      const loaded = await loadSupabase();
+      if (loaded.createClient) {
+        window.__createSupabaseClient = loaded.createClient;
+        window.__supabaseClientSource = loaded.url;
+        window.__supabaseLoadError = '';
+      } else {
+        window.__createSupabaseClient = null;
+        window.__supabaseClientSource = '';
+        window.__supabaseLoadError = loaded.error || 'Failed to load Supabase client.';
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="header">
+      <div class="nav">
+        <a class="brand" href="index.html">
+          <span class="badge" aria-hidden="true"></span>
+          <span>
+            <strong>AI (Hackathon) Series</strong>
+            <span class="sub">Agentic AI Learning Hub (2026)</span>
+          </span>
+        </a>
+        <nav class="links" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="collaboration.html">2026 Collaboration</a>
+          <a href="members.html">AI Sharing</a>
+          <a href="winners.html">Winners</a>
+          <a class="active" href="resources.html" aria-current="page">Resources</a>
+          <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Register</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main" id="main">
+      <h1>AI/AECO Resources</h1>
+      <p class="muted">This comprehensive resource hub, curated for the AI Hackathon Challenge, spans Singapore's national AI governance frameworks and emerging 2025 trends while providing a structured showcase of tools for autonomous agents, generative visualization, and engineering automation across the AECO industry.</p>
+
+      <div id="resourcesContent"></div>
+
+      <footer class="footer">
+        <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> · <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> · Public: <a href="https://archihackathon.com" target="_blank" rel="noreferrer">archihackathon.com</a>
+      </footer>
+    </main>
+
+    <script>
+      const contentEl = document.getElementById('resourcesContent');
+
+      const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
+      const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
+
+      const hasSupabaseConfig = !!SUPABASE_URL && !!SUPABASE_ANON_KEY;
+      let supabase = null;
+
+      function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      async function getSupabaseClient() {
+        if (supabase) return supabase;
+        if (!hasSupabaseConfig) return null;
+
+        for (let i = 0; i < 40; i++) {
+          if (window.__createSupabaseClient) break;
+          await sleep(50);
+        }
+
+        if (!window.__createSupabaseClient) return null;
+        try {
+          supabase = window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          return supabase;
+        } catch (_e) {
+          supabase = null;
+          return null;
+        }
+      }
+
+      function setStatus(text) {
+        // Status display removed - silently ignore
+      }
+
+      function escapeHtml(value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function setStatus(text) {
+        // Status display removed - silently ignore
+      }
+
+      function renderResourcesFromData(sections) {
+        if (!sections || !Array.isArray(sections)) {
+          return '<section class="card"><p>No resources data available.</p></section>';
+        }
+
+        let html = '';
+        for (const section of sections) {
+          {
+            title: '1. AI Framework & Strategy (Singapore)',
+            categories: [
+              {
+                subtitle: 'Governance & Policy',
+                items: [
+                  { name: 'Artificial Intelligence Singapore', url: 'https://www.aisingapore.org', desc: 'Strategic overview of Singapore's national AI tech pillars.' },
+                  { name: 'AI Governance Testing Framework', url: 'https://aiverifyfoundation.sg', desc: '"AI Verify" toolkit for self-assessing AI systems against ethical principles.' },
+                  { name: 'AI Governance Framework', url: 'https://www.pdpc.gov.sg/help-and-resources/2020/01/model-ai-governance-framework', desc: 'Official guidelines for implementing ethical and transparent AI in organizations.' },
+                  { name: 'Compendium of Use Cases', url: 'https://file.go.gov.sg/aiverify-usecase.pdf', desc: 'PDF collection of real-world AI applications across various sectors.' },
+                  { name: 'IMDA GenAI Consultation', url: 'https://www.imda.gov.sg/resources/press-releases-factsheets-and-speeches/press-releases/2023/imda-launches-public-consultation-on-proposed-governance-approach-for-generative-ai', desc: 'News on the Model AI Governing Framework specifically for Generative AI.' }
+                ]
+              }
+            ]
+          },
+          {
+            title: '2. Workflow Automation & AI Agents (2025 Trends)',
+            categories: [
+              {
+                subtitle: 'Agent Builders & Orchestration',
+                items: [
+                  { name: 'n8n', url: 'https://n8n.io', desc: 'Open-source visual workflow automation tool with over 200 integrations.' },
+                  { name: 'Langflow', url: 'https://www.langflow.org', desc: 'Visual programming for LLM chains and agents, supporting the Model Context Protocol.' },
+                  { name: 'ComfyUI', url: 'https://github.com/comfyanonymous/ComfyUI', desc: 'Modular node-based interface for advanced generative AI workflows.', video: 'https://www.youtube.com/results?search_query=comfyui+tutorial' },
+                  { name: 'Flowise', url: 'https://flowiseai.com', desc: 'Visual builder for chaining LLMs, similar to Langflow.' },
+                  { name: 'SmythOS', url: 'https://smythos.com', desc: 'Drag-and-drop AI agent builder with multi-model orchestration.' },
+                  { name: 'GPTBots.ai', url: 'https://gptbots.ai', desc: 'Enterprise platform for AI agent building and automation.' },
+                  { name: 'Respell', url: 'https://www.respell.ai', desc: 'No-code platform for creating AI agents using natural language.' },
+                  { name: 'Make', url: 'https://www.make.com', desc: 'Cloud-based automation platform with AI modules (formerly Integromat).' },
+                  { name: 'Zapier', url: 'https://zapier.com', desc: 'Automation tool featuring AI and LLM actions.' },
+                  { name: 'Workato', url: 'https://www.workato.com', desc: 'Enterprise integration and automation platform.' },
+                  { name: 'Tray.io', url: 'https://tray.io', desc: 'Low-code automation platform with AI connectors.' },
+                  { name: 'Power Automate', url: 'https://powerautomate.microsoft.com', desc: 'Microsoft\'s automation solution integrated with Copilot.' },
+                  { name: 'Whalesync', url: 'https://www.whalesync.com', desc: 'Tool for syncing data between SaaS apps with AI capabilities.' }
+                ]
+              },
+              {
+                subtitle: 'ComfyUI Community Workflows',
+                items: [
+                  { name: 'Trellis', url: 'https://github.com/microsoft/TRELLIS', desc: 'Workflow for converting images to 3D models.' },
+                  { name: 'Vid2Vid Dance', url: 'https://openart.ai/workflows/bananasss/vid2vid-dance/KpkvqxEsgJbqN5M1jJJg', desc: 'Transferring motion/dance from video to video.' },
+                  { name: 'Flux Fill', url: 'https://github.com/comfyanonymous/ComfyUI_examples', desc: 'Workflow for image inpainting and outpainting.' },
+                  { name: 'AnimateDiff', url: 'https://github.com/Kosinkadink/ComfyUI-AnimateDiff-Evolved', desc: 'Video-to-video workflow using ControlNet and auto-masking.' },
+                  { name: 'Fluxtapoz', url: 'https://civitai.com/models/618069', desc: 'RF inversion and stylization workflow.' },
+                  { name: 'CogVideoX', url: 'https://github.com/THUDM/CogVideo', desc: 'Image-to-video generation model.' },
+                  { name: 'Hallo2', url: 'https://github.com/fudan-generative-vision/hallo2', desc: 'Lip-syncing portrait workflow driven by audio.' }
+                ]
+              }
+            ]
+          },
+          {
+            title: '3. Generative AI Tools & Visualisation',
+            categories: [
+              {
+                subtitle: 'Image Generation Platforms & Repositories',
+                items: [
+                  { name: 'Hugging Face', url: 'https://huggingface.co', desc: 'Repository for AI models.', video: 'https://www.youtube.com/watch?v=Yf0Fof_3x1U' },
+                  { name: 'ArkoAI', url: 'https://www.arko.ai', desc: 'AI rendering tool for Revit.', video: 'https://www.youtube.com/watch?v=example' },
+                  { name: 'Dezgo', url: 'https://dezgo.com', desc: 'Online Stable Diffusion generator.', video: 'https://www.youtube.com/results?search_query=dezgo+tutorial' },
+                  { name: 'DALL-E 3', url: 'https://openai.com/dall-e-3', desc: 'OpenAI\'s text-to-image model.', video: 'https://www.youtube.com/results?search_query=dall-e+3' },
+                  { name: 'Freepik (Pikaso)', url: 'https://www.freepik.com/pikaso', desc: 'AI drawing tools.', video: 'https://www.youtube.com/results?search_query=freepik+pikaso' },
+                  { name: 'Adobe Firefly', url: 'https://www.adobe.com/products/firefly.html', desc: 'Generative AI for architecture.', video: 'https://www.youtube.com/results?search_query=adobe+firefly+architecture' },
+                  { name: 'GetImg', url: 'https://getimg.ai', desc: 'AI image generation suite.', video: 'https://www.youtube.com/results?search_query=getimg+ai' },
+                  { name: 'KREA', url: 'https://www.krea.ai', desc: 'Real-time generative platform.', video: 'https://www.youtube.com/results?search_query=krea+ai' },
+                  { name: 'Lexica', url: 'https://lexica.art', desc: 'Stable Diffusion search and generation.', video: 'https://www.youtube.com/results?search_query=lexica+art' },
+                  { name: 'LookX', url: 'https://www.lookx.ai', desc: 'Architecture-specific AI platform.', video: 'https://www.youtube.com/results?search_query=lookx+ai' },
+                  { name: 'OpenArt', url: 'https://openart.ai', desc: 'Community AI art platform.', video: 'https://www.youtube.com/results?search_query=openart+ai' },
+                  { name: 'Midjourney', url: 'https://www.midjourney.com', desc: 'Creative image generation platform.', video: 'https://www.youtube.com/results?search_query=midjourney+architecture' },
+                  { name: 'PixAI', url: 'https://pixai.art', desc: 'Anime-focused image generator.', video: 'https://www.youtube.com/results?search_query=pixai' },
+                  { name: 'Prodia', url: 'https://prodia.com', desc: 'Fast cloud-based generation service.' },
+                  { name: 'roomGPT', url: 'https://www.roomgpt.io', desc: 'Interior design from photos.', video: 'https://www.youtube.com/results?search_query=roomgpt' },
+                  { name: 'Stable Diffusion', url: 'https://github.com/Stability-AI/stablediffusion', desc: 'Open-source model code.', video: 'https://www.youtube.com/results?search_query=stable+diffusion+tutorial' },
+                  { name: 'Stability AI (SDXL)', url: 'https://stability.ai/stable-diffusion', desc: 'Enhanced Stable Diffusion XL model.' },
+                  { name: 'Stable Diffusion Web', url: 'https://stablediffusionweb.com', desc: 'Browser interface for SD.' },
+                  { name: 'Unstable AI', url: 'https://www.unstability.ai', desc: 'Experimental generation platform.' },
+                  { name: 'Veras', url: 'https://www.veras.ai', desc: 'AI rendering for architects.', video: 'https://www.youtube.com/results?search_query=veras+ai' },
+                  { name: 'Visoid', url: 'https://visoid.com', desc: 'Architectural visualization platform.', video: 'https://www.youtube.com/results?search_query=visoid' }
+                ]
+              },
+              {
+                subtitle: 'Setup & Tutorials',
+                items: [
+                  { name: 'ControlNet Models', url: 'https://huggingface.co/lllyasviel/ControlNet/tree/main/models', desc: 'Pre-trained models for ControlNet.' },
+                  { name: 'ComfyUI Tutorial', url: 'https://www.youtube.com/results?search_query=comfyui+stable+diffusion', desc: 'Video guide for Stable Diffusion workflows in ComfyUI.' },
+                  { name: 'Installation Guides', url: 'https://github.com/AUTOMATIC1111/stable-diffusion-webui', desc: 'Setup guide for AUTOMATIC1111 and ControlNet.' },
+                  { name: 'Google Colab (LoRA)', url: 'https://colab.research.google.com', desc: 'Notebook for training LoRA models.' }
+                ]
+              }
+            ]
+          },
+          {
+            title: '4. Massing & Design Development',
+            categories: [
+              {
+                subtitle: 'Massing & Site Planning',
+                items: [
+                  { name: 'ArchiStar', url: 'https://archistar.ai', desc: 'Feasibility and massing.', video: 'https://www.youtube.com/results?search_query=archistar' },
+                  { name: 'Delve', url: 'https://www.sidewalklabs.com/products/delve', desc: 'Site planning optimization.', video: 'https://www.youtube.com/results?search_query=delve+sidewalk+labs' },
+                  { name: 'Digital Blue Foam', url: 'https://www.digitalbluefoam.com', desc: 'Generative massing.', video: 'https://www.youtube.com/results?search_query=digital+blue+foam' },
+                  { name: 'Forma', url: 'https://www.autodeskforma.com', desc: 'Autodesk\'s early-stage planning.', video: 'https://www.youtube.com/results?search_query=autodesk+forma' },
+                  { name: 'Giraffe', url: 'https://www.giraffe.build', desc: 'Urban planning platform.', video: 'https://www.youtube.com/results?search_query=giraffe+urban+planning' },
+                  { name: 'Testfit', url: 'https://testfit.io', desc: 'Real-time feasibility.', video: 'https://www.youtube.com/results?search_query=testfit' }
+                ]
+              },
+              {
+                subtitle: 'Layout & Documentation',
+                items: [
+                  { name: 'Architechtures', url: 'https://www.architechtures.com', desc: 'Automated residential design.', video: 'https://www.youtube.com/results?search_query=architechtures' },
+                  { name: 'Finch', url: 'https://finch3d.com', desc: 'Adaptive plan generation.', video: 'https://www.youtube.com/results?search_query=finch3d' },
+                  { name: 'Hypar', url: 'https://hypar.io', desc: 'Building systems automation.', video: 'https://www.youtube.com/results?search_query=hypar' },
+                  { name: 'Podium', url: 'https://www.podium.com', desc: 'Lendlease development analysis.', video: 'https://www.youtube.com/results?search_query=podium+lendlease' },
+                  { name: 'Plan Finder', url: 'https://www.planfinder.com', desc: 'AI floor plan search/generation.', video: 'https://www.youtube.com/results?search_query=plan+finder+ai' },
+                  { name: 'SWAPP', url: 'https://www.swapp.ai', desc: 'Construction document automation.', video: 'https://www.youtube.com/results?search_query=swapp+ai' },
+                  { name: 'Spacio', url: 'https://www.spac.io', desc: 'Rapid test fits.', video: 'https://www.youtube.com/results?search_query=spacio' },
+                  { name: 'Varys', url: 'https://www.varys.ai', desc: 'Feasibility layouts.', video: 'https://www.youtube.com/results?search_query=varys+ai' }
+                ]
+              }
+            ]
+          },
+          {
+            title: '5. AECO Industry & BIM Integration',
+            categories: [
+              {
+                subtitle: 'Autodesk Ecosystem',
+                items: [
+                  { name: 'ACC meets GPT', url: 'https://aps.autodesk.com', desc: 'Class on integrating Construction Cloud with GPT.' },
+                  { name: 'Autodesk AI', url: 'https://www.autodesk.com/solutions/ai', desc: 'Intro to AI tools in Autodesk.' },
+                  { name: 'Data Model API', url: 'https://aps.autodesk.com/blog', desc: 'News on AI/Data APIs for AEC.' },
+                  { name: 'Dynamo Primer', url: 'https://primer.dynamobim.org', desc: 'Guide for Dynamo computational design.' },
+                  { name: 'Generative Design', url: 'https://www.autodesk.com/solutions/generative-design', desc: 'Guide to principles.' },
+                  { name: 'GD Best Practices', url: 'https://www.autodesk.com/autodesk-university/article/Anatomy-Good-Generative-Design-Process-2019', desc: '"Anatomy of a Good Generative Design Process".' },
+                  { name: 'GD for AEC', url: 'https://www.autodesk.com/solutions/generative-design/architecture-engineering-construction', desc: 'Autodesk solutions overview.' },
+                  { name: 'GD in Construction', url: 'https://www.autodesk.com/autodesk-university/article/Generative-Design-Construction-2020', desc: 'Application article.' }
+                ]
+              },
+              {
+                subtitle: 'Other Software & Integrations',
+                items: [
+                  { name: 'Archicad AI Visualizer', url: 'https://graphisoft.com/solutions/products/archicad/ai-visualizer', desc: 'Graphisoft\'s BIM AI visualization tool.' },
+                  { name: 'Nvidia AEC', url: 'https://www.nvidia.com/en-us/design-visualization/solutions/architecture-engineering-construction', desc: 'Resources for real-time concurrent design.' },
+                  { name: 'Rhino AI Forum', url: 'https://discourse.mcneel.com/c/ai/142', desc: 'Community discussion on AI in Rhino.' },
+                  { name: 'SketchUp Diffusion', url: 'https://www.sketchup.com', desc: 'Generative image tools.', video: 'https://www.youtube.com/results?search_query=sketchup+ai' }
+                ]
+              }
+            ]
+          },
+          {
+            title: '6. Engineering Automation',
+            categories: [
+              {
+                subtitle: 'Engineering Platforms',
+                items: [
+                  { name: 'Autodesk Forge', url: 'https://forge.autodesk.com', desc: 'Developer platform for AEC apps.' },
+                  { name: 'Microsoft Bonsai', url: 'https://azure.microsoft.com/en-us/products/project-bonsai', desc: 'Reinforcement learning for industrial systems.' },
+                  { name: 'Altair Compose', url: 'https://www.altair.com/compose', desc: 'Math and modeling simulation environment.' },
+                  { name: 'Dash by Plotly', url: 'https://plotly.com/dash', desc: 'Python framework for data apps.' },
+                  { name: 'SimScale', url: 'https://www.simscale.com', desc: 'Cloud-native simulation platform.' },
+                  { name: 'VIKTOR', url: 'https://www.viktor.ai', desc: 'Low-code Python platform for engineering apps.' }
+                ]
+              }
+            ]
+          },
+          {
+            title: '7. Education, Standards & Utilities',
+            categories: [
+              {
+                subtitle: 'Primers & Learning',
+                items: [
+                  { name: 'GenAI in Construction', url: 'https://constructionblog.autodesk.com/generative-ai', desc: 'Autodesk article.' },
+                  { name: 'LEK Primer', url: 'https://www.lek.com/insights/ei/generative-ai-primer', desc: 'PDF on GenAI fundamentals.' },
+                  { name: 'Microsoft Cloud Advocates', url: 'https://github.com/microsoft/generative-ai-for-beginners', desc: 'Beginner AI tutorials on GitHub.' },
+                  { name: 'Jisc Primer', url: 'https://www.jisc.ac.uk/guides/introduction-to-generative-ai', desc: 'GenAI guide by Michael Webb.' },
+                  { name: 'Arch Governance', url: 'https://www.archdaily.com/tag/ai-governance', desc: 'Governance in architecture article.' },
+                  { name: 'Gemini', url: 'https://deepmind.google/technologies/gemini', desc: 'Intro to Google DeepMind\'s model.' }
+                ]
+              },
+              {
+                subtitle: 'Industry Standards & Tools',
+                items: [
+                  { name: 'Baidu AI', url: 'https://ai.baidu.com', desc: 'Cloud AI services.' },
+                  { name: 'BIM Collaboration Format', url: 'https://www.buildingsmart.org/standards/bsi-standards/bim-collaboration-format-bcf', desc: 'Issue tracking standard.', video: 'https://www.youtube.com/results?search_query=bcf+bim' },
+                  { name: 'Comp. BIM Community', url: 'https://www.designingbuildings.co.uk', desc: 'Community of Practice resource.' },
+                  { name: 'Digital Shred', url: 'https://www.digitalshred.com', desc: 'Digital design teaching materials.' },
+                  { name: 'GPT in Construction Paper', url: 'https://arxiv.org/search/?query=GPT+construction', desc: 'Research PDF on GPT applications.' },
+                  { name: 'IDS', url: 'https://www.buildingsmart.org/standards/bsi-standards/information-delivery-specification-ids', desc: 'Information Delivery Specification.', video: 'https://www.youtube.com/results?search_query=ids+buildingsmart' },
+                  { name: 'Model Content Req.', url: 'https://www.bca.gov.sg/bim/others/BCA_Model_Content_Requirements_Guide.xlsx', desc: 'BCA Excel template for standards.' },
+                  { name: 'Platform DfMA', url: 'https://www.brydenwood.com/platform-dfma', desc: 'Bryden Wood resources.', video: 'https://www.youtube.com/results?search_query=platform+dfma' },
+                  { name: 'ProMX', url: 'https://www.promx.com', desc: 'AI project management.' },
+                  { name: 'Semantic Graphs', url: 'https://www.w3.org/community/lbd', desc: 'Resources for AECO graphs.' },
+                  { name: 'Shared GPU Resources', url: 'https://stablehorde.net', desc: 'Stable Horde, Stable UI, Art Bot, Artificial Art.' },
+                  { name: 'USD', url: 'https://openusd.org', desc: 'Universal Scene Description standard.', video: 'https://www.youtube.com/results?search_query=openusd' }
+                ]
+              }
+            ]
+          }
+        ];
+
+        let html = '';
+        for (const section of sections) {
+          let sectionHtml = `<section class="card resource-section"><h2>${escapeHtml(section.title)}</h2>`;
+          
+          for (const category of section.categories) {
+            sectionHtml += `<div class="resource-category"><h3>${escapeHtml(category.subtitle)}</h3><ul class="resource-list">`;
+            
+            for (const item of category.items) {
+              const videoLink = item.video ? ` (<a href="${escapeHtml(item.video)}" target="_blank" rel="noreferrer">video</a>)` : '';
+              sectionHtml += `<li><a href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.name)}</a> � ${escapeHtml(item.desc)}${videoLink}</li>`;
+            }
+            
+            sectionHtml += `</ul></div>`;
+          }
+          
+          sectionHtml += `</section>`;
+          html += sectionHtml;
+        }
+
+        return html;
+      }
+
+      async function checkAuthAndRender(session) {
+        contentEl.innerHTML = '';
+
+        // Resources are public tools - no authentication required
+        const email = (session && session.user && session.user.email) ? String(session.user.email) : '';
+        if (email) {
+          setStatus(`Signed in as ${email}.`);
+        } else {
+          setStatus('Public access - resources are freely available.');
+        }
+        
+        console.log('Rendering resources...');
+        console.log('contentEl:', contentEl);
+        const resourcesHtml = renderResources();
+        console.log('Resources HTML generated, length:', resourcesHtml.length);
+        console.log('First 500 chars:', resourcesHtml.substring(0, 500));
+        contentEl.innerHTML = resourcesHtml;
+        console.log('Resources rendered to page');
+        console.log('contentEl.innerHTML length after:', contentEl.innerHTML.length);
+      }
+
+      async function init() {
+        supabase = await getSupabaseClient();
+        if (!supabase) {
+          setStatus('Supabase client failed to load (check network/CDN/config).');
+          contentEl.innerHTML = `
+            <section class="card">
+              <p><strong>Error loading authentication system.</strong></p>
+              <p class="muted">Please check your network connection and try refreshing the page.</p>
+            </section>
+          `;
+          return;
+        }
+
+        const { data } = await supabase.auth.getSession();
+        checkAuthAndRender(data && data.session ? data.session : null);
+
+        supabase.auth.onAuthStateChange((_event, session) => {
+          checkAuthAndRender(session);
+        });
+      }
+
+      init();
+    </script>
+
+    <style>
+      .resource-section {
+        margin-top: 20px;
+      }
+
+      .resource-section h2 {
+        margin-bottom: 14px;
+        font-size: 20px;
+        color: #4ea2fd;
+      }
+
+      .resource-category {
+        margin-top: 18px;
+      }
+
+      .resource-category:first-child {
+        margin-top: 0;
+      }
+
+      .resource-category h3 {
+        margin: 0 0 10px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #e1e8f0;
+      }
+
+      .resource-list {
+        margin: 0;
+        padding-left: 22px;
+        line-height: 1.9;
+      }
+
+      .resource-list li {
+        margin-bottom: 8px;
+      }
+
+      .resource-list a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .resource-list a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 720px) {
+        .resource-list {
+          padding-left: 18px;
+        }
+      }
+    </style>
+  </body>
+</html>

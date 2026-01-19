@@ -11,7 +11,9 @@
             "award": "1st Prize ($2500)",
             "people": {
               "lead": "Samuel OOI",
-              "coLeads": ["Lucas LEE"]
+              "coLeads": [
+                "Lucas LEE"
+              ]
             },
             "showcase": {
               "problem": "Rising complexity and responsibility in BIM coordination under Singapore's Corenet X mandate, which requires fully coordinated BIM models for design gateway submissions. Traditional clash detection generates thousands of unstructured clashes, many false positives or minor errors, overwhelming coordinators and diverting focus from critical design issues.",
@@ -20,14 +22,26 @@
               "methods": "AI-powered filtering and classification of clashes, automated assignment to disciplines, intelligent resolution recommendations.",
               "tools": "Google Gemini 2.0, n8n, PyRevit, Navisworks, Revit",
               "impact": "Substantial reductions in irrelevant clashes, faster processing, improved accuracy in identifying high-impact issues, accelerated feedback loops, cost savings, and more efficient design resolution. Future plans include platform-agnostic tools and automated reporting."
-            }
+            },
+            "summary": "The AI BIM Coordinator streamlines BIM clash detection under Singapore’s Corenet X mandate by using AI to filter and prioritize issues, significantly reducing manual effort, improving accuracy, and accelerating design coordination through tools like Google Gemini 2.0, n8n, and PyRevit.",
+            "links": [
+              {
+                "label": "Presentation",
+                "url": "https://docs.google.com/presentation/d/1gp4G4688n4rvrudrXd4CaFIxWphfPUc2/edit?usp=drive_link&ouid=107799242509066406009&rtpof=true&sd=true"
+              }
+            ]
           },
           {
             "title": "SketchUp IFC AI-Classifier",
             "award": "2nd Prize ($1500)",
             "people": {
               "lead": "Jason LI",
-              "teamMembers": ["Mustafa TOFUR, M Moser Associates", "Kim LAW, M Moser Associates", "Jonathan LIM, OpenAI", "Bryan CHEUNG, Cloudtim"]
+              "teamMembers": [
+                "Mustafa TOFUR, M Moser Associates",
+                "Kim LAW, M Moser Associates",
+                "Jonathan LIM, OpenAI",
+                "Bryan CHEUNG, Cloudtim"
+              ]
             },
             "showcase": {
               "problem": "Unstructured and poorly classified BIM components disrupt downstream workflows and reduce digital coordination credibility. SketchUp models contain thousands of objects from various sources lacking proper IFC classification, metadata, or layer assignment, leading to delays, errors, and significant manual cleanup.",
@@ -36,13 +50,23 @@
               "methods": "Visual recognition using TensorFlow, AI-powered classification and metadata assignment, validation through reasoning models, automated BIM data structuring.",
               "tools": "SketchUp, TensorFlow, GPT-4o, GPT-o3-mini, GPT-4o-mini",
               "impact": "95% classification accuracy, 18 seconds average processing per object, dramatic reduction in manual workload, ensures compliance and collaboration readiness, raises overall productivity. Next steps include user-supplied API keys and Revit compatibility."
-            }
+            },
+            "summary": "The SketchUp AI Classifier is a plugin that automates BIM component organization to solve the problem of unstructured models disrupting downstream workflows, delivering 95% classification accuracy and high-speed processing through an agentic AI pipeline powered by TensorFlow and GPT-based tools.",
+            "links": [
+              {
+                "label": "Presentation",
+                "url": "https://mmoser1-my.sharepoint.com/:f:/g/personal/jasonl_mmoser_com/En-D7yTjUPBPnSa2F4vxP9cBaa8YVd6V8yUdJx-AqagxIA?e=bcx0zN"
+              }
+            ]
           },
           {
             "title": "LLMs Augmented Generative Design",
             "award": "3rd Prize ($1000)",
             "people": {
-              "coLeads": ["CHONG Wen Jin", "HUANG Ranzi"]
+              "coLeads": [
+                "CHONG Wen Jin",
+                "HUANG Ranzi"
+              ]
             },
             "showcase": {
               "problem": "Current generative design tools in Rhino-Grasshopper demand extensive human input, making the process labor-intensive and limiting creative exploration. Core challenges include extracting rich geometric information from images, deploying LLM agents to interact with parametric scripts, and generating accurate GhPython code for complex design tasks.",
@@ -51,14 +75,28 @@
               "methods": "Automated geometry extraction from images, AI-powered GhPython code generation, iterative design refinement through LLM agents.",
               "tools": "Rhino, Grasshopper, LLMs, RAG, GhPython",
               "impact": "Highlights potential to make computational design faster, more accessible, and intuitive. Future development focuses on expanding input methods, refining prompts, introducing specialized geometry agents, and integrating with ETABS and Revit."
-            }
+            },
+            "summary": "This PoC explores how LLMs and Retrieval-Augmented Generation (RAG) can streamline generative design in Rhino–Grasshopper by automating geometry extraction and GhPython code generation, addressing the manual bottlenecks that limit creativity, and using AI agents to enhance accuracy, accessibility, and integration with tools like ETABS and Revit.",
+            "links": [
+              {
+                "label": "Presentation",
+                "url": "https://drive.google.com/drive/folders/1BqH7Ht7k0Kd4I6ekaVG2rlGN3QZL8q2m?usp=sharing"
+              }
+            ]
           },
           {
             "title": "Deffy AI – TOP Inspection",
             "award": "3rd Prize ($1000)",
             "people": {
               "lead": "YANG Fan",
-              "teamMembers": ["BAEY Yan Ling", "CHEI Ji Hyo", "Darius CHEN", "Derrick WONG Kar Wai", "Ethan OW", "LOH Kah Miin"]
+              "teamMembers": [
+                "BAEY Yan Ling",
+                "CHEI Ji Hyo",
+                "Darius CHEN",
+                "Derrick WONG Kar Wai",
+                "Ethan OW",
+                "LOH Kah Miin"
+              ]
             },
             "showcase": {
               "problem": "Manual site inspections and report generation in construction are inefficient and risky. Site teams spend hours recording defects, cross-referencing codes, and compiling reports, leading to delays, errors, and commercial risks.",
@@ -67,7 +105,14 @@
               "methods": "Multimodal input processing (images, text, voice), RAG-based code compliance checking, automated defect severity assessment, standardized report generation.",
               "tools": "Telegram, OpenAI GPT-4.1, RAG (Retrieval-Augmented Generation)",
               "impact": "5X productivity boost, reducing report generation from 150 to 30 minutes, 80% accuracy in compliance checks. Frees professionals for higher-value tasks, improves report quality and code compliance, serves as learning tool. Planned enhancements include expanded code coverage, plan drawing integration, and real-time rectification tracking."
-            }
+            },
+            "summary": "Deffy is a Telegram-based AI chatbot that automates defect reporting and compliance checks on construction sites, addressing the inefficiencies of manual inspections by processing unstructured inputs through GPT-4.1 and RAG to generate accurate, standardized reports 5X faster, freeing professionals for higher-value tasks and enhancing site quality, compliance, and learning.",
+            "links": [
+              {
+                "label": "Presentation",
+                "url": "https://docs.google.com/presentation/d/1O774dKfbHzhBF3jZmjZgcLiUmpnAkuDZnpkrmr8U4LA/edit?slide=id.p17#slide=id.p17"
+              }
+            ]
           }
         ]
       },
@@ -79,7 +124,11 @@
             "award": "Innovation Award ($500)",
             "people": {
               "lead": "Frederico Ramos",
-              "teamMembers": ["Brendan CHEONG", "PHUAH Lin", "YEOW Yann Herng"]
+              "teamMembers": [
+                "Brendan CHEONG",
+                "PHUAH Lin",
+                "YEOW Yann Herng"
+              ]
             },
             "showcase": {
               "problem": "This project addresses inefficiencies and miscommunication caused by fragmented project documentation, where critical updates, decisions, and files are scattered across emails, chats, and cloud storage, making it difficult for teams to stay aligned and act quickly. The core problem is the manual, time-consuming sorting and retrieval of relevant information from large volumes of unstructured emails and meeting notes, leading to delays, errors, and lost data.",
@@ -88,15 +137,30 @@
               "methods": "AI agents for content extraction and classification, automated cross-referencing between models and documentation, intelligent querying system, real-time validation and notification.",
               "tools": "OpenAI GPT-4o, Microsoft Power Automate, Microsoft 365, Microsoft Teams, Revit",
               "impact": "Outcomes include up to 70% time savings in manual sorting, improved accuracy, faster query responses, and streamlined documentation, enabling teams to focus on higher-value tasks while reducing miscommunication and operational risks."
-            }
+            },
+            "summary": "This project uses AI agents and tools like GPT-4o and Power Automate to solve the inefficiencies of fragmented project documentation by automatically extracting, structuring, and querying unstructured emails and meeting notes, achieving up to 70% time savings, improving accuracy, and reducing miscommunication across teams.",
+            "links": [
+              {
+                "label": "Presentation",
+                "url": "https://docs.google.com/presentation/d/1D9qjrDjQNEAe8XJ7RfrJWyoTfDUoLjeMMFFQTLlTP2s/edit?usp=sharing"
+              }
+            ]
           },
           {
             "title": "BIM 3D to 5D/6D Spec AI Agent",
             "award": "Innovation Award ($500)",
             "people": {
               "lead": "SEAH Kwee Yong",
-              "coLeads": ["CHENG Tai Fatt"],
-              "teamMembers": ["Gary ANG Chun Li", "Jacky CHIN Kong Hin", "LIM Wai Sing", "Augustine YEE Meng Yew", "Daniel CHOO"]
+              "coLeads": [
+                "CHENG Tai Fatt"
+              ],
+              "teamMembers": [
+                "Gary ANG Chun Li",
+                "Jacky CHIN Kong Hin",
+                "LIM Wai Sing",
+                "Augustine YEE Meng Yew",
+                "Daniel CHOO"
+              ]
             },
             "showcase": {
               "problem": "The solution addresses the challenge of communicating and integrating data from designers' BIM 3D models to downstream processes for quantity surveying and facilities management, which currently requires manual and error-prone workflows for generating specifications and maintenance checklists. This gap arises because existing tools struggle with seamless data exchange between BIM authoring software and downstream applications, leading to inefficiencies and delays in project documentation.",
@@ -105,14 +169,23 @@
               "methods": "IFC data extraction and filtering, AI-powered query processing, generative AI for specification drafting, integration with historical templates and rate schedules.",
               "tools": "Google Vertex AI Gemini, IFC viewers/processors, CSV data tools, specification and rate databases",
               "impact": "The outcomes include significant time savings, streamlined workflows, the ability to quickly generate accurate first drafts, and a scalable foundation for future project adoption."
-            }
+            },
+            "summary": "This solution automates the conversion of BIM 3D data into specifications and maintenance checklists using Google Vertex AI Gemini, addressing manual inefficiencies by querying filtered IFC data and applying generative AI with historical templates, enabling faster, more accurate, and scalable documentation for QS and FM.",
+            "links": [
+              {
+                "label": "Presentation",
+                "url": "https://1drv.ms/p/c/330a1df49d0c90d3/EYB4ymT1td1Jg4Xzegk3Ae8BR2yCYbOJUeZwG7F8PuluyQ?e=cNvCbf"
+              }
+            ]
           },
           {
             "title": "AI Contract Management",
             "award": "Innovation Award ($500)",
             "people": {
               "lead": "CHAK Lee Meng",
-              "coLeads": ["TAN Tian Chong"]
+              "coLeads": [
+                "TAN Tian Chong"
+              ]
             },
             "showcase": {
               "problem": "This project introduces an AI-powered Construction Contract Management Solution (ACCMS) to address the inefficiencies and risks inherent in traditional contract management for construction projects. Current methods are plagued by manual processes, fragmented document handling, and a lack of real-time visibility, which cause delays, disputes, cost overruns, and compliance challenges—especially in multi-stakeholder environments with complex contract standards.",
@@ -121,7 +194,14 @@
               "methods": "AI-powered contract drafting and analysis, real-time obligation monitoring with AI agents, RAG for intelligent search and dispute resolution, blockchain-based milestone payments and audit trails, BIM and project management integration.",
               "tools": "GPT-based models, AI agents, RAG systems, blockchain platforms, BIM software, project management platforms",
               "impact": "Key benefits include very substantial improvements in contract review time, very substantial reductions in legal disputes, enhanced compliance with international standards, greater project visibility, and streamlined automated payments—resulting in faster approvals, lower costs, and increased stakeholder trust."
-            }
+            },
+            "summary": "This project introduces an AI-powered contract management solution that integrates GPT-based drafting, AI agents, RAG search, and blockchain to streamline construction contracts, reducing delays, disputes, and costs while improving compliance, transparency, and payment automation across BIM-integrated workflows.",
+            "links": [
+              {
+                "label": "Presentation",
+                "url": "https://docs.google.com/presentation/d/1-pQyv5zqiUQPApOCS6u38PMoyzlDc5ZJ?rtpof=true&usp=drive_fs"
+              }
+            ]
           }
         ]
       }
