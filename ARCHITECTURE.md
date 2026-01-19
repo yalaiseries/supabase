@@ -23,7 +23,7 @@ The AI Series website is built as a **static frontend + serverless backend** arc
 ### Architecture Diagram
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    FRONTEND (Netlify)                       │
+│                 FRONTEND (GitHub Pages)                     │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
 │  │  index   │  │ members  │  │ winners  │  │resources │   │
 │  │  .html   │  │  .html   │  │  .html   │  │  .html   │   │
@@ -60,7 +60,7 @@ The AI Series website is built as a **static frontend + serverless backend** arc
 ### Frontend
 - **HTML5/CSS3/JavaScript** - Static, vanilla approach (no framework)
 - **Supabase JS Client** - Authentication and API calls
-- **Netlify** - Static site hosting with CDN
+- **GitHub Pages** - Static site hosting
 - **Custom CSS** - Dark theme with modern design
 
 ### Backend (Supabase)
@@ -135,11 +135,11 @@ supabase secrets set SUPABASE_URL=https://xcctqbamimafkkamuwly.supabase.co
 supabase secrets set SERVICE_ROLE_KEY=eyJh...
 ```
 
-#### 5. Netlify Deployment
-- **Repository**: Connected to GitHub (`yalaiseries/supabase`)
+#### 5. GitHub Pages Deployment
+- **Repository**: https://github.com/yalaiseries/supabase
+- **Branch**: `main` (root directory)
+- **URL**: https://yalaiseries.github.io/supabase/
 - **Build settings**: None (static site)
-- **Publish directory**: `/` (root)
-- **Domain**: Custom domain configured
 - **Environment variables**: None required (client-side uses public keys)
 
 ---
@@ -408,7 +408,7 @@ git add .
 git commit -m "Description of changes"
 git push
 
-# Netlify auto-deploys from main branch
+# GitHub Pages auto-deploys from main branch
 ```
 
 #### 2. Update Edge Functions
@@ -457,14 +457,6 @@ verify_jwt = false  # Custom auth in function
 
 [functions.winners-admin]
 verify_jwt = false  # Token-based auth
-```
-
-#### `netlify.toml`
-```toml
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
 ```
 
 #### `supabase-config.js`
@@ -526,12 +518,13 @@ const SUPABASE_ANON_KEY = 'eyJh...'; // Public key
 - Review function logs: `supabase functions logs winners`
 - Verify TypeScript syntax
 
-#### 4. Netlify Build Issues
+#### 4. GitHub Pages Deploy Issues
 **Cause**: Usually not applicable (static site)  
 **Fix**: 
-- Check Netlify deploy logs
+- Check GitHub Actions tab for deploy status
 - Ensure all files are committed to Git
-- Verify branch is set to `main`
+- Verify Pages is enabled (Settings → Pages)
+- Confirm branch is set to `main` and folder to `/ (root)`
 
 ---
 
@@ -556,8 +549,9 @@ const SUPABASE_ANON_KEY = 'eyJh...'; // Public key
 ## Contact & Support
 
 **Project Repository**: https://github.com/yalaiseries/supabase  
+**Live Site**: https://yalaiseries.github.io/supabase/  
 **Supabase Project**: xcctqbamimafkkamuwly.supabase.co  
-**Deployment**: Netlify (auto-deploy from main branch)
+**Deployment**: GitHub Pages (auto-deploy from main branch)
 
 For questions or issues, refer to:
 - This documentation
