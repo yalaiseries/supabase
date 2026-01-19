@@ -79,7 +79,7 @@
             "subtitle": "Image Generation Platforms & Repositories",
             "items": [
               {"name": "Hugging Face", "url": "https://huggingface.co", "desc": "Repository for AI models.", "video": "https://www.youtube.com/watch?v=Yf0Fof_3x1U"},
-              {"name": "ArkoAI", "url": "https://www.arko.ai", "desc": "AI rendering tool for Revit.", "video": "https://www.youtube.com/watch?v=example"},
+              {"name": "ArkoAI", "url": "https://www.arko.ai", "desc": "AI rendering tool for Revit."},
               {"name": "Dezgo", "url": "https://dezgo.com", "desc": "Online Stable Diffusion generator.", "video": "https://www.youtube.com/results?search_query=dezgo+tutorial"},
               {"name": "DALL-E 3", "url": "https://openai.com/dall-e-3", "desc": "OpenAI's text-to-image model.", "video": "https://www.youtube.com/results?search_query=dall-e+3"},
               {"name": "Freepik (Pikaso)", "url": "https://www.freepik.com/pikaso", "desc": "AI drawing tools.", "video": "https://www.youtube.com/results?search_query=freepik+pikaso"},
