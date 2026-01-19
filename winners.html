@@ -90,17 +90,8 @@
     </main>
 
     <script>
-      const statusEl = document.getElementById('status');
-      const apiStatusEl = document.getElementById('apiStatus');
-      const dataSourceEl = document.getElementById('dataSource');
-      const yearsLoadedEl = document.getElementById('yearsLoaded');
       const yearsNavEl = document.getElementById('yearsNav');
       const libraryEl = document.getElementById('library');
-
-      const debugEl = document.createElement('div');
-      debugEl.className = 'small muted';
-      debugEl.style.marginTop = '6px';
-      if (statusEl && statusEl.parentElement) statusEl.parentElement.appendChild(debugEl);
 
       const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
       const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
@@ -133,16 +124,11 @@
       }
 
       function setStatus(text) {
-        statusEl.textContent = text || '';
+        // Status display removed - silently ignore
       }
 
       function setStatusKvp({ api, source, years } = {}) {
-        if (apiStatusEl) apiStatusEl.textContent = api || '—';
-        if (dataSourceEl) {
-          dataSourceEl.textContent = source || '—';
-          dataSourceEl.className = `status-value ${source === 'db' ? 'ok' : source === 'code' ? 'warn' : ''}`;
-        }
-        if (yearsLoadedEl) yearsLoadedEl.textContent = years || '—';
+        // Status display removed - silently ignore
       }
 
       function setDebug(text) {
