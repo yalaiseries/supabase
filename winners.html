@@ -269,7 +269,7 @@
                     if (teamMembers.length) peopleBits.push(`<div><strong>Team:</strong> ${escapeHtml(teamMembers.join(' / '))}</div>`);
 
                     const peopleHtml = peopleBits.length
-                      ? `<details class="usecase-details">
+                      ? `<details class="usecase-details" open>
                           <summary>Acknowledgements</summary>
                           <div class="usecase-people">${peopleBits.join('')}</div>
                         </details>`
@@ -289,7 +289,7 @@
                     ].filter((pair) => pair && String(pair[1] || '').trim().length);
 
                     const showcaseHtml = showcaseSections.length
-                      ? `<details class="usecase-details">
+                      ? `<details class="usecase-details" open>
                           <summary>Structured summary</summary>
                           <dl class="usecase-dl">
                             ${showcaseSections
