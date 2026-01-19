@@ -80,6 +80,8 @@
       <h1>Winners & Use Cases</h1>
       <p class="muted">Browse past winners and use case summaries grouped by year and category.</p>
 
+      <div id="debugStatus" style="padding: 12px; margin-bottom: 16px; background: rgba(255,200,0,0.1); border: 1px solid rgba(255,200,0,0.3); border-radius: 8px; font-size: 14px;"></div>
+
       <section class="card" id="libraryCard">
         <div class="years-nav" id="yearsNav" aria-label="Jump to year"></div>
         <div id="library" class="winners"></div>
@@ -93,6 +95,7 @@
     <script>
       const yearsNavEl = document.getElementById('yearsNav');
       const libraryEl = document.getElementById('library');
+      const debugStatusEl = document.getElementById('debugStatus');
 
       const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
       const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
@@ -125,7 +128,7 @@
       }
 
       function setStatus(text) {
-        // Status display removed - silently ignore
+        if (debugStatusEl) debugStatusEl.textContent = text || '';
       }
 
       function setStatusKvp({ api, source, years } = {}) {
