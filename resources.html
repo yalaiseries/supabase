@@ -372,10 +372,13 @@
         setStatus(`Signed in${email ? ` as ${email}` : ''}. Access granted.`);
         
         console.log('Rendering resources...');
+        console.log('contentEl:', contentEl);
         const resourcesHtml = renderResources();
         console.log('Resources HTML generated, length:', resourcesHtml.length);
+        console.log('First 500 chars:', resourcesHtml.substring(0, 500));
         contentEl.innerHTML = resourcesHtml;
         console.log('Resources rendered to page');
+        console.log('contentEl.innerHTML length after:', contentEl.innerHTML.length);
       }
 
       async function init() {
