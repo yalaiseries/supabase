@@ -371,7 +371,11 @@
         const email = (session.user && session.user.email) ? String(session.user.email) : '';
         setStatus(`Signed in${email ? ` as ${email}` : ''}. Access granted.`);
         
-        contentEl.innerHTML = renderResources();
+        console.log('Rendering resources...');
+        const resourcesHtml = renderResources();
+        console.log('Resources HTML generated, length:', resourcesHtml.length);
+        contentEl.innerHTML = resourcesHtml;
+        console.log('Resources rendered to page');
       }
 
       async function init() {
