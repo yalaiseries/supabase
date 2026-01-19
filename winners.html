@@ -321,14 +321,16 @@
             const columns = leftCol + rightCol;
 
             return `
-              <section class="year" id="year-${year}">
-                <div class="year-head">
+              <details class="year-section" open>
+                <summary class="year-head">
                   <h2>${year}</h2>
-                  <a class="small" href="#main">Back to top</a>
+                  <a class="small" href="#main" onclick="event.stopPropagation();">Back to top</a>
+                </summary>
+                <div class="year-content">
+                  ${challengeHtml}
+                  <div class="columns">${columns || '<p class="muted">No categories yet.</p>'}</div>
                 </div>
-                ${challengeHtml}
-                <div class="columns">${columns || '<p class="muted">No categories yet.</p>'}</div>
-              </section>
+              </details>
             `;
           })
           .join('');
