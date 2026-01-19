@@ -15,7 +15,7 @@
 
 ### Design Philosophy
 The AI Series website is built as a **static frontend + serverless backend** architecture, combining:
-- **Static HTML/CSS/JS** hosted on Netlify for the public-facing site
+- **Static HTML/CSS/JS** hosted on GitHub Pages for the public-facing site
 - **Supabase** for authentication, database, and serverless edge functions
 - **Members-only content** protected by authentication
 - **Separation of concerns**: Public pages vs. protected resources
