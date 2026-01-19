@@ -266,9 +266,9 @@ Admin → curl/script → winners-admin function
 
 #### 1. User Registration
 ```
-User fills form → Supabase Auth.signUp() 
-  → Email verification sent → User verifies 
-  → Added to registrations table
+User fills Google Form → Admin adds to registrations table
+  → Admin creates Supabase account with temporary password
+  → User receives email with credentials → User logs in
 ```
 
 #### 2. User Login
@@ -482,7 +482,7 @@ const SUPABASE_ANON_KEY = 'eyJh...'; // Public key
 - ✅ JWT-based session management
 - ✅ Email + password authentication
 - ✅ Password reset via email link
-- ✅ Email verification required
+- ✅ External registration (Google Forms)
 
 ### 2. Authorization
 - ✅ Server-side membership validation
