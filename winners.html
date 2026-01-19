@@ -69,15 +69,13 @@
           <a href="index.html">Home</a>
           <a href="collaboration.html">2026 Collaboration</a>
           <a href="members.html">AI Sharing</a>
-          <a class="active" href="winners.html" aria-current="page">Winners</a>
-          <a href="resources.html">Resources</a>
           <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Register</a>
         </nav>
       </div>
     </header>
 
     <main class="main" id="main">
-      <h1>Winners & Use Cases</h1>
+      <h1>Winners Library</h1>
       <p class="muted">Browse past winners and use case summaries grouped by year and category.</p>
 
       <div id="debugStatus" style="display: none;"></div>
@@ -164,7 +162,11 @@
           .filter((y) => Number.isFinite(y))
           .sort((a, b) => b - a);
 
-        renderYearsNav(years);
+        // Separate resources (year 2026) from winners
+        const resourcesData = winners.find(w => Number(w.year) === 2026);
+        const winnersYears = years.filter(y => y !== 2026);
+
+        renderYearsNav(winnersYears);
 
         const byYear = new Map();
         for (const entry of Array.isArray(winners) ? winners : []) {
@@ -173,7 +175,7 @@
           byYear.set(year, entry);
         }
 
-        libraryEl.innerHTML = years
+        const winnersHtml = winnersYears
           .map((year) => {
             const yearEntry = byYear.get(year) || {};
             const categories = Array.isArray(yearEntry.categories) ? yearEntry.categories : [];
@@ -333,6 +335,58 @@
             `;
           })
           .join('');
+
+        // Render resources section if data exists
+        let resourcesHtml = '';
+        if (resourcesData && Array.isArray(resourcesData.sections)) {
+          const sectionsHtml = resourcesData.sections
+            .map((section) => {
+              const sectionTitle = escapeHtml(section.title || 'Resources');
+              const categoriesHtml = (Array.isArray(section.categories) ? section.categories : [])
+                .map((cat) => {
+                  const categoryTitle = escapeHtml(cat.category || 'Category');
+                  const itemsHtml = (Array.isArray(cat.items) ? cat.items : [])
+                    .map((item) => {
+                      const name = escapeHtml(item.name || 'Resource');
+                      const url = escapeHtml(item.url || '#');
+                      const desc = item.desc ? ` – ${escapeHtml(item.desc)}` : '';
+                      const videoLink = item.video
+                        ? ` (<a href="${escapeHtml(item.video)}" target="_blank" rel="noreferrer">video</a>)`
+                        : '';
+                      return `<li><a href="${url}" target="_blank" rel="noreferrer">${name}</a>${desc}${videoLink}</li>`;
+                    })
+                    .join('');
+                  return `
+                    <div class="resource-category">
+                      <h4>${categoryTitle}</h4>
+                      <ul>${itemsHtml || '<li class="muted">No items yet.</li>'}</ul>
+                    </div>
+                  `;
+                })
+                .join('');
+
+              return `
+                <details class="resource-section">
+                  <summary class="resource-head" style="background: rgba(78, 162, 253, 0.1); padding: 12px; border-radius: 8px; cursor: pointer; margin-bottom: 12px; border: 1px solid rgba(78, 162, 253, 0.2); transition: all 0.2s ease;" onmouseover="this.style.background='rgba(78, 162, 253, 0.15)'" onmouseout="this.style.background='rgba(78, 162, 253, 0.1)'">
+                    <h3 style="display: inline; margin: 0;">${sectionTitle}</h3>
+                  </summary>
+                  <div class="resource-content" style="padding-left: 16px;">
+                    ${categoriesHtml || '<p class="muted">No categories yet.</p>'}
+                  </div>
+                </details>
+              `;
+            })
+            .join('');
+
+          resourcesHtml = `
+            <div class="resources-wrapper" style="margin-top: 40px; padding-top: 40px; border-top: 2px solid rgba(78, 162, 253, 0.2);">
+              <h2 style="margin-bottom: 24px;">AI/AECO Resources</h2>
+              ${sectionsHtml}
+            </div>
+          `;
+        }
+
+        libraryEl.innerHTML = winnersHtml + resourcesHtml;
       }
 
       async function loadWinners(session, retry = true) {
