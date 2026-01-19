@@ -187,10 +187,7 @@
           .join('');
       }
 
-      function renderLibrary(winners, challengeTopics) {
-        console.log('renderLibrary called with winners:', winners);
-        console.log('renderLibrary called with challengeTopics:', challengeTopics);
-        
+      function renderLibrary(winners, challengeTopics) {        
         const years = (Array.isArray(winners) ? winners : [])
           .map((y) => Number(y.year))
           .filter((y) => Number.isFinite(y))
@@ -202,8 +199,6 @@
         for (const entry of Array.isArray(winners) ? winners : []) {
           const year = Number(entry.year);
           if (!Number.isFinite(year)) continue;
-          console.log(`Year ${year} entry:`, entry);
-          console.log(`Year ${year} categories:`, entry.categories);
           byYear.set(year, entry);
         }
 
@@ -211,8 +206,6 @@
           .map((year) => {
             const yearEntry = byYear.get(year) || {};
             const categories = Array.isArray(yearEntry.categories) ? yearEntry.categories : [];
-            console.log(`Rendering year ${year}, categories:`, categories);
-            console.log(`Categories length: ${categories.length}`);
 
             // Render challenge topics for this year if available
             let challengeHtml = '';
@@ -419,10 +412,6 @@
             .sort((a, b) => a - b);
           const yearsText = years.length ? years.join(', ') : 'none';
           const source = String(data.source || '').toLowerCase();
-
-          console.log('Winners data:', data.winners);
-          console.log('Challenge topics:', data.challengeTopics);
-          console.log('Years found:', years);
 
           setStatus(`Loaded winners. Functions URL: ${escapeHtml(SUPABASE_FUNCTIONS_URL)}`);
           setStatusKvp({ api: 'OK', source: source || 'unknown', years: yearsText });
