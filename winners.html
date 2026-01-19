@@ -262,16 +262,13 @@
                   const teamMembers = Array.isArray(people.teamMembers) ? people.teamMembers : [];
 
                   const peopleBits = [];
-                  if (rep || designation) peopleBits.push(`<div><strong>Rep:</strong> ${[rep, designation].filter(Boolean).join(' — ')}</div>`);
-                  if (lead) peopleBits.push(`<div><strong>Lead:</strong> ${lead}</div>`);
-                  if (coLeads.length) peopleBits.push(`<div><strong>Co-leads:</strong> ${escapeHtml(coLeads.join(' / '))}</div>`);
-                  if (teamMembers.length) peopleBits.push(`<div><strong>Team:</strong> ${escapeHtml(teamMembers.join(' / '))}</div>`);
+                  if (rep || designation) peopleBits.push(`${[rep, designation].filter(Boolean).join(' — ')}`);
+                  if (lead) peopleBits.push(`<strong>Lead:</strong> ${lead}`);
+                  if (coLeads.length) peopleBits.push(`<strong>Co-leads:</strong> ${escapeHtml(coLeads.join(', '))}`);
+                  if (teamMembers.length) peopleBits.push(`<strong>Team:</strong> ${escapeHtml(teamMembers.join(', '))}`);
 
                   const peopleHtml = peopleBits.length
-                    ? `<details class="usecase-details" open>
-                        <summary>Acknowledgements</summary>
-                        <div class="usecase-people">${peopleBits.join('')}</div>
-                      </details>`
+                    ? `<div class="usecase-people small muted">${peopleBits.join(' · ')}</div>`
                     : '';
 
                   const sc = u && typeof u === 'object' ? u.showcase || {} : {};
@@ -310,15 +307,16 @@
                         .join(' · ')}</div>`
                     : '';
 
-                  const metaBits = [team, award].filter(Boolean).join(' · ');
-                  const metaHtml = metaBits ? `<div class="usecase-meta">${metaBits}</div>` : '';
+                  const awardHtml = award ? `<div class="usecase-award"><strong>${award}</strong></div>` : '';
+                  const teamHtml = team ? `<div class="usecase-meta small muted">${team}</div>` : '';
 
                   return `
                     <article class="usecase">
                       <h4>${uTitle}</h4>
-                      ${metaHtml}
-                      ${summary ? `<p class="muted">${summary}</p>` : ''}
+                      ${awardHtml}
+                      ${teamHtml}
                       ${peopleHtml}
+                      ${summary ? `<p class="muted">${summary}</p>` : ''}
                       ${showcaseHtml}
                       ${linksHtml}
                     </article>

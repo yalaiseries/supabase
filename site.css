@@ -396,9 +396,27 @@ button.btn {
   margin: 8px 0 0;
 }
 
+.usecase-award {
+  margin: 6px 0;
+  padding: 8px 12px;
+  background: rgba(122, 162, 255, 0.12);
+  border-left: 3px solid rgba(122, 162, 255, 0.6);
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.usecase-award strong {
+  color: var(--accent);
+}
+
 .usecase-meta {
   font-size: 13px;
   color: var(--muted);
+}
+
+.usecase-people {
+  margin-top: 8px;
+  line-height: 1.6;
 }
 
 .usecase-links {
