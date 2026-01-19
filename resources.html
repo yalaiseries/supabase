@@ -65,8 +65,6 @@
           <a href="index.html">Home</a>
           <a href="collaboration.html">2026 Collaboration</a>
           <a href="members.html">AI Sharing</a>
-          <a href="winners.html">Winners</a>
-          <a class="active" href="resources.html" aria-current="page">Resources</a>
           <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Register</a>
         </nav>
       </div>
@@ -170,7 +168,7 @@
             return;
           }
 
-          // Fetch resources data from Supabase (year 2026 for resources)
+          // Fetch AI/AECO resources data from Supabase
           const { data, error } = await supabase
             .from('winners_payload')
             .select('payload')
