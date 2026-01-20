@@ -41,10 +41,6 @@ cd C:\2026_AI_Collaboration\aiseries
 supabase login
 supabase link --project-ref <your-project-ref>
 
-# Secrets (needed for the homepage Q&A)
-supabase secrets set OPENAI_API_KEY=<your-key>
-supabase secrets set OPENAI_MODEL=gpt-4o-mini
-
 # Secrets (needed for registration enforcement + automation)
 supabase secrets set SERVICE_ROLE_KEY=<your-service-role-key>
 supabase secrets set REGISTRATION_WEBHOOK_SECRET=<make-a-long-random-secret>
@@ -52,7 +48,6 @@ supabase secrets set REGISTRATION_WEBHOOK_SECRET=<make-a-long-random-secret>
 # Deploy
 supabase functions deploy winners
 supabase functions deploy members-resources
-supabase functions deploy chat
 supabase functions deploy register-sync
 supabase functions deploy register-reconcile
 supabase functions deploy request-access
@@ -63,9 +58,7 @@ Members-only data endpoints (require `Authorization: Bearer <access_token>`):
 - `https://<project-ref>.functions.supabase.co/winners`
 - `https://<project-ref>.functions.supabase.co/members-resources`
 
-Homepage Q&A endpoint:
 
-- `https://<project-ref>.functions.supabase.co/chat` (now requires a signed-in allowlisted user)
 
 ## Password setup (user-friendly)
 

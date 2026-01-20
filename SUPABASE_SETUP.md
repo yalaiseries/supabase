@@ -206,10 +206,6 @@ supabase secrets set SERVICE_ROLE_KEY=<your-service-role-key>
 # For the registration webhook
 supabase secrets set REGISTRATION_WEBHOOK_SECRET=<make-a-long-random-secret>
 
-# For homepage Q&A (if you’re using it)
-supabase secrets set OPENAI_API_KEY=<your-key>
-supabase secrets set OPENAI_MODEL=gpt-4o-mini
-
 # For winners content upload (server-side admin function)
 supabase secrets set WINNERS_ADMIN_TOKEN=<make-a-long-random-secret>
 ```
@@ -222,7 +218,6 @@ Deploy:
 supabase functions deploy members-resources
 supabase functions deploy winners
 supabase functions deploy winners-admin
-supabase functions deploy chat
 supabase functions deploy register-sync
 ```
 

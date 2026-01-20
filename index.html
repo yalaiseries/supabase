@@ -22,39 +22,6 @@
     <link rel="manifest" href="site.webmanifest" />
     <link rel="stylesheet" href="site.css" />
 
-    <script src="supabase-config.js"></script>
-
-    <script type="module">
-      async function loadSupabase() {
-        const urls = [
-          'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm',
-          'https://esm.sh/@supabase/supabase-js@2',
-          'https://unpkg.com/@supabase/supabase-js@2/dist/esm/supabase.js'
-        ];
-        let lastError = '';
-        for (const url of urls) {
-          try {
-            const mod = await import(url);
-            if (mod && typeof mod.createClient === 'function') return { createClient: mod.createClient, url };
-            lastError = `Loaded ${url} but createClient was not found.`;
-          } catch (e) {
-            lastError = String(e && e.message ? e.message : e);
-          }
-        }
-        return { createClient: null, error: lastError || 'Failed to load Supabase client.' };
-      }
-      const loaded = await loadSupabase();
-      if (loaded.createClient) {
-        window.__createSupabaseClient = loaded.createClient;
-        window.__supabaseClientSource = loaded.url;
-        window.__supabaseLoadError = '';
-      } else {
-        window.__createSupabaseClient = null;
-        window.__supabaseClientSource = '';
-        window.__supabaseLoadError = loaded.error || 'Failed to load Supabase client.';
-      }
-    </script>
-
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -137,19 +104,6 @@
             <li><strong>Prizes:</strong> total pool $8,500 (to be confirmed)</li>
           </ul>
         </section>
-
-        <section class="card">
-          <h2>Ask AI (simple Q&amp;A)</h2>
-          <div class="qa">
-            <textarea id="q" placeholder="Ask about deadlines, judging criteria, prizes, CPD points, venue, etc."></textarea>
-            <div class="row">
-              <button class="btn primary" id="ask">Ask</button>
-              <span class="small" id="status"></span>
-            </div>
-            <div class="answer" id="a">Tip: after you set `OPENAI_API_KEY` for the Supabase Edge Function, ask “What are the submission deadlines?”</div>
-            <div class="small">Privacy: avoid sensitive data. Answers are based on this website’s info (and optional datasets/search if enabled).</div>
-          </div>
-        </section>
       </div>
 
       <footer class="footer">
@@ -157,84 +111,5 @@
       </footer>
     </main>
 
-    <script>
-      const askBtn = document.getElementById('ask');
-      const qEl = document.getElementById('q');
-      const aEl = document.getElementById('a');
-      const statusEl = document.getElementById('status');
-
-      async function ask() {
-        const question = (qEl.value || '').trim();
-        if (!question) return;
-        statusEl.textContent = 'Thinking…';
-        aEl.textContent = '';
-
-        try {
-          const functionsUrl = window.SUPABASE_FUNCTIONS_URL;
-          const anonKey = String(window.SUPABASE_ANON_KEY || '').trim();
-          const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
-          if (!functionsUrl) throw new Error('Missing SUPABASE_FUNCTIONS_URL (check supabase-config.js).');
-          if (!anonKey) throw new Error('Missing SUPABASE_ANON_KEY (check supabase-config.js).');
-          if (!SUPABASE_URL) throw new Error('Missing SUPABASE_URL (check supabase-config.js).');
-          if (!window.__createSupabaseClient) throw new Error('Supabase client not available.');
-
-          const supabase = window.__createSupabaseClient(SUPABASE_URL, anonKey);
-          const { data } = await supabase.auth.getSession();
-          const accessToken = String(data?.session?.access_token || '').trim();
-          if (!accessToken) {
-            aEl.textContent = 'Please sign in (Members) to use chat.';
-            return;
-          }
-
-          const res = await fetch(`${functionsUrl}/chat`, {
-            method: 'POST',
-            headers: {
-              'content-type': 'application/json',
-              apikey: anonKey,
-              authorization: `Bearer ${accessToken}`
-            },
-            body: JSON.stringify({ question })
-          });
-
-          const data = await res.json().catch(() => ({}));
-          if (!res.ok) {
-            aEl.textContent = data.error || 'Error calling chat function.';
-          } else {
-            aEl.textContent = data.answer || '';
-          }
-        } catch (e) {
-          aEl.textContent = String(e);
-        } finally {
-          statusEl.textContent = '';
-        }
-      }
-
-      // Show members-only nav items when signed in.
-      (async function initMembersNav() {
-        const winnersLink = document.getElementById('winnersLink');
-        const resourcesLink = document.getElementById('resourcesLink');
-        if (!winnersLink && !resourcesLink) return;
-
-        const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
-        const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
-        if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !window.__createSupabaseClient) return;
-
-        const supabase = window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const { data } = await supabase.auth.getSession();
-        const isSignedIn = data?.session?.user ? '' : 'none';
-        if (winnersLink) winnersLink.style.display = isSignedIn;
-        if (resourcesLink) resourcesLink.style.display = isSignedIn;
-        supabase.auth.onAuthStateChange((_event, session) => {
-          const display = session?.user ? '' : 'none';
-          if (winnersLink) winnersLink.style.display = display;
-          if (resourcesLink) resourcesLink.style.display = display;
-        });
-      })();
-
-      askBtn.addEventListener('click', ask);
-      qEl.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') ask();
-      });
-    </script>
   </body>
 </html>

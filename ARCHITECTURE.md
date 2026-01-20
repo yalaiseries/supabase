@@ -45,7 +45,7 @@ The AI Series website is built as a **static frontend + serverless backend** arc
 │ • winners      │  │                 │  │ • Sessions     │
 │ • members-     │  │ • registrations │  │ • JWTs         │
 │   resources    │  │ • winners_      │  │                │
-│ • chat         │  │   payload       │  │                │
+│                │  │   payload       │  │                │
 │ • register-    │  │                 │  │                │
 │   sync         │  │                 │  │                │
 │ • winners-     │  │                 │  │                │
@@ -122,7 +122,6 @@ CREATE TABLE winners_payload (
 supabase functions deploy winners
 supabase functions deploy winners-admin
 supabase functions deploy members-resources
-supabase functions deploy chat
 supabase functions deploy register-sync
 ```
 
@@ -130,7 +129,6 @@ supabase functions deploy register-sync
 ```bash
 # Set required secrets
 supabase secrets set WINNERS_ADMIN_TOKEN=MySecureToken2025!
-supabase secrets set OPENAI_API_KEY=sk-...
 supabase secrets set SUPABASE_URL=https://xcctqbamimafkkamuwly.supabase.co
 supabase secrets set SERVICE_ROLE_KEY=eyJh...
 ```
@@ -248,10 +246,7 @@ Admin → curl/script → winners-admin function
 **Authentication**: Required (JWT session)  
 **Returns**: Resources JSON (future enhancement)
 
-#### `/chat` (POST)
-**Purpose**: AI chatbot for code questions  
-**Authentication**: Required (JWT session)  
-**Uses**: OpenAI API with RAG knowledge base
+
 
 #### `/register-sync` (POST)
 **Purpose**: Webhook for registration synchronization  
@@ -384,11 +379,6 @@ return json({ winners, challengeTopics });
 7. Education and Standards
 
 **Format**: Structured with explanations and video links
-
-### 4. AI Chat Assistant
-**Purpose**: Answer code-related questions  
-**Implementation**: RAG-based chatbot using OpenAI  
-**Knowledge Base**: Code examples, documentation, best practices
 
 ---
 

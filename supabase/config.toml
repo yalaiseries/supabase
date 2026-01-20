@@ -1,8 +1,5 @@
 # Supabase local/deploy configuration
 
-[functions.chat]
-verify_jwt = true
-
 [functions.register-sync]
 verify_jwt = false
 
