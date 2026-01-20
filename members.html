@@ -144,6 +144,33 @@
         </ul>
       </section>
 
+      <section class="card" id="notRegisteredMessage" style="display:none; background: rgba(255, 193, 7, 0.1); border: 2px solid rgba(255, 193, 7, 0.3);">
+        <h2 style="color: #ffc107;">✋ You're signed in, but not registered yet</h2>
+        <p><strong>To access members-only content, you need to register as a participant first.</strong></p>
+        
+        <h3 style="margin-top: 20px;">How to get access:</h3>
+        <ol style="line-height: 1.8;">
+          <li><strong>Register via the form:</strong> <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Open Registration Form</a></li>
+          <li><strong>Use the same email:</strong> Register with the email you're currently signed in with (<span id="currentEmail" style="font-weight: bold;"></span>)</li>
+          <li><strong>Wait for approval:</strong> Your email will be added to the members list (usually within 24 hours)</li>
+          <li><strong>Come back:</strong> Sign in again and you'll see all the members-only content below</li>
+        </ol>
+
+        <h3 style="margin-top: 20px;">What you'll get access to:</h3>
+        <ul style="line-height: 1.8;">
+          <li>🏆 <strong>Winners Library:</strong> Explore past winning projects from 2024 and 2025</li>
+          <li>📚 <strong>AI/AECO Resources:</strong> Comprehensive resource hub with tools and frameworks</li>
+          <li>📅 <strong>AI Sharing Sessions:</strong> Venue, Zoom links, and full schedule</li>
+          <li>🎓 <strong>Training Materials:</strong> Templates, recordings, and deep-dive workflows</li>
+        </ul>
+
+        <p class="muted" style="margin-top: 20px;">
+          <strong>Already registered via the form?</strong> Contact the organizers at 
+          <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> or 
+          <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> to check your registration status.
+        </p>
+      </section>
+
       <section class="card" id="membersSection" style="display:none;">
         <h2>Members-Only Resources</h2>
         <p class="muted">Access exclusive content for participants and members.</p>
@@ -258,6 +285,8 @@
       const newPasswordEl = document.getElementById('newPassword');
       const setPasswordBtn = document.getElementById('setPassword');
       const sharingSessionsSection = document.getElementById('sharingSessionsSection');
+      const notRegisteredMessage = document.getElementById('notRegisteredMessage');
+      const currentEmailSpan = document.getElementById('currentEmail');
 
       function setStatus(text) {
         const v = text || '';
@@ -342,16 +371,58 @@
           loginBtn.style.display = 'none';
           if (passwordEmailBtn) passwordEmailBtn.style.display = 'none';
           logoutBtn.style.display = '';
-          if (membersSection) membersSection.style.display = '';
-          if (sharingSessionsSection) sharingSessionsSection.style.display = '';
           whoEl.textContent = user.email ? `Signed in as ${user.email}` : 'Signed in';
+          
+          // Check if user is registered (in allowlist) by trying to access winners endpoint
+          checkMembershipStatus(session);
         } else {
           loginBtn.style.display = '';
           if (passwordEmailBtn) passwordEmailBtn.style.display = '';
           logoutBtn.style.display = 'none';
           if (membersSection) membersSection.style.display = 'none';
           if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
+          if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
           whoEl.textContent = '';
+        }
+      }
+
+      async function checkMembershipStatus(session) {
+        if (!session || !session.access_token) return;
+        
+        try {
+          const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/winners`, {
+            headers: {
+              apikey: SUPABASE_ANON_KEY,
+              authorization: `Bearer ${session.access_token}`
+            }
+          });
+          
+          if (res.ok) {
+            // User is registered - show members content
+            if (membersSection) membersSection.style.display = '';
+            if (sharingSessionsSection) sharingSessionsSection.style.display = '';
+            if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
+          } else if (res.status === 403) {
+            // User is signed in but not registered - show help message
+            if (membersSection) membersSection.style.display = 'none';
+            if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
+            if (notRegisteredMessage) {
+              notRegisteredMessage.style.display = '';
+              if (currentEmailSpan && session.user && session.user.email) {
+                currentEmailSpan.textContent = session.user.email;
+              }
+            }
+          } else {
+            // Other error - hide everything
+            if (membersSection) membersSection.style.display = 'none';
+            if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
+            if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
+          }
+        } catch (e) {
+          // On error, hide everything
+          if (membersSection) membersSection.style.display = 'none';
+          if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
+          if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
         }
       }
 
