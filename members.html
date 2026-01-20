@@ -159,6 +159,62 @@
         </div>
       </section>
 
+      <section class="card" id="sharingSessionsSection" style="display:none;">
+        <h2>AI Sharing Sessions</h2>
+        <p class="muted">Hybrid sessions with discussions and expert sharing. All times are Singapore time (GMT+8).</p>
+        
+        <h3 style="margin-top: 20px;">Zoom link</h3>
+        <p>
+          <a class="btn" href="https://us02web.zoom.us/j/82756306315?pwd=VDzmhi1Mp63faMHoSaA1uqBa3QTR6O.1" target="_blank" rel="noreferrer">Join Zoom</a>
+        </p>
+        <p class="muted">Meeting ID: 827 5630 6315 · Passcode: 529788</p>
+
+        <h3 style="margin-top: 20px;">Schedule</h3>
+        <ul>
+          <li><strong>25 Feb: Physical Session</strong>
+            <ul>
+              <li>7:00pm - 7:30pm: Update and Grouping</li>
+              <li>7:30pm - 8:00pm: Sharing by Ar William LAU</li>
+              <li>8:00pm - 8:30pm: Sharing by Mr Benard LEONG</li>
+            </ul>
+          </li>
+          <li><strong>11 Mar: Hybrid Session</strong>
+            <ul>
+              <li>7:15pm - 8:00pm: Discussion</li>
+              <li>8:00pm - 8:30pm: Sharing by Mr Samuel OOI</li>
+            </ul>
+          </li>
+          <li><strong>25 Mar: Hybrid Session</strong>
+            <ul>
+              <li>7:15pm - 8:00pm: Discussion</li>
+              <li>8:00pm - 8:30pm: Sharing by Mr Jason LI</li>
+            </ul>
+          </li>
+          <li><strong>8 Apr: Hybrid Session</strong>
+            <ul>
+              <li>7:15pm - 8:00pm: Discussion</li>
+              <li>8:00pm - 8:30pm: Sharing by Mr Claurence LEE</li>
+            </ul>
+          </li>
+          <li><strong>22 Apr: Hybrid Session</strong>
+            <ul>
+              <li>7:15pm - 8:00pm: Discussion</li>
+              <li>8:00pm - 8:30pm: Sharing by Ar PAN Yicheng</li>
+            </ul>
+          </li>
+          <li><strong>6 May: Hybrid Session</strong>
+            <ul>
+              <li>7:15pm - 8:30pm: Discussion (Optional)</li>
+            </ul>
+          </li>
+          <li><strong>20 May: Hybrid Session</strong>
+            <ul>
+              <li>6:30pm - 9:30pm: Presentation &amp; Assessment</li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+
       <style>
         .resource-card:hover {
           background: rgba(78, 162, 253, 0.15) !important;
@@ -200,6 +256,7 @@
       const passwordRecoveryCard = document.getElementById('passwordRecovery');
       const newPasswordEl = document.getElementById('newPassword');
       const setPasswordBtn = document.getElementById('setPassword');
+      const sharingSessionsSection = document.getElementById('sharingSessionsSection');
 
       function setStatus(text) {
         const v = text || '';
@@ -290,12 +347,14 @@
           if (passwordEmailBtn) passwordEmailBtn.style.display = 'none';
           logoutBtn.style.display = '';
           if (membersSection) membersSection.style.display = '';
+          if (sharingSessionsSection) sharingSessionsSection.style.display = '';
           whoEl.textContent = user.email ? `Signed in as ${user.email}` : 'Signed in';
         } else {
           loginBtn.style.display = '';
           if (passwordEmailBtn) passwordEmailBtn.style.display = '';
           logoutBtn.style.display = 'none';
           if (membersSection) membersSection.style.display = 'none';
+          if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
           whoEl.textContent = '';
         }
       }
