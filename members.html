@@ -249,8 +249,6 @@
       const logoutBtn = document.getElementById('logout');
       const whoEl = document.getElementById('who');
       const membersSection = document.getElementById('membersSection');
-      const statusEl = document.getElementById('membersStatus');
-      const contentEl = document.getElementById('membersContent');
       const accessStatusEl = document.getElementById('accessStatus');
 
       const passwordRecoveryCard = document.getElementById('passwordRecovery');
@@ -260,12 +258,7 @@
 
       function setStatus(text) {
         const v = text || '';
-        if (statusEl) statusEl.textContent = v;
         if (accessStatusEl) accessStatusEl.textContent = v;
-      }
-
-      function setContent(text) {
-        contentEl.textContent = text || '';
       }
 
       function escapeHtml(value) {
@@ -360,7 +353,7 @@
       }
 
       async function loadMembersLibrary(session) {
-        setContent('');
+        // Deprecated - using Winners Library and Resources cards instead
         if (!session || !session.access_token) {
           setStatus('Please sign in to view members-only resources.');
           return;
@@ -381,21 +374,16 @@
           if (!res.ok) {
             setStatus('');
             if (res.status === 403) {
-              contentEl.innerHTML = `
-                <p><strong>Signed in, but not registered yet.</strong></p>
-                <p class="muted">Please submit the registration form using the same email address, then try again.</p>
-                <p><a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Open registration form</a></p>
-              `;
+              setStatus('Signed in, but not registered yet. Please submit the registration form.');
             } else {
-              setContent(data.error || 'Could not load members-only resources.');
+              setStatus(data.error || 'Could not load members-only resources.');
             }
             return;
           }
 
           const items = Array.isArray(data.resources) ? data.resources : [];
           if (!items.length) {
-            setStatus('');
-            setContent('No members-only resources configured yet.');
+            setStatus('No members-only resources configured yet.');
             return;
           }
 
@@ -513,13 +501,12 @@
           if (searchEl) searchEl.addEventListener('input', render);
           render();
         } catch (e) {
-          setStatus('');
-          setContent(String(e));
+          setStatus(String(e));
         }
       }
 
       loginBtn.addEventListener('click', async () => {
-        setContent('');
+        setStatus('');
         const sb = await getSupabaseClient();
         if (!sb) {
           setStatus('Sign-in is not available right now (Supabase client/config not loaded).');
@@ -595,7 +582,7 @@
 
       if (setPasswordBtn) {
         setPasswordBtn.addEventListener('click', async () => {
-          setContent('');
+          setStatus('');
           const sb = await getSupabaseClient();
           if (!sb) {
             setStatus('Password update is not available right now (Supabase client/config not loaded).');
