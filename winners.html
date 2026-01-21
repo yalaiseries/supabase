@@ -317,9 +317,9 @@
 
             // Separate categories into left and right columns based on year
             // 2025: Left = "Top Winners", Right = "Innovation Awards"
-            // 2024: Left = "Prize Winners", Right = "Merit Awards"
+            // 2024: Left = "Prize Winners" or "AI Programme Winners", Right = "Merit Awards"
             const leftCategory = categories.find(cat => 
-              cat.category === 'Top Winners' || cat.category === 'Prize Winners'
+              cat.category === 'Top Winners' || cat.category === 'Prize Winners' || cat.category === 'AI Programme Winners'
             );
             const rightCategory = categories.find(cat => 
               cat.category === 'Innovation Awards' || cat.category === 'Merit Awards'
