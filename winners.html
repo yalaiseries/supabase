@@ -327,6 +327,10 @@
 
             const leftCol = renderCategory(leftCategory);
             const rightCol = renderCategory(rightCategory);
+            
+            // If only one category exists, use single-column layout; otherwise use two-column
+            const hasBothColumns = leftCategory && rightCategory;
+            const columnsClass = hasBothColumns ? 'columns' : 'single-column';
             const columns = leftCol + rightCol;
 
             // Map year to full title
@@ -343,7 +347,7 @@
                 </summary>
                 <div class="year-content">
                   ${challengeHtml}
-                  <div class="columns">${columns || '<p class="muted">No categories yet.</p>'}</div>
+                  <div class="${columnsClass}">${columns || '<p class="muted">No categories yet.</p>'}</div>
                 </div>
               </details>
             `;

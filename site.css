@@ -362,6 +362,11 @@ button.btn {
   margin-top: 10px;
 }
 
+.single-column {
+  display: block;
+  margin-top: 10px;
+}
+
 .category-col {
   flex: 1 1 280px;
   border: 1px solid var(--border);
