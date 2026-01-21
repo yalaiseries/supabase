@@ -177,7 +177,7 @@
             .from('winners_payload')
             .select('payload')
             .eq('year', 2026)
-            .single();
+            .maybeSingle();
 
           if (error) {
             console.error('Error fetching resources:', error);
