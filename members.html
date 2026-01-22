@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Sharing Â· AI (Hackathon) Series</title>
-    <meta name="description" content="Agentic AI Learning Hub for registered participants in the AI (Hackathon) Series — 2026 AI Challenge." />
+    <title>AI Sharing</title>
+    <meta name="description" content="Agentic AI Learning Hub for registered participants in the AI (Hackathon) Series - 2026 AI Challenge." />
     <link rel="canonical" href="https://aihackathon.pro/members.html" />
     <meta name="theme-color" content="#0b1220" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="AI (Hackathon) Series" />
-    <meta property="og:title" content="AI Sharing Â· AI (Hackathon) Series" />
+    <meta property="og:title" content="AI Sharing · AI (Hackathon) Series" />
     <meta property="og:description" content="Sign in to access members-only resources and past sharing." />
     <meta property="og:url" content="https://aihackathon.pro/members.html" />
 
@@ -22,42 +22,7 @@
     <link rel="stylesheet" href="site.css" />
 
     <script src="supabase-config.js"></script>
-
-    <script type="module">
-      async function loadSupabase() {
-        const urls = [
-          'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm',
-          'https://esm.sh/@supabase/supabase-js@2',
-          'https://unpkg.com/@supabase/supabase-js@2/dist/esm/supabase.js'
-        ];
-
-        let lastError = '';
-        for (const url of urls) {
-          try {
-            const mod = await import(url);
-            if (mod && typeof mod.createClient === 'function') {
-              return { createClient: mod.createClient, url };
-            }
-            lastError = `Loaded ${url} but createClient was not found.`;
-          } catch (e) {
-            lastError = String(e && e.message ? e.message : e);
-          }
-        }
-
-        return { createClient: null, error: lastError || 'Failed to load Supabase client.' };
-      }
-
-      const loaded = await loadSupabase();
-      if (loaded.createClient) {
-        window.__createSupabaseClient = loaded.createClient;
-        window.__supabaseClientSource = loaded.url;
-        window.__supabaseLoadError = '';
-      } else {
-        window.__createSupabaseClient = null;
-        window.__supabaseClientSource = '';
-        window.__supabaseLoadError = loaded.error || 'Failed to load Supabase client.';
-      }
-    </script>
+    <script type="module" src="supabase-loader.js"></script>
 
   </head>
   <body>
@@ -267,7 +232,7 @@
       </section>
 
       <footer class="footer">
-        <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> Â· <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> Â· Public: <a href="https://archihackathon.com" target="_blank" rel="noreferrer">archihackathon.com</a>
+        <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> · <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> · Public: <a href="https://archihackathon.com" target="_blank" rel="noreferrer">archihackathon.com</a>
       </footer>
     </main>
 
@@ -433,7 +398,7 @@
           return;
         }
 
-        setStatus('Loading members-only resourcesâ€¦');
+        setStatus('Loading members-only resources...');
         try {
           if (!SUPABASE_FUNCTIONS_URL) throw new Error('Missing SUPABASE_FUNCTIONS_URL (check supabase-config.js).');
 
@@ -466,10 +431,10 @@
           function splitTopicTitle(title) {
             const t = String(title || '').trim();
             if (!t) return { topic: 'All', title: '' };
-            const parts = t.split(' Â· ');
+            const parts = t.split(' · ');
             if (parts.length >= 2) {
               const topic = parts.shift().trim() || 'All';
-              return { topic, title: parts.join(' Â· ').trim() };
+              return { topic, title: parts.join(' · ').trim() };
             }
             return { topic: 'All', title: t };
           }
@@ -505,8 +470,8 @@
           contentEl.innerHTML = `
             <div class="field" style="max-width: 640px; margin-bottom: 10px;">
               <label class="small" for="resourceSearch">Search</label>
-              <input id="resourceSearch" type="search" placeholder="Try: agent, RAG, template, slidesâ€¦" />
-              <div class="small muted" style="margin-top: 6px;">Tip: use the format <strong>Topic Â· Title</strong> in the database to auto-group resources.</div>
+              <input id="resourceSearch" type="search" placeholder="Try: agent, RAG, template, slides..." />
+              <div class="small muted" style="margin-top: 6px;">Tip: use the format <strong>Topic · Title</strong> in the database to auto-group resources.</div>
             </div>
             <div class="cta" style="flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
               <button class="btn primary" type="button" data-topic="__all">All (${normalized.length})</button>
@@ -595,11 +560,11 @@
         }
 
         if (!password) {
-          setStatus('Please enter your password. If you need to set or reset it, click â€œEmail me a password linkâ€.');
+          setStatus('Please enter your password. If you need to set or reset it, click "Email me a password link".');
           return;
         }
 
-        setStatus('Signing inâ€¦');
+        setStatus('Signing in...');
         const { error } = await sb.auth.signInWithPassword({ email, password });
         if (error) {
           setStatus(error.message || 'Could not log in.');
@@ -624,10 +589,10 @@
             return;
           }
 
-          setStatus('Sending emailâ€¦');
+          setStatus('Sending email...');
 
-          // 1) Invite flow (first-time setup) â€” allowlist gated, does not reveal eligibility.
-          // 2) Reset flow (existing accounts) â€” standard Supabase password reset.
+          // 1) Invite flow (first-time setup) - allowlist gated, does not reveal eligibility.
+          // 2) Reset flow (existing accounts) - standard Supabase password reset.
           // We run both and show a generic message.
           try {
             if (SUPABASE_FUNCTIONS_URL) {
@@ -669,7 +634,7 @@
             return;
           }
 
-          setStatus('Updating passwordâ€¦');
+          setStatus('Updating password...');
           const { error } = await sb.auth.updateUser({ password: newPassword });
           if (error) {
             setStatus(error.message || 'Could not update password.');
@@ -708,7 +673,7 @@
                   err
               );
             } else {
-              setStatus('Loading sign-inâ€¦ (waiting for Supabase client)');
+              setStatus('Loading sign-in... (waiting for Supabase client)');
               if (initAttempts < 5) {
                 initAttempts++;
                 setTimeout(init, 800);

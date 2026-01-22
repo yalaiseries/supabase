@@ -3,33 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Redirecting… · AI (Hackathon) Series</title>
-    <meta name="robots" content="noindex, nofollow" />
-    <link rel="canonical" href="https://yalaiseries.github.io/supabase/collaboration.html" />
-    <meta http-equiv="refresh" content="0; url=collaboration.html" />
-    <script>
-      window.location.replace('collaboration.html');
-    </script>
-  </head>
-  <body>
-    <p>Redirecting to <a href="collaboration.html">2026 Collaboration</a>…</p>
-  </body>
-</html>
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Timeline · AI (Hackathon) Series</title>
     <meta name="description" content="Timeline, venue, Zoom details, and CPD points for the AI (Hackathon) Series — 2026 AI Challenge." />
-    <link rel="canonical" href="https://yalaiseries.github.io/supabase/timeline.html" />
+    <link rel="canonical" href="https://aihackathon.pro/timeline.html" />
     <meta name="theme-color" content="#0b1220" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="AI (Hackathon) Series" />
     <meta property="og:title" content="Timeline · AI (Hackathon) Series" />
     <meta property="og:description" content="Key dates, venue, Zoom details, and CPD points." />
-    <meta property="og:url" content="https://yalaiseries.github.io/supabase/timeline.html" />
+    <meta property="og:url" content="https://aihackathon.pro/timeline.html" />
 
     <meta name="twitter:card" content="summary" />
 
@@ -38,37 +21,7 @@
     <link rel="stylesheet" href="site.css" />
 
     <script src="supabase-config.js"></script>
-
-    <script type="module">
-      async function loadSupabase() {
-        const urls = [
-          'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm',
-          'https://esm.sh/@supabase/supabase-js@2',
-          'https://unpkg.com/@supabase/supabase-js@2/dist/esm/supabase.js'
-        ];
-        let lastError = '';
-        for (const url of urls) {
-          try {
-            const mod = await import(url);
-            if (mod && typeof mod.createClient === 'function') return { createClient: mod.createClient, url };
-            lastError = `Loaded ${url} but createClient was not found.`;
-          } catch (e) {
-            lastError = String(e && e.message ? e.message : e);
-          }
-        }
-        return { createClient: null, error: lastError || 'Failed to load Supabase client.' };
-      }
-      const loaded = await loadSupabase();
-      if (loaded.createClient) {
-        window.__createSupabaseClient = loaded.createClient;
-        window.__supabaseClientSource = loaded.url;
-        window.__supabaseLoadError = '';
-      } else {
-        window.__createSupabaseClient = null;
-        window.__supabaseClientSource = '';
-        window.__supabaseLoadError = loaded.error || 'Failed to load Supabase client.';
-      }
-    </script>
+    <script type="module" src="supabase-loader.js"></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

@@ -97,6 +97,7 @@ async function upsertYearPayload(year: number, payload: unknown, challengeTopics
 
   if (!resp.ok) {
     const text = await resp.text().catch(() => '');
+    console.error('[upsertYearPayload] Upsert failed. Status:', resp.status, 'Response:', text);
     return { ok: false, status: 502, error: `Upsert failed: ${text}` };
   }
 
@@ -104,12 +105,16 @@ async function upsertYearPayload(year: number, payload: unknown, challengeTopics
   // If the API returns no body (204), still treat as success.
   try {
     const json = await resp.json();
+    console.log('[upsertYearPayload] Response JSON:', JSON.stringify(json).substring(0, 200));
     const row = Array.isArray(json) ? json[0] : json;
     if (!row || Number(row.year) !== y) {
       // Still ok, but the response didn't include what we expected.
+      console.warn('[upsertYearPayload] Success but unexpected response format');
       return { ok: true };
     }
-  } catch {
+    console.log('[upsertYearPayload] Successfully upserted year:', row.year);
+  } catch (err) {
+    console.log('[upsertYearPayload] No JSON response (likely 204), treating as success');
     // ignore
   }
 
