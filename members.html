@@ -209,11 +209,38 @@
         </ul>
       </section>
 
+      <section class="card" id="videoRecordingsSection" style="display:none;">
+        <h2>YouTube Video Recordings</h2>
+        <p class="muted">Past session recordings from 2023-2025.</p>
+        <div id="videoRecordingsContent"></div>
+      </section>
+
       <style>
         .resource-card:hover {
           background: rgba(78, 162, 253, 0.15) !important;
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(78, 162, 253, 0.2);
+        }
+        .video-year {
+          margin-top: 20px;
+        }
+        .video-item {
+          margin: 15px 0;
+          padding: 12px;
+          background: rgba(78, 162, 253, 0.08);
+          border-radius: 6px;
+        }
+        .video-item strong {
+          display: block;
+          margin-bottom: 5px;
+          color: #4ea2fd;
+        }
+        .video-item a {
+          color: #4ea2fd;
+          text-decoration: none;
+        }
+        .video-item a:hover {
+          text-decoration: underline;
         }
       </style>
 
@@ -249,6 +276,7 @@
       const newPasswordEl = document.getElementById('newPassword');
       const setPasswordBtn = document.getElementById('setPassword');
       const sharingSessionsSection = document.getElementById('sharingSessionsSection');
+      const videoRecordingsSection = document.getElementById('videoRecordingsSection');
       const notRegisteredMessage = document.getElementById('notRegisteredMessage');
       const currentEmailSpan = document.getElementById('currentEmail');
 
@@ -345,6 +373,7 @@
           logoutBtn.style.display = 'none';
           if (membersSection) membersSection.style.display = 'none';
           if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
+          if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
           if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
           whoEl.textContent = '';
         }
@@ -365,11 +394,16 @@
             // User is registered - show members content
             if (membersSection) membersSection.style.display = '';
             if (sharingSessionsSection) sharingSessionsSection.style.display = '';
+            if (videoRecordingsSection) videoRecordingsSection.style.display = '';
             if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
+            
+            // Load video recordings
+            loadVideoRecordings(session);
           } else if (res.status === 403) {
             // User is signed in but not registered - show help message
             if (membersSection) membersSection.style.display = 'none';
             if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
+            if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
             if (notRegisteredMessage) {
               notRegisteredMessage.style.display = '';
               if (currentEmailSpan && session.user && session.user.email) {
@@ -380,13 +414,74 @@
             // Other error - hide everything
             if (membersSection) membersSection.style.display = 'none';
             if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
+            if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
             if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
           }
         } catch (e) {
           // On error, hide everything
           if (membersSection) membersSection.style.display = 'none';
           if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
+          if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
           if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
+        }
+      }
+
+      async function loadVideoRecordings(session) {
+        if (!session || !session.access_token) {
+          if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
+          return;
+        }
+
+        try {
+          const sb = await getSupabaseClient();
+          if (!sb) return;
+
+          const { data, error } = await sb
+            .from('video_recordings')
+            .select('*')
+            .order('year', { ascending: false })
+            .order('sort_order', { ascending: true });
+
+          if (error) {
+            console.error('Error loading video recordings:', error);
+            return;
+          }
+
+          if (!data || data.length === 0) {
+            if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
+            return;
+          }
+
+          // Group by year
+          const byYear = {};
+          data.forEach(v => {
+            if (!byYear[v.year]) byYear[v.year] = [];
+            byYear[v.year].push(v);
+          });
+
+          // Build HTML
+          let html = '';
+          Object.keys(byYear).sort((a, b) => b - a).forEach(year => {
+            html += `<h3 class="video-year">${year} YouTube Video Recordings</h3>`;
+            byYear[year].forEach(video => {
+              const titleLines = video.title.split('\\n').map(line => escapeHtml(line)).join('<br>');
+              html += `
+                <div class="video-item">
+                  <strong>${escapeHtml(video.date_text)}</strong>
+                  <div>${titleLines}</div>
+                  <a href="${escapeHtml(video.url)}" target="_blank" rel="noreferrer">Watch Recording →</a>
+                </div>
+              `;
+            });
+          });
+
+          const contentEl = document.getElementById('videoRecordingsContent');
+          if (contentEl) contentEl.innerHTML = html;
+          if (videoRecordingsSection) videoRecordingsSection.style.display = '';
+
+        } catch (e) {
+          console.error('Error loading video recordings:', e);
+          if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
         }
       }
 
