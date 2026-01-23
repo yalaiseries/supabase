@@ -242,6 +242,29 @@
         .video-item a:hover {
           text-decoration: underline;
         }
+        .video-section {
+          margin-bottom: 20px;
+        }
+        .video-section summary {
+          background: rgba(78, 162, 253, 0.1);
+          padding: 16px;
+          border-radius: 12px;
+          cursor: pointer;
+          border: 1px solid rgba(78, 162, 253, 0.2);
+          transition: all 0.2s ease;
+        }
+        .video-section summary:hover {
+          background: rgba(78, 162, 253, 0.15);
+        }
+        .video-section summary h3 {
+          display: inline;
+          margin: 0;
+          font-size: 20px;
+          color: #4ea2fd;
+        }
+        .video-content {
+          padding: 16px 0 0 0;
+        }
       </style>
 
       <section class="card">
@@ -464,8 +487,9 @@
           const years = Object.keys(byYear).sort((a, b) => b - a);
           years.forEach((year, index) => {
             const isOpen = index === 0 ? 'open' : ''; // First year open by default
-            html += `<details ${isOpen} style="margin-top: 20px;">`;
-            html += `<summary style="cursor: pointer; font-weight: bold; font-size: 1.1em; color: #4ea2fd; margin-bottom: 10px;">${year} YouTube Video Recordings</summary>`;
+            html += `<details class="video-section" ${isOpen}>`;
+            html += `<summary><h3>${year} YouTube Video Recordings</h3></summary>`;
+            html += `<div class="video-content">`;
             
             byYear[year].forEach(video => {
               const titleLines = video.title.split('\n').map(line => escapeHtml(line)).join('<br>');
@@ -478,7 +502,7 @@
               `;
             });
             
-            html += `</details>`;
+            html += `</div></details>`;
           });
 
           const contentEl = document.getElementById('videoRecordingsContent');
