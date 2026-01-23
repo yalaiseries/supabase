@@ -212,7 +212,84 @@
       <section class="card" id="videoRecordingsSection" style="display:none;">
         <h2>YouTube Video Recordings</h2>
         <p class="muted">Past session recordings from 2023-2025.</p>
-        <div id="videoRecordingsContent"></div>
+        
+        <details open style="margin-top: 20px;">
+          <summary style="cursor: pointer; font-weight: bold; font-size: 1.1em; color: #4ea2fd; margin-bottom: 10px;">2025 YouTube Video Recordings</summary>
+          
+          <div class="video-item">
+            <strong>13 Mar: Hybrid Session</strong>
+            <div>7:30pm - 8:00pm: Sharing by Bob LEE, DPA<br>8:00pm - 8:30pm: Sharing by Ar PAN Yi Cheng, Type0 Architecture</div>
+            <a href="https://youtu.be/FYu6R862JBw?si=ih4aOLEOKlGOkpQ2" target="_blank" rel="noreferrer">Watch Recording →</a>
+          </div>
+
+          <div class="video-item">
+            <strong>10 Apr: Hybrid Session</strong>
+            <div>7:15pm - 7:30pm: Sharing by Jia Ming OW, BETA, BCA<br>7:30pm - 8:00pm: Sharing by Dr Ferdin Joe John Joseph, AliBaba Cloud Singapore<br>8:00pm - 8:30pm: Sharing by Anders ANG, WOHA</div>
+            <a href="https://youtu.be/C6wzCtttBw4?si=SUCGWIamt3_523ON" target="_blank" rel="noreferrer">Watch Recording →</a>
+          </div>
+        </details>
+
+        <details style="margin-top: 20px;">
+          <summary style="cursor: pointer; font-weight: bold; font-size: 1.1em; color: #4ea2fd; margin-bottom: 10px;">2024 YouTube Video Recordings</summary>
+          
+          <div class="video-item">
+            <strong>19 Feb, 6:30-8:30pm</strong>
+            <div>Ideation Meetup, by Mr SIM Quentin and Mr PONG Woon Wei</div>
+            <a href="https://youtu.be/sZozlwV43_Y?si=_Rvn8ZCBoAZwwv_X" target="_blank" rel="noreferrer">Watch Recording →</a>
+          </div>
+
+          <div class="video-item">
+            <strong>26 Feb, 6:30-8:30pm</strong>
+            <div>Autodesk Solutions, by Mr Sagar Thorat & Mr Ken Soh</div>
+            <a href="https://youtu.be/1ZicaJF-oCY?si=mzAidFlZboDW-Jss" target="_blank" rel="noreferrer">Watch Recording →</a>
+          </div>
+
+          <div class="video-item">
+            <strong>28 Feb, 6:30-8:30pm</strong>
+            <div>Trimble Sketchup & LLM, by Mr Jason Li, M.Msoer</div>
+            <a href="https://youtu.be/JFfh_w_9H5k?si=64rwLv3Scau4SSb4" target="_blank" rel="noreferrer">Watch Recording →</a>
+          </div>
+
+          <div class="video-item">
+            <strong>29 Feb, 6:30-8:30pm</strong>
+            <div>Stable Diffusion & ControlNet AI Workshop, by Ar SIM Quentin, Limau Studio</div>
+            <a href="https://youtu.be/768VFGncyp8?si=-Wuf-0CEdACQH0oR" target="_blank" rel="noreferrer">Watch Recording →</a>
+          </div>
+
+          <div class="video-item">
+            <strong>4 Mar, 6:30-7:15pm</strong>
+            <div>AI Solutions Development, by Mr FENG Weihan, AISG Apprentice Graduate</div>
+            <a href="https://youtu.be/RmX4OyQYSK8?si=RTXKnvnmsnJsyRDE" target="_blank" rel="noreferrer">Watch Recording →</a>
+          </div>
+
+          <div class="video-item">
+            <strong>11 Mar, 6:30-8:30pm</strong>
+            <div>Graphisoft AI Solutions, by Mr Vimal Kumar</div>
+            <a href="https://youtu.be/jNQTUvcdcJU?si=TFpGmfoGL2sCe3LF" target="_blank" rel="noreferrer">Watch Recording →</a>
+          </div>
+
+          <div class="video-item">
+            <strong>18 Mar, 6:30-8:15pm</strong>
+            <div>Podium & AI Solutions, by Mr Luke TAN, Lendlease<br>Sketchup Solutions by Michael WONG, Warehouse Blueprint</div>
+            <a href="https://youtu.be/SSGnfunclew?si=nDUUJowg14cGSra4" target="_blank" rel="noreferrer">Watch Recording →</a>
+          </div>
+
+          <div class="video-item">
+            <strong>25 Mar, 6:30-7:15pm</strong>
+            <div>AI and GenAI Solutions, by Vignesh Kaushik, Gensler</div>
+            <a href="https://www.youtube.com/watch?v=7GmNuGpTLF0" target="_blank" rel="noreferrer">Watch Recording →</a>
+          </div>
+        </details>
+
+        <details style="margin-top: 20px;">
+          <summary style="cursor: pointer; font-weight: bold; font-size: 1.1em; color: #4ea2fd; margin-bottom: 10px;">2023 YouTube Video Recordings</summary>
+          
+          <div class="video-item">
+            <strong>2023 and earlier</strong>
+            <div>YAL AI Talks and earlier computational BIM workshops</div>
+            <a href="https://www.integrations.space/p/past-workshops.html" target="_blank" rel="noreferrer">View Past Workshops →</a>
+          </div>
+        </details>
       </section>
 
       <style>
@@ -396,9 +473,6 @@
             if (sharingSessionsSection) sharingSessionsSection.style.display = '';
             if (videoRecordingsSection) videoRecordingsSection.style.display = '';
             if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
-            
-            // Load video recordings
-            loadVideoRecordings(session);
           } else if (res.status === 403) {
             // User is signed in but not registered - show help message
             if (membersSection) membersSection.style.display = 'none';
@@ -423,65 +497,6 @@
           if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
           if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
           if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
-        }
-      }
-
-      async function loadVideoRecordings(session) {
-        if (!session || !session.access_token) {
-          if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
-          return;
-        }
-
-        try {
-          const sb = await getSupabaseClient();
-          if (!sb) return;
-
-          const { data, error } = await sb
-            .from('video_recordings')
-            .select('*')
-            .order('year', { ascending: false })
-            .order('sort_order', { ascending: true });
-
-          if (error) {
-            console.error('Error loading video recordings:', error);
-            return;
-          }
-
-          if (!data || data.length === 0) {
-            if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
-            return;
-          }
-
-          // Group by year
-          const byYear = {};
-          data.forEach(v => {
-            if (!byYear[v.year]) byYear[v.year] = [];
-            byYear[v.year].push(v);
-          });
-
-          // Build HTML
-          let html = '';
-          Object.keys(byYear).sort((a, b) => b - a).forEach(year => {
-            html += `<h3 class="video-year">${year} YouTube Video Recordings</h3>`;
-            byYear[year].forEach(video => {
-              const titleLines = video.title.split('\\n').map(line => escapeHtml(line)).join('<br>');
-              html += `
-                <div class="video-item">
-                  <strong>${escapeHtml(video.date_text)}</strong>
-                  <div>${titleLines}</div>
-                  <a href="${escapeHtml(video.url)}" target="_blank" rel="noreferrer">Watch Recording →</a>
-                </div>
-              `;
-            });
-          });
-
-          const contentEl = document.getElementById('videoRecordingsContent');
-          if (contentEl) contentEl.innerHTML = html;
-          if (videoRecordingsSection) videoRecordingsSection.style.display = '';
-
-        } catch (e) {
-          console.error('Error loading video recordings:', e);
-          if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
         }
       }
 
