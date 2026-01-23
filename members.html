@@ -210,7 +210,7 @@
       </section>
 
       <section class="card" id="videoRecordingsSection" style="display:none;">
-        <h2>YouTube Videos</h2>
+        <h2 id="YouTubeVideos">YouTube Videos</h2>
         <p class="muted">Past session recordings from 2023-2025.</p>
         <div id="videoRecordingsContent"></div>
       </section>
@@ -493,9 +493,11 @@
             
             byYear[year].forEach(video => {
               const titleLines = video.title.split('\n').map(line => escapeHtml(line)).join('<br>');
+              // Skip date_text if it's redundant with year heading
+              const showDate = video.date_text !== '2023 and earlier';
               html += `
                 <div class="video-item">
-                  <strong>${escapeHtml(video.date_text)}</strong>
+                  ${showDate ? `<strong>${escapeHtml(video.date_text)}</strong>` : ''}
                   <div>${titleLines}</div>
                   <a href="${escapeHtml(video.url)}" target="_blank" rel="noreferrer">Watch Recording →</a>
                 </div>
