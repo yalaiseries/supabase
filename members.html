@@ -210,7 +210,7 @@
       </section>
 
       <section class="card" id="videoRecordingsSection" style="display:none;">
-        <h2>YouTube Video Recordings</h2>
+        <h2>YouTube Videos</h2>
         <p class="muted">Past session recordings from 2023-2025.</p>
         <div id="videoRecordingsContent"></div>
       </section>
@@ -486,9 +486,9 @@
           let html = '';
           const years = Object.keys(byYear).sort((a, b) => b - a);
           years.forEach((year, index) => {
-            const isOpen = index === 0 ? 'open' : ''; // First year open by default
-            html += `<details class="video-section" ${isOpen}>`;
-            html += `<summary><h3>${year} YouTube Video Recordings</h3></summary>`;
+            html += `<details class="video-section">`;
+            const yearLabel = year == 2023 ? '2023 and earlier' : year;
+            html += `<summary><h3>${yearLabel}</h3></summary>`;
             html += `<div class="video-content">`;
             
             byYear[year].forEach(video => {
