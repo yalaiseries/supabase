@@ -487,8 +487,7 @@
           const years = Object.keys(byYear).sort((a, b) => b - a);
           years.forEach((year, index) => {
             html += `<details class="video-section">`;
-            const yearLabel = year == 2023 ? '2023 and earlier' : year;
-            html += `<summary><h3>${yearLabel}</h3></summary>`;
+            html += `<summary><h3>${year}</h3></summary>`;
             html += `<div class="video-content">`;
             
             byYear[year].forEach(video => {
