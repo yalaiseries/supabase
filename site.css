@@ -330,8 +330,19 @@ button.btn {
   display: none;
 }
 
+.category-section {
+  margin: 14px 0;
+  padding: 12px;
+  border: 1px solid rgba(78, 162, 253, 0.3);
+  border-radius: 12px;
+  background: rgba(78, 162, 253, 0.05);
+}
+
 .category-section > summary {
   list-style: none;
+  cursor: pointer;
+  font-size: 15px;
+  color: #4ea2fd;
 }
 
 .category-section > summary::before {

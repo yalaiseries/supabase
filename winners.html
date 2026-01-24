@@ -19,7 +19,7 @@
 
     <link rel="icon" href="favicon.svg?v=2026-jan23d" type="image/svg+xml" />
     <link rel="manifest" href="site.webmanifest" />
-    <link rel="stylesheet" href="site.css?v=2026-jan24b" />
+    <link rel="stylesheet" href="site.css?v=2026-jan24d" />
 
     <script src="supabase-config.js"></script>
     <script type="module" src="supabase-loader.js"></script>
@@ -278,8 +278,8 @@
 
               return `
                 <details class="category-section">
-                  <summary style="background: rgba(78, 162, 253, 0.1); padding: 16px; border-radius: 12px; cursor: pointer; margin-bottom: 20px; border: 1px solid rgba(78, 162, 253, 0.2); transition: all 0.2s ease;" onmouseover="this.style.background='rgba(78, 162, 253, 0.15)'" onmouseout="this.style.background='rgba(78, 162, 253, 0.1)'">
-                    <strong style="font-size: 15px; color: #4ea2fd;">${title}</strong>
+                  <summary>
+                    <strong>${title}</strong>
                   </summary>
                   <div class="category-content">
                     ${cards || '<p class="small muted">No use cases listed yet.</p>'}
