@@ -361,6 +361,29 @@ button.btn {
   display: none;
 }
 
+.year-section {
+  margin: 14px 0;
+}
+
+.year-section > summary {
+  cursor: pointer;
+  list-style: none;
+  background: rgba(78, 162, 253, 0.1);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(78, 162, 253, 0.2);
+  transition: all 0.2s ease;
+  margin-bottom: 14px;
+}
+
+.year-section > summary:hover {
+  background: rgba(78, 162, 253, 0.15);
+}
+
+.year-section > summary::-webkit-details-marker {
+  display: none;
+}
+
 .challenge-topics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
