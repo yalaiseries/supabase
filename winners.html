@@ -19,7 +19,7 @@
 
     <link rel="icon" href="favicon.svg?v=2026-jan23d" type="image/svg+xml" />
     <link rel="manifest" href="site.webmanifest" />
-    <link rel="stylesheet" href="site.css?v=2026-jan24n" />
+    <link rel="stylesheet" href="site.css?v=2026-jan24o" />
 
     <script src="supabase-config.js"></script>
     <script type="module" src="supabase-loader.js"></script>
@@ -263,15 +263,21 @@
                   const teamHtml = team ? `<div class="usecase-team small muted">${team}</div>` : '';
 
                   return `
-                    <article class="usecase">
-                      <h4>${uTitle}</h4>
-                      ${awardHtml}
-                      ${teamHtml}
-                      ${summary ? `<p class="muted">${summary}</p>` : ''}
-                      ${peopleHtml}
-                      ${showcaseHtml}
-                      ${linksHtml}
-                    </article>
+                    <details class="usecase-card">
+                      <summary class="usecase-summary">
+                        <div class="usecase-header">
+                          <h4 style="margin: 0; display: inline;">${uTitle}</h4>
+                          ${awardHtml}
+                          ${teamHtml}
+                        </div>
+                      </summary>
+                      <div class="usecase-content">
+                        ${summary ? `<p class="muted">${summary}</p>` : ''}
+                        ${peopleHtml}
+                        ${showcaseHtml}
+                        ${linksHtml}
+                      </div>
+                    </details>
                   `;
                 })
                 .join('');

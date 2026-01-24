@@ -464,16 +464,48 @@ button.btn {
   font-size: 16px;
 }
 
-.usecase {
+.usecase-card {
   border-top: 1px solid var(--border);
   padding-top: 12px;
   margin-top: 12px;
 }
 
-.usecase:first-of-type {
+.usecase-card:first-of-type {
   border-top: none;
   padding-top: 0;
   margin-top: 0;
+}
+
+.usecase-summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.usecase-summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 6px;
+  transition: transform 0.2s ease;
+  color: #4ea2fd;
+  font-size: 15px;
+  vertical-align: -0.15em;
+  transform-origin: center;
+}
+
+.usecase-card[open] > .usecase-summary::before {
+  transform: rotate(90deg);
+}
+
+.usecase-summary::-webkit-details-marker {
+  display: none;
+}
+
+.usecase-header {
+  display: inline;
+}
+
+.usecase-content {
+  margin-top: 12px;
 }
 
 .usecase h4 {
