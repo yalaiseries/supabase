@@ -312,6 +312,12 @@ button.btn {
   list-style: none;
   font-size: 15px;
   color: #4ea2fd;
+  font-weight: normal;
+  line-height: 1.5;
+}
+
+.challenge-section > summary strong {
+  font-weight: bold;
 }
 
 .challenge-section > summary::before {
@@ -346,6 +352,12 @@ button.btn {
   cursor: pointer;
   font-size: 15px;
   color: #4ea2fd;
+  font-weight: normal;
+  line-height: 1.5;
+}
+
+.category-section > summary strong {
+  font-weight: bold;
 }
 
 .category-section > summary::before {
