@@ -364,11 +364,11 @@ button.btn {
   content: '▸';
   display: inline-block;
   margin-right: 6px;
+  transition: transform 0.2s ease;
   color: #4ea2fd;
   font-size: 15px;
   vertical-align: -0.15em;
   transform-origin: center;
-  transition: transform 0.2s ease;
 }
 
 .category-section[open] > summary::before {
