@@ -379,6 +379,45 @@ button.btn {
   display: none;
 }
 
+.section-collapsible {
+  margin: 0;
+}
+
+.section-collapsible > summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: normal;
+  line-height: 1.5;
+}
+
+.section-collapsible > summary h2 {
+  display: inline;
+  margin: 0;
+}
+
+.section-collapsible > summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 6px;
+  transition: transform 0.2s ease;
+  color: #4ea2fd;
+  font-size: 18px;
+  vertical-align: -0.15em;
+  transform-origin: center;
+}
+
+.section-collapsible[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.section-collapsible > summary::-webkit-details-marker {
+  display: none;
+}
+
+.section-content {
+  margin-top: 20px;
+}
+
 .year-section {
   margin: 14px 0;
 }
