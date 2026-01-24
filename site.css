@@ -319,6 +319,7 @@ button.btn {
   display: inline-block;
   margin-right: 6px;
   transition: transform 0.2s ease;
+  color: #4ea2fd;
 }
 
 .challenge-section[open] > summary::before {
@@ -338,6 +339,7 @@ button.btn {
   display: inline-block;
   margin-right: 6px;
   transition: transform 0.2s ease;
+  color: #4ea2fd;
 }
 
 .category-section[open] > summary::before {
