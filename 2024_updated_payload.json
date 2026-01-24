@@ -1,0 +1,186 @@
+{
+  "categories": [
+    {
+      "category": "Top Winners",
+      "useCases": [
+        {
+          "team": "Team 9",
+          "award": "First Prize Winner ($2500)",
+          "links": [
+            {
+              "url": "https://drive.google.com/file/d/1aC3FIrdixQvPSTuthVS36ygZIeI4sZu7/view",
+              "label": "Slides"
+            }
+          ],
+          "title": "Automated Identification of Design Changes (Team 9)",
+          "people": {
+            "lead": "CHONG Shyh Hao",
+            "coLeads": [
+              "CHONG Wen Jin"
+            ],
+            "linkedin": "linkedin.com/in/shyh-hao-chong-976339201/",
+            "teamMembers": [
+              "Vincent PHOEN",
+              "Janis HO"
+            ]
+          },
+          "summary": "Documenting variations during construction typically requires manual comparison of drawings to identify changes, a process that is time-intensive and repetitive. This team developed an automated system that scales and compares PDF drawings to identify, list, and measure design changes, assigning unique identities to each variance. Utilizing Python and YOLOV8 image detection, the tool identifies building elements and automates the documentation process. This innovation can save approximately 200 man-hours per project by streamlining the identification of Variation Orders.",
+          "oneSentence": "An automated detection system that compares tender and amended drawings to list, measure, and document design changes for cost estimation."
+        },
+        {
+          "team": "Team 3",
+          "award": "Second Prize Winner ($1500)",
+          "links": [
+            {
+              "url": "https://drive.google.com/file/d/11KD1OxkRrmnCnWV7V9PPJPVRDc7el0Ds/view",
+              "label": "Slides"
+            }
+          ],
+          "title": "Fire Code Checks (Team 3)",
+          "people": {
+            "lead": "Atenn NEOH",
+            "coLeads": [
+              "Bob LEE"
+            ],
+            "linkedin": "linkedin.com/in/atenn-neoh",
+            "teamMembers": [
+              "Fujinami Yuji MALCOLM",
+              "Evangelina ONG",
+              "TANG Minjing",
+              "Yvonne ZHANG Jingyao"
+            ]
+          },
+          "summary": "Recognizing that manual fire code checks are laborious, time-consuming, and prone to error, this team developed an AI application to automate the checking and placement of FSSD items like fire extinguishers. The solution is a Revit Plugin that identifies obstacles and computes compliant locations based on existing methods, highlighting any errors or non-compliances directly on the plans. This innovation significantly reduces human error and allows design hours to be recovered for coordination tasks, with a scalable logic that can be applied to other compliance checks such as fire hydrants.",
+          "oneSentence": "An automated plugin that eliminates human error in fire code compliance by identifying and placing safety equipment directly onto digital floor plans."
+        },
+        {
+          "team": "Team 8",
+          "award": "Third Prize Winner ($1000)",
+          "links": [
+            {
+              "url": "https://drive.google.com/file/d/1S0K6z3fyTcR6d-KhDQW6ULimUho9uhRT/view",
+              "label": "Slides"
+            }
+          ],
+          "title": "Carbon Now (Team 8)",
+          "people": {
+            "lead": "Quentin SIM",
+            "coLeads": [
+              "Darren TAN"
+            ],
+            "linkedin": "linkedin.com/in/quentsim",
+            "teamMembers": [
+              "QUEK Li-En",
+              "Estelle MAK",
+              "David OKTAVIANUS",
+              "Ivonne SUWARNA",
+              "LIN Zhenyi"
+            ]
+          },
+          "summary": "Determining a building's full carbon lifecycle is difficult due to data scarcity and calculation complexity. This project proposes an on-demand system using NLP to estimate Full Carbon Life Cycle data instantly through an LLM interface. The tool combines OpenStreetMap data for building details, the ICE database for materials, and EMA data to calculate emissions and required tree offsets. It provides developers and owners with an immediate estimate of their building's environmental impact and carbon sequestration needs, bridging the gap in available data.",
+          "oneSentence": "An instant calculator leveraging NLP and open data to estimate the full carbon lifecycle and sequestration needs of existing buildings."
+        }
+      ]
+    },
+    {
+      "category": "Merit Prizes",
+      "useCases": [
+        {
+          "team": "Team 6",
+          "award": "Merit Prize ($250)",
+          "links": [
+            {
+              "url": "https://drive.google.com/file/d/1UTDL_3hc-uUIrSnE3EzgFdsrjFr1X5Ts/view",
+              "label": "Slides"
+            }
+          ],
+          "title": "Building Authorities Code Platform GPT (Team 6)",
+          "people": {
+            "lead": "TAN Wei Sheng",
+            "coLeads": [
+              "Anders Ang Wei Li"
+            ],
+            "linkedin": "linkedin.com/in/wei-sheng-tan",
+            "teamMembers": [
+              "CHEK Hong Yao Gabriel",
+              "MAK Yiing Huey"
+            ]
+          },
+          "summary": "Searching for specific regulations across multiple PDF documents is often like \"finding a needle in a haystack,\" wasting valuable design time. This project introduces a chat agent that utilizes Retrieval Augmented Generation (RAG) and the LlamaIndex framework to retrieve and summarize requirements via natural language queries. By employing prompt engineering techniques like \"Chain-of-Thought,\" the tool improves response accuracy and reduces hallucinations by citing sources. This allows architects to verify compliance requirements efficiently, transforming a fragmented search process into a streamlined dialogue.",
+          "oneSentence": "An intelligent chat agent using RAG technology to assist architects in quickly retrieving and summarizing complex building regulations from multiple agencies."
+        },
+        {
+          "team": "Team 10",
+          "award": "Merit Prize ($250)",
+          "links": [
+            {
+              "url": "https://drive.google.com/file/d/1SSpkbOsygsVnrrhjbHuLEGRksByOLxsf/view",
+              "label": "Slides"
+            }
+          ],
+          "title": "Architectural Ideation and Visualisation with Generative AI (Team 10)",
+          "people": {
+            "lead": "PONG Woon Wei",
+            "coLeads": [
+              "Atenn NEOH"
+            ],
+            "linkedin": "linkedin.com/in/woonwei",
+            "teamMembers": [
+              "LAU Siong Weng"
+            ]
+          },
+          "summary": "Consultants often struggle with tight deadlines and a significant skills gap regarding the rapid advancement of Generative AI technologies. This project focuses on the development and sharing of accessible learning guides and resources to help the community adopt GenAI tools like Midjourney and Stable Diffusion. The team tested various tools for rapid ideation, trained custom models on specific styles like \"Modern Tropical,\" and used massing models to guide AI accuracy. The initiative addresses skills gaps, enhances design speed, and fosters a community of practice for sharing knowledge.",
+          "oneSentence": "A community-focused initiative providing learning guides and resources to help consultants adopt Generative AI for rapid design ideation and visualization."
+        },
+        {
+          "team": "Team 5",
+          "award": "Merit Prize ($250)",
+          "links": [
+            {
+              "url": "https://drive.google.com/file/d/1Xe4ohLDOs0HfFBojLXLhJKaLITOCWdgt/view",
+              "label": "Slides"
+            }
+          ],
+          "title": "Draco - Sketching/Collaging to AI Render tool (Team 5)",
+          "people": {
+            "lead": "Vignesh KAUSHIK",
+            "coLeads": [
+              "Naomi Marcelle BACHTIAR"
+            ],
+            "linkedin": "linkedin.com/in/vigneshkaushik",
+            "teamMembers": [
+              "CHEK Hong Yao Gabriel",
+              "MAK Yiing Huey"
+            ]
+          },
+          "summary": "Standard text-to-image AI models often remove control from the designer, as they do not align with the architectural workflow of sketching and collaging. \"Draco\" is a web-based, real-time tool that integrates a sketching interface with backend APIs to convert sketches and collages directly into rendered images. By using tools like React and StabilityAI, this \"human-enabled\" process returns control to the designer, allowing for rapid iteration from sketch to render in seconds and potentially saving days of work compared to traditional 3D modeling workflows.",
+          "oneSentence": "A real-time design tool that empowers architects to drive AI rendering through sketches and collages rather than text prompts."
+        },
+        {
+          "team": "Team 7",
+          "award": "Merit Prize ($250)",
+          "links": [
+            {
+              "url": "https://drive.google.com/file/d/1kmIm-VD5lQgARPulWFO535VCilyRslo9/view",
+              "label": "Slides"
+            }
+          ],
+          "title": "Automated and Intelligent generation of Massing Models and Visualisation from Design Brief (Team 7)",
+          "people": {
+            "lead": "Gerard TEO",
+            "coLeads": [
+              "Gyanish Kakati"
+            ],
+            "linkedin": "linkedin.com/in/gerard-teo-88265a1b8",
+            "teamMembers": [
+              "THET Naung Oo",
+              "LIM Kah Ying"
+            ]
+          },
+          "summary": "A workflow that automates the translation of text-based design briefs into 3D massing models and visualisations for rapid project feasibility. Write-up: Extracting key parameters from lengthy design briefs to create massing models is a mundane task that consumes significant time during feasibility studies. This technological solution uses GenAI to instantly extract data, apply regulations, and generate massing models through a connected workflow. An AI chatbot extracts parameters into a JSON file which drives a Grasshopper workflow to generate the 3D model, followed by Stable Diffusion for rendering specific architectural styles. This automation speeds up the conceptualisation phase, providing a quick overview of project scale and complexity for competitions and studies.",
+          "oneSentence": "A workflow that automates the translation of text-based design briefs into 3D massing models and visualisations for rapid project feasibility."
+        }
+      ]
+    }
+  ]
+}
