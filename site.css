@@ -320,7 +320,9 @@ button.btn {
   margin-right: 6px;
   transition: transform 0.2s ease;
   color: #4ea2fd;
-  vertical-align: middle;
+  vertical-align: baseline;
+  font-size: 15px;
+  line-height: 1;
 }
 
 .challenge-section[open] > summary::before {
@@ -352,7 +354,9 @@ button.btn {
   margin-right: 6px;
   transition: transform 0.2s ease;
   color: #4ea2fd;
-  vertical-align: middle;
+  vertical-align: baseline;
+  font-size: 15px;
+  line-height: 1;
 }
 
 .category-section[open] > summary::before {
