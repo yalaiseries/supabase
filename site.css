@@ -329,6 +329,25 @@ button.btn {
   display: none;
 }
 
+.category-section > summary {
+  list-style: none;
+}
+
+.category-section > summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 6px;
+  transition: transform 0.2s ease;
+}
+
+.category-section[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.category-section > summary::-webkit-details-marker {
+  display: none;
+}
+
 .challenge-topics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
