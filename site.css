@@ -314,6 +314,17 @@ button.btn {
   color: #4ea2fd;
 }
 
+.challenge-section > summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 6px;
+  transition: transform 0.2s ease;
+}
+
+.challenge-section[open] > summary::before {
+  transform: rotate(90deg);
+}
+
 .challenge-section > summary::-webkit-details-marker {
   display: none;
 }
