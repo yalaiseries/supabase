@@ -277,10 +277,14 @@
                 .join('');
 
               return `
-                <section class="category-col">
-                  <h3>${title}</h3>
-                  ${cards || '<p class="small muted">No use cases listed yet.</p>'}
-                </section>
+                <details class="category-section" open>
+                  <summary style="background: rgba(78, 162, 253, 0.1); padding: 16px; border-radius: 12px; cursor: pointer; margin-bottom: 20px; border: 1px solid rgba(78, 162, 253, 0.2); transition: all 0.2s ease;" onmouseover="this.style.background='rgba(78, 162, 253, 0.15)'" onmouseout="this.style.background='rgba(78, 162, 253, 0.1)'">
+                    <h3 style="display: inline; margin: 0;">${title}</h3>
+                  </summary>
+                  <div class="category-content">
+                    ${cards || '<p class="small muted">No use cases listed yet.</p>'}
+                  </div>
+                </details>
               `;
             };
 
