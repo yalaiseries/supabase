@@ -321,9 +321,8 @@ button.btn {
   transition: transform 0.2s ease;
   color: #4ea2fd;
   font-size: 15px;
-  line-height: 1;
-  position: relative;
-  top: 1px;
+  vertical-align: -0.1em;
+  transform-origin: center;
 }
 
 .challenge-section[open] > summary::before {
@@ -353,12 +352,11 @@ button.btn {
   content: '▸';
   display: inline-block;
   margin-right: 6px;
-  transition: transform 0.2s ease;
   color: #4ea2fd;
   font-size: 15px;
-  line-height: 1;
-  position: relative;
-  top: 1px;
+  vertical-align: -0.1em;
+  transform-origin: center;
+  transition: transform 0.2s ease;
 }
 
 .category-section[open] > summary::before {
