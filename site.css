@@ -321,7 +321,7 @@ button.btn {
   transition: transform 0.2s ease;
   color: #4ea2fd;
   font-size: 15px;
-  vertical-align: -0.1em;
+  vertical-align: -0.15em;
   transform-origin: center;
 }
 
@@ -354,7 +354,7 @@ button.btn {
   margin-right: 6px;
   color: #4ea2fd;
   font-size: 15px;
-  vertical-align: -0.1em;
+  vertical-align: -0.15em;
   transform-origin: center;
   transition: transform 0.2s ease;
 }
