@@ -247,18 +247,42 @@
 
     <script>
     // Mouse-follow glow effect for cards and hero
-    document.addEventListener('DOMContentLoaded', () => {
+    function initGlowEffects() {
       const cards = document.querySelectorAll('.hero, .card, details.challenge-section, details.category-section, details.section-collapsible, details.usecase-card, details.usecase-details');
       
       cards.forEach(card => {
-        card.addEventListener('mousemove', (e) => {
+        // Remove existing listener if any
+        card.removeEventListener('mousemove', card._glowHandler);
+        
+        // Create and store handler
+        card._glowHandler = (e) => {
           const rect = card.getBoundingClientRect();
           const x = ((e.clientX - rect.left) / rect.width) * 100;
           const y = ((e.clientY - rect.top) / rect.height) * 100;
           card.style.setProperty('--mouse-x', `${x}%`);
           card.style.setProperty('--mouse-y', `${y}%`);
-        });
+        };
+        
+        card.addEventListener('mousemove', card._glowHandler);
       });
+    }
+    
+    // Initialize on DOM load
+    document.addEventListener('DOMContentLoaded', initGlowEffects);
+    
+    // Re-initialize when resources are loaded (for dynamic content)
+    const observer = new MutationObserver(() => {
+      initGlowEffects();
+    });
+    
+    // Observe the resources container for changes
+    window.addEventListener('load', () => {
+      const resourcesContent = document.getElementById('resourcesContent');
+      if (resourcesContent) {
+        observer.observe(resourcesContent, { childList: true, subtree: true });
+        // Also initialize after a short delay to catch dynamically loaded content
+        setTimeout(initGlowEffects, 500);
+      }
     });
     </script>
   </body>
