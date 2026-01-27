@@ -709,7 +709,8 @@ header img[src*="SIA_YAL"]:hover {
 details.challenge-section,
 details.category-section,
 details.section-collapsible,
-details.usecase-card {
+details.usecase-card,
+details.usecase-details {
   position: relative;
   overflow: visible;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -720,7 +721,8 @@ details.usecase-card {
 details.challenge-section::after,
 details.category-section::after,
 details.section-collapsible::after,
-details.usecase-card::after {
+details.usecase-card::after,
+details.usecase-details::after {
   content: '';
   position: absolute;
   top: 0;
@@ -745,7 +747,8 @@ details.usecase-card::after {
 details.challenge-section:hover::after,
 details.category-section:hover::after,
 details.section-collapsible:hover::after,
-details.usecase-card:hover::after {
+details.usecase-card:hover::after,
+details.usecase-details:hover::after {
   opacity: 1;
 }
 
@@ -754,7 +757,8 @@ details.usecase-card:hover::after {
 details.challenge-section:hover,
 details.category-section:hover,
 details.section-collapsible:hover,
-details.usecase-card:hover {
+details.usecase-card:hover,
+details.usecase-details:hover {
   transform: translateY(-5px);
   border-color: rgba(96, 165, 250, 0.4);
   box-shadow: 
