@@ -201,14 +201,11 @@
                   const links = Array.isArray(u.links) ? u.links : [];
 
                   const people = (u && typeof u === 'object' ? u.people : null) || {};
-                  const rep = escapeHtml(people.representativeSpeaker);
-                  const designation = escapeHtml(people.designation);
                   const lead = escapeHtml(people.lead);
                   const coLeads = Array.isArray(people.coLeads) ? people.coLeads : [];
                   const teamMembers = Array.isArray(people.teamMembers) ? people.teamMembers : [];
 
                   const peopleBits = [];
-                  if (rep || designation) peopleBits.push(`<div><strong>Representative Speaker:</strong> ${[rep, designation].filter(Boolean).join(' — ')}</div>`);
                   if (lead) peopleBits.push(`<div><strong>Team Lead:</strong> ${lead}</div>`);
                   if (coLeads.length) peopleBits.push(`<div><strong>Co-leads:</strong> ${escapeHtml(coLeads.join(', '))}</div>`);
                   if (teamMembers.length) peopleBits.push(`<div><strong>Team Members:</strong> ${escapeHtml(teamMembers.join(', '))}</div>`);
