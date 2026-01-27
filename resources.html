@@ -285,9 +285,13 @@
     function initGlowEffects() {
       const cards = document.querySelectorAll('.hero, .card, details.challenge-section, details.category-section, details.section-collapsible, details.usecase-card, details.usecase-details');
       
+      console.log('Initializing glow effects, found cards:', cards.length);
+      
       cards.forEach(card => {
         // Remove existing listener if any
-        card.removeEventListener('mousemove', card._glowHandler);
+        if (card._glowHandler) {
+          card.removeEventListener('mousemove', card._glowHandler);
+        }
         
         // Create and store handler
         card._glowHandler = (e) => {
@@ -302,22 +306,34 @@
       });
     }
     
-    // Initialize on DOM load
-    document.addEventListener('DOMContentLoaded', initGlowEffects);
+    // Initialize immediately
+    initGlowEffects();
     
-    // Re-initialize when resources are loaded (for dynamic content)
-    const observer = new MutationObserver(() => {
+    // Initialize on DOM load
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM loaded, initializing glow');
       initGlowEffects();
     });
     
-    // Observe the resources container for changes
+    // Initialize after full page load
     window.addEventListener('load', () => {
+      console.log('Page fully loaded, initializing glow');
+      initGlowEffects();
+      
+      // Set up mutation observer
       const resourcesContent = document.getElementById('resourcesContent');
       if (resourcesContent) {
+        const observer = new MutationObserver(() => {
+          console.log('Content changed, re-initializing glow');
+          setTimeout(initGlowEffects, 100);
+        });
         observer.observe(resourcesContent, { childList: true, subtree: true });
-        // Also initialize after a short delay to catch dynamically loaded content
-        setTimeout(initGlowEffects, 500);
       }
+      
+      // Also try after delays to catch async loading
+      setTimeout(initGlowEffects, 500);
+      setTimeout(initGlowEffects, 1000);
+      setTimeout(initGlowEffects, 2000);
     });
     </script>
   </body>
