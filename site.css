@@ -689,9 +689,10 @@ header img[src*="SIA_YAL"]:hover {
   border-radius: inherit;
   opacity: 0;
   background: radial-gradient(
-    800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(96, 165, 250, 0.2),
-    transparent 40%
+    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(96, 165, 250, 0.4),
+    rgba(59, 130, 246, 0.2) 30%,
+    transparent 50%
   );
   transition: opacity 0.5s ease;
   pointer-events: none;
@@ -703,16 +704,18 @@ header img[src*="SIA_YAL"]:hover {
 }
 
 /* Card hover glow effects - mouse follows cursor */
+.hero,
 .card,
 details.challenge-section,
 details.category-section,
 details.section-collapsible,
 details.usecase-card {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+.hero::after,
 .card::after,
 details.challenge-section::after,
 details.category-section::after,
@@ -727,15 +730,17 @@ details.usecase-card::after {
   border-radius: inherit;
   opacity: 0;
   background: radial-gradient(
-    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(96, 165, 250, 0.15),
-    transparent 40%
+    500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(96, 165, 250, 0.35),
+    rgba(59, 130, 246, 0.15) 35%,
+    transparent 50%
   );
   transition: opacity 0.5s ease;
   pointer-events: none;
   z-index: 0;
 }
 
+.hero:hover::after,
 .card:hover::after,
 details.challenge-section:hover::after,
 details.category-section:hover::after,
@@ -744,6 +749,7 @@ details.usecase-card:hover::after {
   opacity: 1;
 }
 
+.hero:hover,
 .card:hover,
 details.challenge-section:hover,
 details.category-section:hover,
@@ -757,6 +763,7 @@ details.usecase-card:hover {
 }
 
 /* Ensure content stays above glow */
+.hero > *,
 .card > *,
 details > * {
   position: relative;
