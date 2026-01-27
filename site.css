@@ -11,36 +11,11 @@
 body {
   margin: 0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  background: linear-gradient(135deg, 
-    #0b1220 0%, 
-    #1e3a8a 25%, 
-    #3b82f6 50%, 
-    #1e3a8a 75%, 
-    #0b1220 100%
-  );
-  background-size: 400% 400%;
-  animation: gradient-flow 20s ease infinite;
+  background: radial-gradient(1200px 600px at 20% 0%, rgba(122,162,255,0.18), transparent 60%),
+              radial-gradient(900px 500px at 85% 20%, rgba(108, 234, 255, 0.14), transparent 55%),
+              var(--bg);
   color: var(--text);
   line-height: 1.45;
-  position: relative;
-}
-
-@keyframes gradient-flow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(11, 18, 32, 0.7) 100%);
-  pointer-events: none;
-  z-index: -1;
 }
 a { color: var(--text); }
 a:hover { text-decoration: underline; }
@@ -670,79 +645,64 @@ button.btn {
 }
 
 /* ========================================
-   STRIPE-LIKE ANIMATED EFFECTS
+   SUBTLE INTERACTIVE EFFECTS
    ======================================== */
 
-/* Floating logo animation */
+/* Subtle logo hover (no floating animation) */
 .brand img,
 header img[src*="SIA_YAL"] {
-  animation: float-smooth 6s ease-in-out infinite;
-  will-change: transform;
   transition: transform 0.3s ease;
 }
 
 .brand img:hover,
 header img[src*="SIA_YAL"]:hover {
-  animation-play-state: paused;
-  transform: scale(1.08) translateY(-8px);
+  transform: scale(1.05) translateY(-3px);
 }
 
-@keyframes float-smooth {
-  0%, 100% { 
-    transform: translateY(0px) rotate(0deg); 
-  }
-  25% { 
-    transform: translateY(-12px) rotate(1deg); 
-  }
-  50% { 
-    transform: translateY(-6px) rotate(0deg); 
-  }
-  75% { 
-    transform: translateY(-12px) rotate(-1deg); 
-  }
+/* Interactive images with glow */
+.card img,
+.img {
+  position: relative;
+  transition: transform 0.4s ease, filter 0.4s ease;
+  border-radius: 8px;
 }
 
-/* Hero section rotating glow */
-.main > section:first-of-type {
+.card:has(img):hover img,
+.img:hover {
+  transform: scale(1.02);
+  filter: brightness(1.1);
+}
+
+/* Wrapper for images to add glow effect */
+.card:has(img) {
   position: relative;
   overflow: hidden;
+}
+
+.card:has(img)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  opacity: 0;
+  background: radial-gradient(
+    800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(96, 165, 250, 0.2),
+    transparent 40%
+  );
+  transition: opacity 0.5s ease;
+  pointer-events: none;
   z-index: 1;
 }
 
-.main > section:first-of-type::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(
-    circle,
-    rgba(96, 165, 250, 0.2) 0%,
-    rgba(59, 130, 246, 0.1) 30%,
-    transparent 70%
-  );
-  animation: glow-rotate 20s linear infinite;
-  pointer-events: none;
-  opacity: 0.8;
-  z-index: -1;
+.card:has(img):hover::after {
+  opacity: 1;
 }
 
-@keyframes glow-rotate {
-  0% { 
-    transform: rotate(0deg);
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% { 
-    transform: rotate(360deg);
-    opacity: 0.6;
-  }
-}
-
-/* Card hover glow effects */
+/* Card hover glow effects - mouse follows cursor */
 .card,
 details.challenge-section,
 details.category-section,
@@ -803,61 +763,20 @@ details > * {
   z-index: 1;
 }
 
-/* Button gradient animations */
-.btn,
-a[href*="register"],
-a[href*="challenge"],
-button {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(
-    90deg,
-    #3b82f6 0%,
-    #60a5fa 50%,
-    #3b82f6 100%
-  );
-  background-size: 200% auto;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-}
-
+/* Subtle button hover (no gradient animation) */
 .btn:hover,
 a[href*="register"]:hover,
 a[href*="challenge"]:hover,
 button:hover {
-  background-position: 100% center;
-  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.6);
-  transform: translateY(-2px) scale(1.02);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
   text-decoration: none;
 }
 
-/* Section fade-in animations */
-section {
-  animation: fade-in-up 0.8s ease-out both;
-}
-
-section:nth-child(1) { animation-delay: 0.1s; }
-section:nth-child(2) { animation-delay: 0.2s; }
-section:nth-child(3) { animation-delay: 0.3s; }
-section:nth-child(4) { animation-delay: 0.4s; }
-section:nth-child(5) { animation-delay: 0.5s; }
-
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* GPU acceleration */
+/* GPU acceleration for smooth hovers */
 .brand img,
 .btn,
 .card,
-section,
 details {
   will-change: transform;
   transform: translateZ(0);
