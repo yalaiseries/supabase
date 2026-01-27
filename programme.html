@@ -187,5 +187,22 @@
         <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> · <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> · Public: <a href="https://archihackathon.com" target="_blank" rel="noreferrer">archihackathon.com</a>
       </footer>
     </main>
+
+    <script>
+    // Mouse-follow glow effect for cards and hero
+    document.addEventListener('DOMContentLoaded', () => {
+      const cards = document.querySelectorAll('.hero, .card, details.challenge-section, details.category-section, details.section-collapsible, details.usecase-card, details.usecase-details');
+      
+      cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = ((e.clientX - rect.left) / rect.width) * 100;
+          const y = ((e.clientY - rect.top) / rect.height) * 100;
+          card.style.setProperty('--mouse-x', `${x}%`);
+          card.style.setProperty('--mouse-y', `${y}%`);
+        });
+      });
+    });
+    </script>
   </body>
 </html>
