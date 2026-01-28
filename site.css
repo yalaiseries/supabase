@@ -676,7 +676,9 @@ details.category-section,
 details.section-collapsible,
 details.usecase-card,
 details.usecase-details,
-details.resource-section {
+details.resource-section,
+details.year-section,
+details.video-section {
   transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
@@ -696,7 +698,9 @@ details.category-section:hover,
 details.section-collapsible:hover,
 details.usecase-card:hover,
 details.usecase-details:hover,
-details.resource-section:hover {
+details.resource-section:hover,
+details.year-section:hover,
+details.video-section:hover {
   border-color: rgba(255, 255, 255, 0.2);
   box-shadow: 
     0 0 0 1px rgba(255, 255, 255, 0.1),
