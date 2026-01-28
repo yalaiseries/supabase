@@ -15,7 +15,12 @@
     cursorDot.className = 'cursor-dot active'; // Start visible
     document.body.appendChild(cursor);
     document.body.appendChild(cursorDot);
-    document.body.classList.add('custom-cursor');
+    
+    // Only hide default cursor after custom cursor is ready
+    setTimeout(() => {
+      document.body.classList.add('custom-cursor');
+      document.body.classList.add('cursor-ready');
+    }, 100);
 
     let mouseX = 0, mouseY = 0;
     let cursorX = 0, cursorY = 0;

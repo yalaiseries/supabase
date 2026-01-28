@@ -803,9 +803,9 @@ details > * {
   opacity: 0;
 }
 
-/* Hide default cursor when custom cursor is active */
-body.custom-cursor,
-body.custom-cursor * {
+/* Hide default cursor only when custom cursor is fully ready */
+body.custom-cursor.cursor-ready,
+body.custom-cursor.cursor-ready * {
   cursor: none !important;
 }
 
