@@ -144,6 +144,7 @@ a:hover { text-decoration: underline; }
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease, border-color 0.2s ease, background 0.2s ease;
 }
 
 button.btn {
@@ -803,12 +804,22 @@ body.custom-cursor.cursor-ready * {
 
 /* Subtle button hover (no gradient animation) */
 .btn:hover,
+.btn.primary:hover,
 a[href*="register"]:hover,
 a[href*="challenge"]:hover,
 button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+  border-color: rgba(122, 162, 255, 0.7);
+  box-shadow: 
+    0 0 0 1px rgba(122, 162, 255, 0.3),
+    0 8px 25px rgba(59, 130, 246, 0.5);
   text-decoration: none;
+}
+
+.btn:active,
+.btn.primary:active,
+button:active {
+  transform: translateY(0);
 }
 
 /* GPU acceleration for smooth hovers */
