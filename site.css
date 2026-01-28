@@ -639,6 +639,11 @@ button.btn {
   padding: 10px 12px;
 }
 
+/* Ensure child elements inside summary don't block clicks */
+summary * {
+  pointer-events: none;
+}
+
 .usecase-details > div,
 .usecase-details > .usecase-people {
   padding: 0 12px 10px 12px;
