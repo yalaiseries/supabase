@@ -334,6 +334,7 @@ button.btn {
 }
 
 .challenge-section > summary {
+  display: block;
   cursor: pointer;
   list-style: none;
   font-size: 15px;
@@ -342,6 +343,7 @@ button.btn {
   line-height: 1.5;
   -webkit-user-select: none;
   user-select: none;
+  touch-action: manipulation;
 }
 
 .challenge-section > summary strong {
@@ -390,12 +392,14 @@ button.btn {
 }
 
 .section-collapsible > summary {
+  display: block;
   cursor: pointer;
   list-style: none;
   font-weight: normal;
   line-height: 1.5;
   -webkit-user-select: none;
   user-select: none;
+  touch-action: manipulation;
 }
 
 .section-collapsible > summary h2 {
@@ -418,6 +422,7 @@ button.btn {
 }
 
 .year-section > summary {
+  display: block;
   cursor: pointer;
   list-style: none;
   background: rgba(78, 162, 253, 0.1);
@@ -428,6 +433,7 @@ button.btn {
   margin-bottom: 14px;
   -webkit-user-select: none;
   user-select: none;
+  touch-action: manipulation;
 }
 
 .year-section > summary:hover {
@@ -513,10 +519,12 @@ button.btn {
 }
 
 .usecase-summary {
+  display: block;
   cursor: pointer;
   list-style: none;
   -webkit-user-select: none;
   user-select: none;
+  touch-action: manipulation;
 }
 
 /* Removed custom triangles - using native browser disclosure triangles */
@@ -622,10 +630,12 @@ button.btn {
 }
 
 .usecase-details > summary {
+  display: block;
   cursor: pointer;
   user-select: none;
   font-weight: 600;
   color: var(--text);
+  touch-action: manipulation;
 }
 
 .usecase-dl {
