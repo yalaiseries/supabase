@@ -569,6 +569,13 @@ button.btn {
   color: var(--accent);
 }
 
+.award-icon {
+  color: var(--accent);
+  font-size: 10px;
+  margin-right: 4px;
+  opacity: 0.8;
+}
+
 .usecase-meta {
   font-size: 13px;
   color: var(--muted);
