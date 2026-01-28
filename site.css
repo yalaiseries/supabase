@@ -363,6 +363,7 @@ button.btn {
 }
 
 .category-section > summary {
+  display: block;
   list-style: none;
   cursor: pointer;
   font-size: 15px;
@@ -371,6 +372,7 @@ button.btn {
   line-height: 1.5;
   -webkit-user-select: none;
   user-select: none;
+  touch-action: manipulation;
 }
 
 .category-section > summary strong {
