@@ -776,7 +776,9 @@ details > * {
   z-index: 1;
 }
 
-/* Custom cursor effect - motion.page style */
+/* Custom cursor removed - restore default cursor */
+/* Keeping these styles for potential future use */
+/*
 .cursor {
   position: fixed;
   width: 40px;
@@ -803,24 +805,22 @@ details > * {
   opacity: 0;
 }
 
-/* Hide default cursor only when custom cursor is fully ready */
 body.custom-cursor.cursor-ready,
 body.custom-cursor.cursor-ready * {
   cursor: none !important;
 }
 
-/* Hover state - scale up */
 .cursor.hover {
   transform: scale(1.5);
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.5);
 }
 
-/* Show cursors after initialization */
 .cursor.active,
 .cursor-dot.active {
   opacity: 1;
 }
+*/
 
 /* Subtle button hover (no gradient animation) */
 .btn:hover,
