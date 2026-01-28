@@ -194,6 +194,8 @@ button.btn {
 h1 {
   transition: color 0.3s ease, text-shadow 0.3s ease;
   cursor: default;
+  padding: 0;
+  background: transparent;
 }
 
 h1:hover {
@@ -425,6 +427,8 @@ h1:hover {
 .section-collapsible > summary h2 {
   display: inline;
   margin: 0;
+  padding: 0;
+  background: transparent;
   transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
@@ -437,6 +441,8 @@ h1:hover {
 h2 {
   transition: color 0.3s ease, text-shadow 0.3s ease;
   cursor: default;
+  padding: 0;
+  background: transparent;
 }
 
 h2:hover {
@@ -448,6 +454,8 @@ h2:hover {
 h3 {
   transition: color 0.3s ease, text-shadow 0.3s ease;
   cursor: default;
+  padding: 0;
+  background: transparent;
 }
 
 h3:hover {
