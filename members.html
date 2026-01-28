@@ -149,6 +149,12 @@
         </div>
       </section>
 
+      <section class="card" id="resourcesLibrarySection" style="display:none;">
+        <h2>📚 Resources Library</h2>
+        <p class="muted">Curated AI/AECO resources for participants.</p>
+        <div id="resourcesLibraryContent"></div>
+      </section>
+
       <section class="card" id="sharingSessionsSection" style="display:none;">
         <h2>AI Sharing Sessions</h2>
         <p class="muted">Hybrid sessions with discussions and expert sharing. All times are Singapore time (GMT+8).</p>
@@ -525,7 +531,9 @@
       }
 
       async function loadMembersLibrary(session) {
-        // Deprecated - using Winners Library and Resources cards instead
+        const contentEl = document.getElementById('resourcesLibraryContent');
+        const resourcesLibrarySection = document.getElementById('resourcesLibrarySection');
+        
         if (!session || !session.access_token) {
           setStatus('Please sign in to view members-only resources.');
           return;
@@ -560,6 +568,7 @@
           }
 
           setStatus('');
+          if (resourcesLibrarySection) resourcesLibrarySection.style.display = 'block';
 
           function splitTopicTitle(title) {
             const t = String(title || '').trim();
@@ -818,7 +827,7 @@
 
         const { data } = await sb.auth.getSession();
         updateUI(data.session);
-        // loadMembersLibrary(data.session); // Deprecated - using Winners Library card instead
+        loadMembersLibrary(data.session);
 
         sb.auth.onAuthStateChange((event, session) => {
           if (event === 'PASSWORD_RECOVERY') {
@@ -828,7 +837,7 @@
             showPasswordRecovery(false);
           }
           updateUI(session);
-          // loadMembersLibrary(session); // Deprecated - using Winners Library card instead
+          loadMembersLibrary(session);
         });
       }
 
