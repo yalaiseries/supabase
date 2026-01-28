@@ -325,6 +325,8 @@ button.btn {
   color: #4ea2fd;
   font-weight: normal;
   line-height: 1.5;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .challenge-section > summary strong {
