@@ -675,7 +675,8 @@ details.challenge-section,
 details.category-section,
 details.section-collapsible,
 details.usecase-card,
-details.usecase-details {
+details.usecase-details,
+details.resource-section {
   position: relative;
   overflow: visible;
   transition: transform 0.2s ease, box-shadow 0.3s ease, border-color 0.3s ease;
@@ -689,7 +690,8 @@ details.challenge-section:hover,
 details.category-section:hover,
 details.section-collapsible:hover,
 details.usecase-card:hover,
-details.usecase-details:hover {
+details.usecase-details:hover,
+details.resource-section:hover {
   transform: translateY(-2px);
   border-color: rgba(255, 255, 255, 0.2);
   box-shadow: 
@@ -704,7 +706,8 @@ details.challenge-section summary:active,
 details.category-section summary:active,
 details.section-collapsible summary:active,
 details.usecase-card summary:active,
-details.usecase-details summary:active {
+details.usecase-details summary:active,
+details.resource-section summary:active {
   transform: scale(0.99);
 }
 
