@@ -350,10 +350,8 @@ button.btn {
   font-weight: bold;
 }
 
-/* Removed custom triangles - using native browser disclosure triangles */
-
 .challenge-section > summary::-webkit-details-marker {
-  display: none;
+  color: #4ea2fd;
 }
 
 .category-section {
@@ -381,10 +379,8 @@ button.btn {
   font-weight: bold;
 }
 
-/* Removed custom triangles - using native browser disclosure triangles */
-
 .category-section > summary::-webkit-details-marker {
-  display: none;
+  color: #4ea2fd;
 }
 
 .section-collapsible {
@@ -407,10 +403,8 @@ button.btn {
   margin: 0;
 }
 
-/* Removed custom triangles - using native browser disclosure triangles */
-
 .section-collapsible > summary::-webkit-details-marker {
-  display: none;
+  color: #4ea2fd;
 }
 
 .section-content {
@@ -527,10 +521,8 @@ button.btn {
   touch-action: manipulation;
 }
 
-/* Removed custom triangles - using native browser disclosure triangles */
-
 .usecase-summary::-webkit-details-marker {
-  display: none;
+  color: #4ea2fd;
 }
 
 .usecase-header {
@@ -637,11 +629,6 @@ button.btn {
   color: var(--text);
   touch-action: manipulation;
   padding: 10px 12px;
-}
-
-/* Ensure child elements inside summary don't block clicks */
-summary * {
-  pointer-events: none;
 }
 
 .usecase-details > div,
