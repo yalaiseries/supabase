@@ -69,13 +69,25 @@ a:hover { text-decoration: underline; }
   gap: 10px;
   align-items: center;
   text-decoration: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
+
+.brand:hover {
+  transform: translateY(-2px);
+  opacity: 0.85;
+}
+
 .badge {
   width: 28px;
   height: 28px;
   border-radius: 8px;
   background: linear-gradient(135deg, rgba(122,162,255,0.9), rgba(108,234,255,0.7));
   box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+  transition: box-shadow 0.2s ease;
+}
+
+.brand:hover .badge {
+  box-shadow: 0 12px 28px rgba(122, 162, 255, 0.4);
 }
 .sub {
   display: block;
