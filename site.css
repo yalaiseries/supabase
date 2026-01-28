@@ -196,12 +196,14 @@ h1 {
   cursor: default;
   padding: 0;
   background: transparent;
+  outline: none;
 }
 
 h1:hover {
-  color: #8FC8FF !important;
+  color: #6CB4FF !important;
   text-shadow: 0 0 16px rgba(108, 180, 255, 0.9), 0 0 8px rgba(108, 180, 255, 0.7);
   background: transparent;
+  outline: none;
 }
 .meta {
   display: flex;
@@ -429,13 +431,15 @@ h1:hover {
   margin: 0;
   padding: 0;
   background: transparent;
+  outline: none;
   transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
 .section-collapsible > summary:hover h2 {
-  color: #8FC8FF !important;
+  color: #6CB4FF !important;
   text-shadow: 0 0 16px rgba(108, 180, 255, 0.9), 0 0 8px rgba(108, 180, 255, 0.7);
   background: transparent;
+  outline: none;
 }
 
 h2 {
@@ -443,12 +447,14 @@ h2 {
   cursor: default;
   padding: 0;
   background: transparent;
+  outline: none;
 }
 
 h2:hover {
-  color: #8FC8FF !important;
+  color: #6CB4FF !important;
   text-shadow: 0 0 16px rgba(108, 180, 255, 0.9), 0 0 8px rgba(108, 180, 255, 0.7);
   background: transparent;
+  outline: none;
 }
 
 h3 {
@@ -456,12 +462,14 @@ h3 {
   cursor: default;
   padding: 0;
   background: transparent;
+  outline: none;
 }
 
 h3:hover {
-  color: #8FC8FF !important;
+  color: #6CB4FF !important;
   text-shadow: 0 0 14px rgba(108, 180, 255, 0.85), 0 0 7px rgba(108, 180, 255, 0.65);
   background: transparent;
+  outline: none;
 }
 
 .section-collapsible > summary::-webkit-details-marker {
