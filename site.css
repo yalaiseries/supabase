@@ -723,7 +723,7 @@ header img[src*="SIA_YAL"]:hover {
   border-radius: inherit;
   opacity: 0;
   background: radial-gradient(
-    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    300px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
     rgba(96, 165, 250, 0.4),
     rgba(59, 130, 246, 0.2) 30%,
     transparent 50%
@@ -766,7 +766,7 @@ details.usecase-details::after {
   border-radius: inherit;
   opacity: 0;
   background: radial-gradient(
-    500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    250px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
     rgba(96, 165, 250, 0.35),
     rgba(59, 130, 246, 0.15) 35%,
     transparent 50%
