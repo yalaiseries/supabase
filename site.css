@@ -726,10 +726,10 @@ details.video-section {
 .hero:hover,
 .card:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(122, 162, 255, 0.6);
   box-shadow: 
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 8px 24px rgba(0, 0, 0, 0.3);
+    0 0 0 1px rgba(122, 162, 255, 0.3),
+    0 8px 24px rgba(59, 130, 246, 0.4);
 }
 
 details.challenge-section:hover,
@@ -740,10 +740,10 @@ details.usecase-details:hover,
 details.resource-section:hover,
 details.year-section:hover,
 details.video-section:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(122, 162, 255, 0.5);
   box-shadow: 
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 8px 24px rgba(0, 0, 0, 0.3);
+    0 0 0 1px rgba(122, 162, 255, 0.3),
+    0 6px 20px rgba(59, 130, 246, 0.3);
 }
 
 /* Active state feedback */
