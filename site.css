@@ -331,28 +331,7 @@ button.btn {
   font-weight: bold;
 }
 
-.challenge-section > summary::before,
-.category-section > summary::before,
-.section-collapsible > summary::before,
-.usecase-card > summary::before,
-.usecase-details > summary::before {
-  content: '▸';
-  display: inline-block;
-  margin-right: 6px;
-  transition: transform 0.2s ease;
-  color: #4ea2fd;
-  font-size: 15px;
-  vertical-align: -0.15em;
-  transform-origin: center;
-}
-
-.challenge-section[open] > summary::before,
-.category-section[open] > summary::before,
-.section-collapsible[open] > summary::before,
-.usecase-card[open] > summary::before,
-.usecase-details[open] > summary::before {
-  transform: rotate(90deg);
-}
+/* Removed custom triangles - using native browser disclosure triangles */
 
 .challenge-section > summary::-webkit-details-marker {
   display: none;
@@ -379,20 +358,7 @@ button.btn {
   font-weight: bold;
 }
 
-.category-section > summary::before {
-  content: '▸';
-  display: inline-block;
-  margin-right: 6px;
-  transition: transform 0.2s ease;
-  color: #4ea2fd;
-  font-size: 15px;
-  vertical-align: -0.15em;
-  transform-origin: center;
-}
-
-.category-section[open] > summary::before {
-  transform: rotate(90deg);
-}
+/* Removed custom triangles - using native browser disclosure triangles */
 
 .category-section > summary::-webkit-details-marker {
   display: none;
@@ -414,20 +380,7 @@ button.btn {
   margin: 0;
 }
 
-.section-collapsible > summary::before {
-  content: '▸';
-  display: inline-block;
-  margin-right: 6px;
-  transition: transform 0.2s ease;
-  color: #4ea2fd;
-  font-size: 18px;
-  vertical-align: -0.15em;
-  transform-origin: center;
-}
-
-.section-collapsible[open] > summary::before {
-  transform: rotate(90deg);
-}
+/* Removed custom triangles - using native browser disclosure triangles */
 
 .section-collapsible > summary::-webkit-details-marker {
   display: none;
@@ -539,20 +492,7 @@ button.btn {
   list-style: none;
 }
 
-.usecase-summary::before {
-  content: '▸';
-  display: inline-block;
-  margin-right: 6px;
-  transition: transform 0.2s ease;
-  color: #4ea2fd;
-  font-size: 15px;
-  vertical-align: -0.15em;
-  transform-origin: center;
-}
-
-.usecase-card[open] > .usecase-summary::before {
-  transform: rotate(90deg);
-}
+/* Removed custom triangles - using native browser disclosure triangles */
 
 .usecase-summary::-webkit-details-marker {
   display: none;
