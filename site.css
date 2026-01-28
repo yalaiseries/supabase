@@ -104,17 +104,18 @@ a:hover { text-decoration: underline; }
 .links a {
   padding: 8px 10px;
   border-radius: 10px;
-  border: 1px solid transparent;
+  border: 1px solid rgba(78, 162, 253, 0.3);
   text-decoration: none;
+  background: rgba(11, 18, 32, 0.25);
   transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 .links a:hover {
   transform: translateY(-2px);
   border-color: rgba(122, 162, 255, 0.7);
-  background: rgba(18, 28, 47, 0.6);
+  background: linear-gradient(135deg, rgba(122,162,255,0.35), rgba(108,234,255,0.18));
   box-shadow: 
     0 0 0 1px rgba(122, 162, 255, 0.3),
-    0 4px 12px rgba(59, 130, 246, 0.4);
+    0 8px 25px rgba(59, 130, 246, 0.5);
 }
 .links a.active {
   border-color: rgba(122,162,255,0.55);
