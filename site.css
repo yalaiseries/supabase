@@ -726,35 +726,7 @@ header img[src*="SIA_YAL"]:hover {
   filter: brightness(1.1);
 }
 
-/* Wrapper for images to add glow effect */
-.card:has(img) {
-  position: relative;
-  overflow: hidden;
-}
-
-.card:has(img)::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: inherit;
-  opacity: 0;
-  background: radial-gradient(
-    300px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(255, 255, 255, 0.25),
-    rgba(255, 255, 255, 0.12) 30%,
-    transparent 50%
-  );
-  transition: opacity 0.5s ease;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.card:has(img):hover::after {
-  opacity: 1;
-}
+/* Removed glow effect - replaced with custom cursor */
 
 /* Card hover glow effects - mouse follows cursor */
 .hero,
@@ -769,41 +741,7 @@ details.usecase-details {
   transition: transform 0.2s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-.hero::after,
-.card::after,
-details.challenge-section::after,
-details.category-section::after,
-details.section-collapsible::after,
-details.usecase-card::after,
-details.usecase-details::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: inherit;
-  opacity: 0;
-  background: radial-gradient(
-    250px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(255, 255, 255, 0.2),
-    rgba(255, 255, 255, 0.08) 35%,
-    transparent 50%
-  );
-  transition: opacity 0.5s ease;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.hero:hover::after,
-.card:hover::after,
-details.challenge-section:hover::after,
-details.category-section:hover::after,
-details.section-collapsible:hover::after,
-details.usecase-card:hover::after,
-details.usecase-details:hover::after {
-  opacity: 1;
-}
+/* Removed card glow effects - replaced with custom cursor */
 
 .hero:hover,
 .card:hover,
@@ -830,12 +768,58 @@ details.usecase-details summary:active {
   transform: scale(0.99);
 }
 
-/* Ensure content stays above glow */
+/* Ensure content stays above effects */
 .hero > *,
 .card > *,
 details > * {
   position: relative;
   z-index: 1;
+}
+
+/* Custom cursor effect - motion.page style */
+.cursor {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.15s ease-out, opacity 0.3s, background 0.3s, border-color 0.3s;
+  will-change: transform;
+  mix-blend-mode: difference;
+  opacity: 0;
+}
+
+.cursor-dot {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  will-change: transform;
+  opacity: 0;
+}
+
+/* Hide default cursor when custom cursor is active */
+body.custom-cursor,
+body.custom-cursor * {
+  cursor: none !important;
+}
+
+/* Hover state - scale up */
+.cursor.hover {
+  transform: scale(1.5);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Show cursors after initialization */
+.cursor.active,
+.cursor-dot.active {
+  opacity: 1;
 }
 
 /* Subtle button hover (no gradient animation) */
@@ -868,3 +852,5 @@ details {
     transition-duration: 0.01ms !important;
   }
 }
+
+
