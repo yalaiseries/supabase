@@ -685,14 +685,20 @@ details.resource-section {
 /* Removed card glow effects - replaced with custom cursor */
 
 .hero:hover,
-.card:hover,
+.card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
 details.challenge-section:hover,
 details.category-section:hover,
 details.section-collapsible:hover,
 details.usecase-card:hover,
 details.usecase-details:hover,
 details.resource-section:hover {
-  transform: translateY(-2px);
   border-color: rgba(255, 255, 255, 0.2);
   box-shadow: 
     0 0 0 1px rgba(255, 255, 255, 0.1),
