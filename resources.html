@@ -194,6 +194,15 @@
 
       .section-head {
         list-style: none;
+        transition: all 0.2s ease, box-shadow 0.3s ease;
+      }
+
+      .section-head:hover {
+        background: rgba(78, 162, 253, 0.15) !important;
+        border-color: rgba(122, 162, 255, 0.6) !important;
+        box-shadow: 
+          0 0 0 1px rgba(122, 162, 255, 0.3),
+          0 6px 20px rgba(59, 130, 246, 0.4) !important;
       }
 
       .section-head::-webkit-details-marker {
