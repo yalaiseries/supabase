@@ -354,6 +354,8 @@ button.btn {
   color: #4ea2fd;
   font-weight: normal;
   line-height: 1.5;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .category-section > summary strong {
@@ -375,6 +377,8 @@ button.btn {
   list-style: none;
   font-weight: normal;
   line-height: 1.5;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .section-collapsible > summary h2 {
@@ -405,6 +409,8 @@ button.btn {
   border: 1px solid rgba(78, 162, 253, 0.2);
   transition: all 0.2s ease;
   margin-bottom: 14px;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .year-section > summary:hover {
@@ -492,6 +498,8 @@ button.btn {
 .usecase-summary {
   cursor: pointer;
   list-style: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* Removed custom triangles - using native browser disclosure triangles */
