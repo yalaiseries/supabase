@@ -701,13 +701,7 @@ details.resource-section:hover {
 
 /* Active state feedback */
 .hero:active,
-.card:active,
-details.challenge-section summary:active,
-details.category-section summary:active,
-details.section-collapsible summary:active,
-details.usecase-card summary:active,
-details.usecase-details summary:active,
-details.resource-section summary:active {
+.card:active {
   transform: scale(0.99);
 }
 
