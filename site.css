@@ -672,6 +672,13 @@ h3 {
   color: var(--text);
   touch-action: manipulation;
   padding: 10px 12px;
+  transition: color 0.3s ease, text-shadow 0.3s ease, filter 0.3s ease;
+}
+
+.usecase-details > summary:hover {
+  color: #6CB4FF !important;
+  text-shadow: 0 0 12px rgba(108, 180, 255, 0.8), 0 0 6px rgba(108, 180, 255, 0.6);
+  filter: brightness(1.3);
 }
 
 .usecase-details > div,
@@ -783,6 +790,17 @@ details.video-section:hover {
   box-shadow: 
     0 0 0 1px rgba(122, 162, 255, 0.3),
     0 6px 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Resource section summary hover effects */
+.resource-section > summary h2 {
+  transition: color 0.3s ease, text-shadow 0.3s ease, filter 0.3s ease;
+}
+
+.resource-section > summary:hover h2 {
+  color: #6CB4FF !important;
+  text-shadow: 0 0 12px rgba(108, 180, 255, 0.8), 0 0 6px rgba(108, 180, 255, 0.6);
+  filter: brightness(1.3);
 }
 
 /* Active state feedback */
