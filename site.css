@@ -677,9 +677,7 @@ details.section-collapsible,
 details.usecase-card,
 details.usecase-details,
 details.resource-section {
-  position: relative;
-  overflow: visible;
-  transition: transform 0.2s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 /* Removed card glow effects - replaced with custom cursor */
@@ -713,8 +711,7 @@ details.resource-section:hover {
 
 /* Ensure content stays above effects */
 .hero > *,
-.card > *,
-details > * {
+.card > * {
   position: relative;
   z-index: 1;
 }
