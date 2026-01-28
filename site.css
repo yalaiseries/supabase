@@ -626,7 +626,7 @@ button.btn {
   border: 1px solid var(--border);
   border-radius: 14px;
   background: rgba(11, 18, 32, 0.22);
-  padding: 10px 12px;
+  padding: 0;
 }
 
 .usecase-details > summary {
@@ -636,6 +636,12 @@ button.btn {
   font-weight: 600;
   color: var(--text);
   touch-action: manipulation;
+  padding: 10px 12px;
+}
+
+.usecase-details > div,
+.usecase-details > .usecase-people {
+  padding: 0 12px 10px 12px;
 }
 
 .usecase-dl {
