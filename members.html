@@ -560,7 +560,9 @@
 
           const items = Array.isArray(data.resources) ? data.resources : [];
           if (!items.length) {
-            setStatus('No members-only resources configured yet.');
+            setStatus('');
+            // Hide the empty section - resources managed via Supabase dashboard
+            if (resourcesLibrarySection) resourcesLibrarySection.style.display = 'none';
             return;
           }
 

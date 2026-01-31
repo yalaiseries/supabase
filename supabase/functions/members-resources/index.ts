@@ -8,29 +8,6 @@ type ResourceItem = {
   note?: string | null;
 };
 
-const fallbackResources: ResourceItem[] = [
-  {
-    title: 'Members handbook (placeholder)',
-    url: 'https://yalaiseries.github.io/supabase/',
-    note: 'Replace with a real link (e.g., Google Drive folder with restricted access).'
-  },
-  {
-    title: 'Submission templates (placeholder)',
-    url: 'https://yalaiseries.github.io/supabase/members.html',
-    note: 'Add links to the 2-page write-up and 10-slide deck templates here.'
-  },
-  {
-    title: 'Session recordings & slides (placeholder)',
-    url: 'https://yalaiseries.github.io/supabase/members.html',
-    note: 'Add Drive/YouTube unlisted links shared within the community.'
-  },
-  {
-    title: 'Curated learning paths (placeholder)',
-    url: 'https://yalaiseries.github.io/supabase/members.html',
-    note: 'Add curated tracks (e.g., Getting started, BIM automation, Agentic AI for practice management).'
-  }
-];
-
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -98,15 +75,10 @@ serve(async (req) => {
 
   const fromDb = await loadResourcesFromDb();
   if (fromDb.ok) {
-    if (fromDb.resources.length > 0) return json({ resources: fromDb.resources });
-    return json({ resources: [] });
+    return json({ resources: fromDb.resources });
   }
 
-  // If the DB table isn't set up yet, return safe placeholders.
-  if (fromDb.status === 404) {
-    return json({ resources: fallbackResources });
-  }
-
-  // For transient DB errors, also fall back (keeps members page usable), but expose a hint.
-  return json({ resources: fallbackResources, warning: fromDb.error }, 200);
+  // Return error for proper client-side handling
+  // All data must be managed in Supabase database - no fallbacks in code
+  return json({ error: fromDb.error || 'Unable to load resources' }, fromDb.status);
 });
