@@ -32,3 +32,18 @@ data/*winners*.json
 data/temp-upload-*.json
 winners-*.json
 winners_payload*.json
+
+# All temporary scripts with hardcoded service role keys
+update_section*.py
+check_*.py
+debug_*.py
+fix_*.py
+apply_*.py
+*_interactive.py
+section_*_content.json
+
+# All JSON data files (load from Supabase only)
+*.json
+!package.json
+!tsconfig.json
+!.vscode/*.json
