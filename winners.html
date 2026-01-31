@@ -84,15 +84,6 @@
         // Debug display removed - silently ignore
       }
 
-      function escapeHtml(value) {
-        return String(value || '')
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#39;');
-      }
-
       function renderYearsNav(years) {
         if (!years.length) {
           yearsNavEl.innerHTML = '';
