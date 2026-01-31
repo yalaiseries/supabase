@@ -11,6 +11,9 @@ Thumbs.db
 __pycache__/
 *.pyc
 
+# One-off scripts with personal data
+update_winners_leads.js
+
 # Large raw source files (keep private/local)
 data/*.docx
 data/*.xlsx
