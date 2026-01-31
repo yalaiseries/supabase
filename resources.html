@@ -15,11 +15,11 @@
 
     <link rel="icon" href="favicon.svg?v=2026-jan23d" type="image/svg+xml" />
     <link rel="manifest" href="site.webmanifest" />
-    <link rel="stylesheet" href="site.css?v=2026-jan28p" />
+    <link rel="stylesheet" href="site.css?v=2026-jan31" />
 
     <script src="supabase-config.js"></script>
     <script type="module" src="supabase-loader.js"></script>
-    <script src="supabase-utils.js"></script>
+    <script src="supabase-utils.js?v=2026-jan31"></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -95,7 +95,7 @@
 
       async function loadAndRenderResources() {
         try {
-          supabase = await getSupabaseClient();
+          const supabase = await getSupabaseClient();
           if (!supabase) {
             contentEl.innerHTML = `
               <section class="card">
