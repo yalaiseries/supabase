@@ -149,12 +149,6 @@
         </div>
       </section>
 
-      <section class="card" id="resourcesLibrarySection" style="display:none;">
-        <h2>📚 Resources Library</h2>
-        <p class="muted">Curated AI/AECO resources for participants.</p>
-        <div id="resourcesLibraryContent"></div>
-      </section>
-
       <section class="card" id="sharingSessionsSection" style="display:none;">
         <h2>AI Sharing Sessions</h2>
         <p class="muted">Hybrid sessions with discussions and expert sharing. All times are Singapore time (GMT+8).</p>
@@ -527,164 +521,6 @@
         }
       }
 
-      async function loadMembersLibrary(session) {
-        const contentEl = document.getElementById('resourcesLibraryContent');
-        const resourcesLibrarySection = document.getElementById('resourcesLibrarySection');
-        
-        if (!session || !session.access_token) {
-          setStatus('Please sign in to view members-only resources.');
-          return;
-        }
-
-        setStatus('Loading members-only resources...');
-        try {
-          if (!SUPABASE_FUNCTIONS_URL) throw new Error('Missing SUPABASE_FUNCTIONS_URL (check supabase-config.js).');
-
-          const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/members-resources`, {
-            headers: {
-              apikey: SUPABASE_ANON_KEY,
-              authorization: `Bearer ${session.access_token}`
-            }
-          });
-
-          const data = await res.json().catch(() => ({}));
-          if (!res.ok) {
-            setStatus('');
-            if (res.status === 403) {
-              setStatus('Signed in, but not registered yet. Please submit the registration form.');
-            } else {
-              setStatus(data.error || 'Could not load members-only resources.');
-            }
-            return;
-          }
-
-          const items = Array.isArray(data.resources) ? data.resources : [];
-          if (!items.length) {
-            setStatus('');
-            // Hide the empty section - resources managed via Supabase dashboard
-            if (resourcesLibrarySection) resourcesLibrarySection.style.display = 'none';
-            return;
-          }
-
-          setStatus('');
-          if (resourcesLibrarySection) resourcesLibrarySection.style.display = 'block';
-
-          function splitTopicTitle(title) {
-            const t = String(title || '').trim();
-            if (!t) return { topic: 'All', title: '' };
-            const parts = t.split(' · ');
-            if (parts.length >= 2) {
-              const topic = parts.shift().trim() || 'All';
-              return { topic, title: parts.join(' · ').trim() };
-            }
-            return { topic: 'All', title: t };
-          }
-
-          const normalized = items
-            .map((r) => {
-              const rawTitle = String(r.title || '').trim();
-              const rawUrl = String(r.url || '').trim();
-              const rawNote = String(r.note || '').trim();
-              const split = splitTopicTitle(rawTitle);
-              return {
-                topic: split.topic,
-                title: split.title,
-                fullTitle: rawTitle,
-                url: rawUrl,
-                note: rawNote
-              };
-            })
-            .filter((r) => r.title && r.url);
-
-          const topics = Array.from(new Set(normalized.map((r) => r.topic))).sort((a, b) => a.localeCompare(b));
-          const topicCounts = new Map();
-          for (const r of normalized) topicCounts.set(r.topic, (topicCounts.get(r.topic) || 0) + 1);
-
-          const topicChips = topics
-            .map((t) => {
-              const label = escapeHtml(t);
-              const count = topicCounts.get(t) || 0;
-              return `<button class="btn" type="button" data-topic="${escapeHtml(t)}">${label} (${count})</button>`;
-            })
-            .join('');
-
-          contentEl.innerHTML = `
-            <div class="field" style="max-width: 640px; margin-bottom: 10px;">
-              <label class="small" for="resourceSearch">Search</label>
-              <input id="resourceSearch" type="search" placeholder="Try: agent, RAG, template, slides..." />
-              <div class="small muted" style="margin-top: 6px;">Tip: use the format <strong>Topic · Title</strong> in the database to auto-group resources.</div>
-            </div>
-            <div class="cta" style="flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
-              <button class="btn primary" type="button" data-topic="__all">All (${normalized.length})</button>
-              ${topicChips}
-            </div>
-            <div id="resourceList"></div>
-          `;
-
-          const searchEl = document.getElementById('resourceSearch');
-          const listEl = document.getElementById('resourceList');
-          let activeTopic = '__all';
-
-          function render() {
-            const q = String(searchEl && searchEl.value ? searchEl.value : '').trim().toLowerCase();
-            const filtered = normalized.filter((r) => {
-              if (activeTopic !== '__all' && r.topic !== activeTopic) return false;
-              if (!q) return true;
-              return (
-                r.topic.toLowerCase().includes(q) ||
-                r.title.toLowerCase().includes(q) ||
-                r.fullTitle.toLowerCase().includes(q) ||
-                r.note.toLowerCase().includes(q) ||
-                r.url.toLowerCase().includes(q)
-              );
-            });
-
-            const byTopic = new Map();
-            for (const r of filtered) {
-              const arr = byTopic.get(r.topic) || [];
-              arr.push(r);
-              byTopic.set(r.topic, arr);
-            }
-
-            const sections = Array.from(byTopic.entries())
-              .sort((a, b) => String(a[0]).localeCompare(String(b[0])))
-              .map(([topic, rows]) => {
-                const itemsHtml = rows
-                  .map((r) => {
-                    const title = escapeHtml(r.title || '');
-                    const url = escapeHtml(r.url || '');
-                    const note = escapeHtml(r.note || '');
-                    const line = note ? `<div class="small">${note}</div>` : '';
-                    return `<li><a href="${url}" target="_blank" rel="noreferrer">${title}</a>${line}</li>`;
-                  })
-                  .join('');
-                const heading = escapeHtml(topic);
-                return `
-                  <section style="margin: 12px 0;">
-                    <h3 style="margin: 0 0 6px;">${heading}</h3>
-                    <ul>${itemsHtml}</ul>
-                  </section>
-                `;
-              })
-              .join('');
-
-            listEl.innerHTML = sections || `<p class="muted">No matches.</p>`;
-          }
-
-          for (const btn of contentEl.querySelectorAll('button[data-topic]')) {
-            btn.addEventListener('click', () => {
-              activeTopic = btn.getAttribute('data-topic') || '__all';
-              render();
-            });
-          }
-
-          if (searchEl) searchEl.addEventListener('input', render);
-          render();
-        } catch (e) {
-          setStatus(String(e));
-        }
-      }
-
       loginBtn.addEventListener('click', async () => {
         setStatus('');
         const sb = await getSupabaseClient();
@@ -826,7 +662,6 @@
 
         const { data } = await sb.auth.getSession();
         updateUI(data.session);
-        loadMembersLibrary(data.session);
 
         sb.auth.onAuthStateChange((event, session) => {
           if (event === 'PASSWORD_RECOVERY') {
@@ -836,7 +671,6 @@
             showPasswordRecovery(false);
           }
           updateUI(session);
-          loadMembersLibrary(session);
         });
       }
 
