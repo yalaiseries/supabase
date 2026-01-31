@@ -372,20 +372,66 @@
         libraryEl.innerHTML = winnersHtml + resourcesHtml;
       }
 
-      async function loadWinners(session, retry = true) {
-        libraryEl.innerHTML = '';
-        yearsNavEl.innerHTML = '';
-
+      async function loadWinners(session, retry = true, skipCache = false) {
         if (!session || !session.access_token) {
           libraryEl.innerHTML = `
             <p><strong>Please sign in to view the winners library.</strong></p>
             <p class="muted">This page calls a protected Supabase Edge Function and requires a valid session.</p>
             <p><a class="btn primary" href="members.html">Go to sign-in</a></p>
           `;
+          yearsNavEl.innerHTML = '';
           return;
         }
 
         const email = (session.user && session.user.email) ? String(session.user.email) : '';
+        
+        // Cache settings for continuous updates: 5 min fresh, show stale up to 1 hour
+        const CACHE_KEY = 'winners_library_cache';
+        const CACHE_TIMESTAMP_KEY = 'winners_library_timestamp';
+        const CACHE_FRESH_TIME = 300000; // 5 minutes
+        const CACHE_MAX_AGE = 3600000; // 1 hour max
+        
+        let cacheShown = false;
+        
+        // Try to show cached data immediately if available and not skipping cache
+        if (!skipCache) {
+          try {
+            const cachedData = localStorage.getItem(CACHE_KEY);
+            const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+            
+            if (cachedData && cachedTimestamp) {
+              const age = Date.now() - parseInt(cachedTimestamp, 10);
+              
+              // Show cache if less than 1 hour old
+              if (age < CACHE_MAX_AGE) {
+                const parsedCache = JSON.parse(cachedData);
+                renderLibrary(parsedCache.winners, parsedCache.challengeTopics);
+                
+                const minutes = Math.floor(age / 60000);
+                const timeAgo = minutes < 1 ? 'just now' : `${minutes} min ago`;
+                yearsNavEl.innerHTML = `<small style="color: #666; font-size: 0.9em;">Last updated: ${timeAgo} <button id="refreshBtn" style="margin-left: 10px; padding: 4px 12px; font-size: 0.85em;" class="btn">Refresh</button></small>`;
+                
+                cacheShown = true;
+                
+                // If cache is fresh (< 5 min), we're done
+                if (age < CACHE_FRESH_TIME) {
+                  setupRefreshButton(session);
+                  return;
+                }
+                // Otherwise continue to fetch fresh data in background
+              }
+            }
+          } catch (cacheError) {
+            console.warn('Cache read error:', cacheError);
+          }
+        }
+        
+        // Show loading indicator if no cache shown
+        if (!cacheShown) {
+          libraryEl.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">⏳ Loading winners library...</p>';
+          yearsNavEl.innerHTML = '';
+        }
+        
         try {
           if (!SUPABASE_FUNCTIONS_URL) throw new Error('Missing SUPABASE_FUNCTIONS_URL (check supabase-config.js).');
 
@@ -421,6 +467,17 @@
             return;
           }
 
+          // Cache the successful response
+          try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
+              winners: data.winners,
+              challengeTopics: data.challengeTopics
+            }));
+            localStorage.setItem(CACHE_TIMESTAMP_KEY, String(Date.now()));
+          } catch (cacheError) {
+            console.warn('Cache write error:', cacheError);
+          }
+
           const years = (Array.isArray(data.winners) ? data.winners : [])
             .map((y) => Number(y.year))
             .filter((y) => Number.isFinite(y))
@@ -429,8 +486,26 @@
           const source = String(data.source || '').toLowerCase();
 
           renderLibrary(data.winners, data.challengeTopics);
+          
+          // Add refresh button with "just now" timestamp
+          yearsNavEl.innerHTML = `<small style="color: #666; font-size: 0.9em;">Last updated: just now <button id="refreshBtn" style="margin-left: 10px; padding: 4px 12px; font-size: 0.85em;" class="btn">Refresh</button></small>`;
+          setupRefreshButton(session);
         } catch (e) {
           libraryEl.textContent = String(e);
+          yearsNavEl.innerHTML = '';
+        }
+      }
+      
+      function setupRefreshButton(session) {
+        const btn = document.getElementById('refreshBtn');
+        if (btn) {
+          btn.onclick = () => {
+            btn.disabled = true;
+            btn.textContent = 'Refreshing...';
+            loadWinners(session, true, true).finally(() => {
+              // Button will be recreated by loadWinners
+            });
+          };
         }
       }
 

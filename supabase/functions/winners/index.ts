@@ -15,7 +15,8 @@ function json(body: unknown, status = 200): Response {
     headers: {
       ...corsHeaders,
       'content-type': 'application/json; charset=utf-8',
-      'cache-control': 'no-store'
+      // Cache for 1 hour, revalidate in background
+      'cache-control': 'public, max-age=3600, stale-while-revalidate=86400'
     }
   });
 }

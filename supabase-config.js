@@ -9,7 +9,7 @@
 // - Access control is enforced by your serverless functions verifying the user's JWT.
 
 window.SUPABASE_URL = 'https://xcctqbamimafkkamuwly.supabase.co';
-window.SUPABASE_ANON_KEY = 'sb_publishable_tN9ZtLKiCXPUKIfDR7BzLQ_YAVKtJ7I';
+window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjY3RxYmFtaW1hZmtrYW11d2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY3MjYyNzQsImV4cCI6MjA4MjMwMjI3NH0.CG0AoRd6nwmEtKKx88l8_srJyZB_sypbcUbL27hA94Y';
 
 // Derived helper for Supabase Edge Functions.
 // Example: https://<project-ref>.functions.supabase.co
