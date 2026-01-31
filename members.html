@@ -324,7 +324,6 @@
 
       const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
       const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
-      const SUPABASE_FUNCTIONS_URL = String(window.SUPABASE_FUNCTIONS_URL || '').trim();
 
       const adminSetupNote = document.getElementById('adminSetupNote');
       const hasSupabaseConfig = !!SUPABASE_URL && !!SUPABASE_ANON_KEY;
@@ -408,17 +407,20 @@
       }
 
       async function checkMembershipStatus(session) {
-        if (!session || !session.access_token) return;
+        if (!session || !session.user || !session.user.email) return;
         
         try {
-          const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/winners`, {
-            headers: {
-              apikey: SUPABASE_ANON_KEY,
-              authorization: `Bearer ${session.access_token}`
-            }
-          });
+          const sb = await getSupabaseClient();
+          if (!sb) return;
+
+          // Check if user email exists in allowed_members table
+          const { data, error } = await sb
+            .from('allowed_members')
+            .select('email')
+            .eq('email', session.user.email.toLowerCase())
+            .maybeSingle();
           
-          if (res.ok) {
+          if (data) {
             // User is registered - show members content
             if (membersSection) membersSection.style.display = '';
             if (sharingSessionsSection) sharingSessionsSection.style.display = '';
@@ -427,7 +429,7 @@
             
             // Load video recordings from Supabase
             loadVideoRecordings(session);
-          } else if (res.status === 403) {
+          } else {
             // User is signed in but not registered - show help message
             if (membersSection) membersSection.style.display = 'none';
             if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
@@ -438,14 +440,9 @@
                 currentEmailSpan.textContent = session.user.email;
               }
             }
-          } else {
-            // Other error - hide everything
-            if (membersSection) membersSection.style.display = 'none';
-            if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
-            if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
-            if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
           }
         } catch (e) {
+          console.error('Error checking membership:', e);
           // On error, hide everything
           if (membersSection) membersSection.style.display = 'none';
           if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
@@ -572,8 +569,8 @@
           // 2) Reset flow (existing accounts) - standard Supabase password reset.
           // We run both and show a generic message.
           try {
-            if (SUPABASE_FUNCTIONS_URL) {
-              fetch(`${SUPABASE_FUNCTIONS_URL}/request-access`, {
+            if (window.SUPABASE_FUNCTIONS_URL) {
+              fetch(`${window.SUPABASE_FUNCTIONS_URL}/request-access`, {
                 method: 'POST',
                 headers: {
                   'content-type': 'application/json',
