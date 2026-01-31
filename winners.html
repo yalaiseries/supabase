@@ -129,12 +129,13 @@
               
               if (topics.length > 0) {
                 const topicsHtml = topics.map((topic, idx) => {
+                  const number = `${idx + 1}. `;
                   const code = topic.code ? `<span class="topic-code">${escapeHtml(topic.code)}</span> ` : '';
                   const title = escapeHtml(topic.title || 'Challenge');
                   const desc = escapeHtml(topic.description || '');
                   return `
                     <div class="challenge-topic">
-                      <h4>${code}${title}</h4>
+                      <h4>${number}${code}${title}</h4>
                       ${desc ? `<p class="muted small">${desc}</p>` : ''}
                     </div>
                   `;
