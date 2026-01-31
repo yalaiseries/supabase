@@ -67,14 +67,16 @@
 
         let html = '';
         for (const section of sections) {
-          let sectionHtml = `<details class="resource-section">
+          let sectionHtml = `<details class="resource-section" open>
             <summary class="section-head" style="background: rgba(78, 162, 253, 0.1); padding: 16px; border-radius: 12px; cursor: pointer; margin-bottom: 20px; border: 1px solid rgba(78, 162, 253, 0.2); transition: all 0.2s ease;" onmouseover="this.style.background='rgba(78, 162, 253, 0.15)'" onmouseout="this.style.background='rgba(78, 162, 253, 0.1)'">
               <h2 style="display: inline; margin: 0; font-size: 20px; color: #4ea2fd;">${escapeHtml(section.title)}</h2>
             </summary>
             <div class="section-content">`;
           
           for (const category of section.categories) {
-            sectionHtml += `<div class="resource-category"><h3>${escapeHtml(category.subtitle)}</h3><ul class="resource-list">`;
+            const categoryTitle = category.name || category.subtitle || '';
+            const categoryHtml = categoryTitle ? `<h3>${escapeHtml(categoryTitle)}</h3>` : '';
+            sectionHtml += `<div class="resource-category">${categoryHtml}<ul class="resource-list">`;
             
             for (const item of category.items) {
               // Skip invalid/placeholder video links
