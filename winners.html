@@ -23,6 +23,7 @@
 
     <script src="supabase-config.js"></script>
     <script type="module" src="supabase-loader.js"></script>
+    <script src="supabase-utils.js"></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -68,35 +69,8 @@
       const libraryEl = document.getElementById('library');
       const debugStatusEl = document.getElementById('debugStatus');
 
-      const SUPABASE_URL = String(window.SUPABASE_URL || '').trim();
-      const SUPABASE_ANON_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
+      const { getSupabaseClient, escapeHtml, hasSupabaseConfig, SUPABASE_ANON_KEY } = window.__supabaseUtils;
       const SUPABASE_FUNCTIONS_URL = String(window.SUPABASE_FUNCTIONS_URL || '').trim();
-
-      const hasSupabaseConfig = !!SUPABASE_URL && !!SUPABASE_ANON_KEY;
-      let supabase = null;
-
-      function sleep(ms) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
-      }
-
-      async function getSupabaseClient() {
-        if (supabase) return supabase;
-        if (!hasSupabaseConfig) return null;
-
-        for (let i = 0; i < 40; i++) {
-          if (window.__createSupabaseClient) break;
-          await sleep(50);
-        }
-
-        if (!window.__createSupabaseClient) return null;
-        try {
-          supabase = window.__createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-          return supabase;
-        } catch (_e) {
-          supabase = null;
-          return null;
-        }
-      }
 
       function setStatus(text) {
         if (debugStatusEl) debugStatusEl.textContent = text || '';
