@@ -545,7 +545,7 @@
             const sb = await getSupabaseClient();
             if (sb) {
               await sb.auth.resetPasswordForEmail(email, {
-                redirectTo: `${siteBaseUrl()}members.html`
+                redirectTo: `${window.location.origin}/members.html`
               });
             }
           } finally {
