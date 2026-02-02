@@ -347,11 +347,26 @@
 
       function updateUI(session) {
         const user = session && session.user;
+        
+        // Check if this is a password recovery session
+        const urlParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const isPasswordRecovery = urlParams.get('type') === 'recovery' || hashParams.get('type') === 'recovery';
+        
         if (user) {
           loginBtn.style.display = 'none';
           if (passwordEmailBtn) passwordEmailBtn.style.display = 'none';
           logoutBtn.style.display = '';
           whoEl.textContent = user.email ? `Signed in as ${user.email}` : 'Signed in';
+          
+          // If password recovery, hide member content and only show password reset
+          if (isPasswordRecovery) {
+            if (membersSection) membersSection.style.display = 'none';
+            if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
+            if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
+            if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
+            return; // Don't check membership, just show password reset
+          }
           
           // Check if user is registered (in allowlist) by trying to access winners endpoint
           checkMembershipStatus(session);
