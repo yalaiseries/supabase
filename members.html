@@ -82,7 +82,7 @@
           <span class="small" id="who"></span>
         </div>
 
-        <div class="small" id="accessStatus" style="margin-top: 8px;"></div>
+        <div id="accessStatus" style="margin-top: 12px; padding: 12px; border-radius: 8px; display: none;"></div>
 
         <div class="card" id="passwordRecovery" style="margin-top: 12px; display:none;">
           <h3 style="margin-top: 0;">Set a new password</h3>
@@ -313,7 +313,17 @@
 
       function setStatus(text) {
         const v = text || '';
-        if (accessStatusEl) accessStatusEl.textContent = v;
+        if (accessStatusEl) {
+          accessStatusEl.textContent = v;
+          if (v) {
+            accessStatusEl.style.display = 'block';
+            accessStatusEl.style.backgroundColor = 'rgba(78, 162, 253, 0.1)';
+            accessStatusEl.style.border = '1px solid rgba(78, 162, 253, 0.3)';
+            accessStatusEl.style.color = '#4ea2fd';
+          } else {
+            accessStatusEl.style.display = 'none';
+          }
+        }
       }
 
       const adminSetupNote = document.getElementById('adminSetupNote');
