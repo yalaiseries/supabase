@@ -643,34 +643,19 @@
         const urlParams = new URLSearchParams(window.location.search);
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         const hasCode = urlParams.has('code');
+        const hasAccessToken = hashParams.has('access_token');
+        const isPasswordRecovery = urlParams.get('type') === 'recovery' || hashParams.get('type') === 'recovery';
 
         if (hasCode) {
-          try {
-            setStatus('Verifying password reset link...');
-            const { data: exchangeData, error: exchangeError } = await sb.auth.exchangeCodeForSession(window.location.href);
-            if (exchangeError) {
-              setStatus(exchangeError.message || 'Password reset link is invalid or has expired. Please request a new one.');
-            } else if (exchangeData?.session) {
-              showPasswordRecovery(true);
-              setStatus('✅ Password reset link verified! Set your new password below.');
-            }
-          } finally {
-            try {
-              window.history.replaceState({}, document.title, `${window.location.origin}/members.html`);
-            } catch {
-              // ignore
-            }
-          }
+          setStatus('Password reset link is using an older flow. Please request a new reset email and open the latest link.');
         }
 
-        const { data } = await sb.auth.getSession();
-
-        const isPasswordRecovery = urlParams.get('type') === 'recovery' || hashParams.get('type') === 'recovery';
-        if (!hasCode && isPasswordRecovery) {
+        if (hasAccessToken || isPasswordRecovery) {
           showPasswordRecovery(true);
           setStatus('✅ Password reset link verified! Set your new password below.');
         }
 
+        const { data } = await sb.auth.getSession();
         updateUI(data.session);
 
         sb.auth.onAuthStateChange((event, session) => {
