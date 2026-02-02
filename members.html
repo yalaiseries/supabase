@@ -522,7 +522,9 @@
             return;
           }
 
-          setStatus('Sending email...');
+          // Disable button to prevent multiple clicks
+          passwordEmailBtn.disabled = true;
+          setStatus('Sending email... Please wait, do not click again.');
 
           // 1) Invite flow (first-time setup) - allowlist gated, does not reveal eligibility.
           // 2) Reset flow (existing accounts) - standard Supabase password reset.
@@ -547,7 +549,11 @@
               });
             }
           } finally {
-            setStatus('If your email is eligible, you will receive an email to set or reset your password.');
+            setStatus('If your email is eligible, you will receive an email to set or reset your password. Please check your inbox and spam folder. It may take 1-2 minutes to arrive.');
+            // Re-enable button after 5 seconds
+            setTimeout(() => {
+              passwordEmailBtn.disabled = false;
+            }, 5000);
           }
         });
       }
