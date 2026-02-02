@@ -623,13 +623,24 @@
         }
 
         const { data } = await sb.auth.getSession();
+        
+        // Check if user came from password reset link (PKCE flow uses 'type' parameter)
+        const urlParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const isPasswordRecovery = urlParams.get('type') === 'recovery' || hashParams.get('type') === 'recovery';
+        
+        if (isPasswordRecovery && data.session) {
+          showPasswordRecovery(true);
+          setStatus('✅ Password reset link verified! Set your new password below.');
+        }
+        
         updateUI(data.session);
 
         sb.auth.onAuthStateChange((event, session) => {
           if (event === 'PASSWORD_RECOVERY') {
             showPasswordRecovery(true);
-            setStatus('Password recovery: set a new password below.');
-          } else {
+            setStatus('✅ Password reset link verified! Set your new password below.');
+          } else if (event !== 'INITIAL_SESSION') {
             showPasswordRecovery(false);
           }
           updateUI(session);
