@@ -351,7 +351,10 @@
         // Check if this is a password recovery session
         const urlParams = new URLSearchParams(window.location.search);
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const isPasswordRecovery = urlParams.get('type') === 'recovery' || hashParams.get('type') === 'recovery';
+        const hasCode = urlParams.has('code');
+        const isPasswordRecovery = urlParams.get('type') === 'recovery' || 
+                                    hashParams.get('type') === 'recovery' ||
+                                    (hasCode && !session);
         
         if (user) {
           loginBtn.style.display = 'none';
@@ -639,12 +642,16 @@
 
         const { data } = await sb.auth.getSession();
         
-        // Check if user came from password reset link (PKCE flow uses 'type' parameter)
+        // Check if user came from password reset link
+        // Look for 'type=recovery' parameter OR presence of 'code' parameter without an active session
         const urlParams = new URLSearchParams(window.location.search);
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const isPasswordRecovery = urlParams.get('type') === 'recovery' || hashParams.get('type') === 'recovery';
+        const hasCode = urlParams.has('code');
+        const isPasswordRecovery = urlParams.get('type') === 'recovery' || 
+                                    hashParams.get('type') === 'recovery' ||
+                                    (hasCode && !data.session);
         
-        if (isPasswordRecovery && data.session) {
+        if (isPasswordRecovery) {
           showPasswordRecovery(true);
           setStatus('✅ Password reset link verified! Set your new password below.');
         }
