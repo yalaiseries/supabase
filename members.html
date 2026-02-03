@@ -141,7 +141,7 @@
       </section>
 
       <section class="card" id="membersSection" style="display:none;">
-        <h2>Members-Only Resources</h2>
+        <h2>Members-only Content</h2>
         <p class="muted">Access exclusive content for participants and members.<br>Disclaimer:<br>Content is provided “as is” and “as available” for learning purposes only.<br>The organisers accept no liability for any loss or damage arising from the use of or reliance on this content, materials, or resources.</p>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 20px;">
           <a href="winners.html" class="resource-card" style="display: block; padding: 20px; background: rgba(78, 162, 253, 0.1); border: 1px solid rgba(78, 162, 253, 0.2); border-radius: 12px; text-decoration: none; transition: all 0.2s ease;">
@@ -158,25 +158,26 @@
           <p class="muted">Past session recordings from 2023-2025.</p>
           <div id="videoRecordingsContent"></div>
         </div>
+
+        <div id="submissionLinksSection" style="margin-top: 20px;">
+          <h3>Submission Links and Submission Template</h3>
+          <p class="muted">Submit your work by the designated deadlines using the links below.</p>
+          
+          <h4 style="margin-top: 20px;">Submission Deadlines</h4>
+          <ul>
+            <li><strong>18 Mar:</strong> <a href="https://forms.gle/rGNkhSWPsBfnMsBH8" target="_blank" rel="noreferrer">Submit here</a></li>
+            <li><strong>15 Apr:</strong> <a href="https://forms.gle/k4Vct9B4i72XrBaNA" target="_blank" rel="noreferrer">Submit here</a></li>
+            <li><strong>13 May:</strong> <a href="https://forms.gle/eMENcX8SAAsPY7NA8" target="_blank" rel="noreferrer">Submit here</a></li>
+          </ul>
+
+          <h4 style="margin-top: 20px;">Submission Template</h4>
+          <p>
+            <a class="btn primary" href="https://docs.google.com/presentation/d/1j9tp4xyeNo78nlDmFeLko11mAvf3eij_/edit?usp=sharing&ouid=111462678514080289565&rtpof=true&sd=true" target="_blank" rel="noreferrer">Open Submission Template (Google Slides)</a>
+          </p>
+          <p class="muted">Download or make a copy of the template to prepare your submission.</p>
+        </div>
       </section>
 
-      <section class="card" id="submissionLinksSection" style="display:none;">
-        <h2>Submission Links and Submission Template</h2>
-        <p class="muted">Submit your work by the designated deadlines using the links below.</p>
-        
-        <h3 style="margin-top: 20px;">Submission Deadlines</h3>
-        <ul>
-          <li><strong>18 Mar:</strong> <a href="https://forms.gle/rGNkhSWPsBfnMsBH8" target="_blank" rel="noreferrer">Submit here</a></li>
-          <li><strong>15 Apr:</strong> <a href="https://forms.gle/k4Vct9B4i72XrBaNA" target="_blank" rel="noreferrer">Submit here</a></li>
-          <li><strong>13 May:</strong> <a href="https://forms.gle/eMENcX8SAAsPY7NA8" target="_blank" rel="noreferrer">Submit here</a></li>
-        </ul>
-
-        <h3 style="margin-top: 20px;">Submission Template</h3>
-        <p>
-          <a class="btn primary" href="https://docs.google.com/presentation/d/1j9tp4xyeNo78nlDmFeLko11mAvf3eij_/edit?usp=sharing&ouid=111462678514080289565&rtpof=true&sd=true" target="_blank" rel="noreferrer">Open Submission Template (Google Slides)</a>
-        </p>
-        <p class="muted">Download or make a copy of the template to prepare your submission.</p>
-      </section>
 
       <section class="card" id="sharingSessionsSection" style="display:none;">
         <h2>AI Sharing Sessions</h2>
@@ -314,7 +315,6 @@
       const newPasswordEl = document.getElementById('newPassword');
       const setPasswordBtn = document.getElementById('setPassword');
       const sharingSessionsSection = document.getElementById('sharingSessionsSection');
-      const submissionLinksSection = document.getElementById('submissionLinksSection');
       const videoRecordingsSection = document.getElementById('videoRecordingsSection');
       const notRegisteredMessage = document.getElementById('notRegisteredMessage');
       const currentEmailSpan = document.getElementById('currentEmail');
@@ -376,7 +376,6 @@
           if (isPasswordRecovery) {
             if (membersSection) membersSection.style.display = 'none';
             if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
-            if (submissionLinksSection) submissionLinksSection.style.display = 'none';
             if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
             if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
             return; // Don't check membership, just show password reset
@@ -414,7 +413,6 @@
             // User is registered - show members content
             if (membersSection) membersSection.style.display = '';
             if (sharingSessionsSection) sharingSessionsSection.style.display = '';
-            if (submissionLinksSection) submissionLinksSection.style.display = '';
             if (videoRecordingsSection) videoRecordingsSection.style.display = '';
             if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
             
@@ -424,7 +422,6 @@
             // User is signed in but not registered - show help message
             if (membersSection) membersSection.style.display = 'none';
             if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
-            if (submissionLinksSection) submissionLinksSection.style.display = 'none';
             if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
             if (notRegisteredMessage) {
               notRegisteredMessage.style.display = '';
@@ -438,7 +435,6 @@
           // On error, hide everything
           if (membersSection) membersSection.style.display = 'none';
           if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
-          if (submissionLinksSection) submissionLinksSection.style.display = 'none';
           if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
           if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
         }
