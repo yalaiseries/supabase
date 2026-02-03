@@ -160,6 +160,24 @@
         </div>
       </section>
 
+      <section class="card" id="submissionLinksSection" style="display:none;">
+        <h2>Submission Links and Submission Template</h2>
+        <p class="muted">Submit your work by the designated deadlines using the links below.</p>
+        
+        <h3 style="margin-top: 20px;">Submission Deadlines</h3>
+        <ul>
+          <li><strong>18 Mar:</strong> <a href="https://forms.gle/rGNkhSWPsBfnMsBH8" target="_blank" rel="noreferrer">Submit here</a></li>
+          <li><strong>15 Apr:</strong> <a href="https://forms.gle/k4Vct9B4i72XrBaNA" target="_blank" rel="noreferrer">Submit here</a></li>
+          <li><strong>13 May:</strong> <a href="https://forms.gle/eMENcX8SAAsPY7NA8" target="_blank" rel="noreferrer">Submit here</a></li>
+        </ul>
+
+        <h3 style="margin-top: 20px;">Submission Template</h3>
+        <p>
+          <a class="btn primary" href="https://docs.google.com/presentation/d/1j9tp4xyeNo78nlDmFeLko11mAvf3eij_/edit?usp=sharing&ouid=111462678514080289565&rtpof=true&sd=true" target="_blank" rel="noreferrer">Open Submission Template (Google Slides)</a>
+        </p>
+        <p class="muted">Download or make a copy of the template to prepare your submission.</p>
+      </section>
+
       <section class="card" id="sharingSessionsSection" style="display:none;">
         <h2>AI Sharing Sessions</h2>
         <p class="muted">Hybrid sessions with discussions and expert sharing. All times are Singapore time (GMT+8).</p>
@@ -296,6 +314,7 @@
       const newPasswordEl = document.getElementById('newPassword');
       const setPasswordBtn = document.getElementById('setPassword');
       const sharingSessionsSection = document.getElementById('sharingSessionsSection');
+      const submissionLinksSection = document.getElementById('submissionLinksSection');
       const videoRecordingsSection = document.getElementById('videoRecordingsSection');
       const notRegisteredMessage = document.getElementById('notRegisteredMessage');
       const currentEmailSpan = document.getElementById('currentEmail');
@@ -357,6 +376,7 @@
           if (isPasswordRecovery) {
             if (membersSection) membersSection.style.display = 'none';
             if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
+            if (submissionLinksSection) submissionLinksSection.style.display = 'none';
             if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
             if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
             return; // Don't check membership, just show password reset
@@ -394,6 +414,7 @@
             // User is registered - show members content
             if (membersSection) membersSection.style.display = '';
             if (sharingSessionsSection) sharingSessionsSection.style.display = '';
+            if (submissionLinksSection) submissionLinksSection.style.display = '';
             if (videoRecordingsSection) videoRecordingsSection.style.display = '';
             if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
             
@@ -403,6 +424,7 @@
             // User is signed in but not registered - show help message
             if (membersSection) membersSection.style.display = 'none';
             if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
+            if (submissionLinksSection) submissionLinksSection.style.display = 'none';
             if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
             if (notRegisteredMessage) {
               notRegisteredMessage.style.display = '';
@@ -416,6 +438,7 @@
           // On error, hide everything
           if (membersSection) membersSection.style.display = 'none';
           if (sharingSessionsSection) sharingSessionsSection.style.display = 'none';
+          if (submissionLinksSection) submissionLinksSection.style.display = 'none';
           if (videoRecordingsSection) videoRecordingsSection.style.display = 'none';
           if (notRegisteredMessage) notRegisteredMessage.style.display = 'none';
         }
