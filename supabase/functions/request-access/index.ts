@@ -16,8 +16,25 @@ function normalizeEmail(value: unknown): string {
   return String(value || '').trim().toLowerCase();
 }
 
+function normalizeSupabaseUrl(raw: string): string {
+  const value = String(raw || '').trim();
+  if (!value) return '';
+  try {
+    const url = new URL(value);
+    const host = url.hostname;
+    if (host.includes('.functions.supabase.co')) {
+      const projectRef = host.split('.')[0];
+      if (projectRef) return `https://${projectRef}.supabase.co`;
+    }
+  } catch {
+    // ignore
+  }
+  return value;
+}
+
 function getSupabaseUrl(): string {
-  return String(Deno.env.get('URL') || Deno.env.get('SUPABASE_URL') || '').trim();
+  const raw = String(Deno.env.get('SUPABASE_URL') || Deno.env.get('URL') || '').trim();
+  return normalizeSupabaseUrl(raw);
 }
 
 function getServiceRoleKey(): string {
@@ -62,7 +79,7 @@ async function sendInvite(supabaseUrl: string, serviceRoleKey: string, email: st
   const url = new URL(`${supabaseUrl}/auth/v1/admin/invite`);
   if (redirectTo) url.searchParams.set('redirect_to', redirectTo);
 
-  await fetch(url.toString(), {
+  const resp = await fetch(url.toString(), {
     method: 'POST',
     headers: {
       apikey: serviceRoleKey,
@@ -71,6 +88,11 @@ async function sendInvite(supabaseUrl: string, serviceRoleKey: string, email: st
     },
     body: JSON.stringify({ email })
   });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    throw new Error(`Invite API failed: HTTP ${resp.status} ${text}`);
+  }
 }
 
 serve(async (req: Request) => {
@@ -111,7 +133,11 @@ serve(async (req: Request) => {
   if (allow.allowlisted) {
     try {
       await sendInvite(supabaseUrl, serviceRoleKey, email);
-    } catch {
+    } catch (e) {
+      console.error('request-access invite failed', {
+        error: e instanceof Error ? e.message : String(e || 'unknown_error'),
+        emailDomain: email.includes('@') ? email.split('@')[1] : 'unknown'
+      });
       // Intentionally swallow errors to avoid allowlist enumeration.
       // Check Supabase Function logs if you need to debug invite sending.
     }

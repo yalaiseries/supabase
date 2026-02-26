@@ -560,8 +560,11 @@
           // 2) Reset flow (existing accounts) - standard Supabase password reset.
           // We run both and show a generic message.
           try {
+            let requestAccessAccepted = false;
+            let resetAccepted = false;
+
             if (window.SUPABASE_FUNCTIONS_URL) {
-              fetch(`${window.SUPABASE_FUNCTIONS_URL}/request-access`, {
+              const requestAccessResp = await fetch(`${window.SUPABASE_FUNCTIONS_URL}/request-access`, {
                 method: 'POST',
                 headers: {
                   'content-type': 'application/json',
@@ -569,17 +572,26 @@
                   authorization: `Bearer ${SUPABASE_ANON_KEY}`
                 },
                 body: JSON.stringify({ email })
-              }).catch(() => {});
+              });
+              requestAccessAccepted = requestAccessResp && requestAccessResp.ok;
             }
 
             const sb = await getSupabaseClient();
             if (sb) {
-              await sb.auth.resetPasswordForEmail(email, {
+              const { error } = await sb.auth.resetPasswordForEmail(email, {
                 redirectTo: `${window.location.origin}/members.html?type=recovery`
               });
+              resetAccepted = !error;
             }
+
+            if (requestAccessAccepted || resetAccepted) {
+              setStatus('✅ Email request submitted. Please check your inbox and SPAM/JUNK folder (first email can take 1-2 minutes).');
+            } else {
+              setStatus('⚠️ We could not submit the email request right now. Please try again in 1-2 minutes, and contact support if it continues.');
+            }
+          } catch {
+            setStatus('⚠️ We could not submit the email request right now. Please try again in 1-2 minutes, and contact support if it continues.');
           } finally {
-            setStatus('✅ Email sent! Please check your inbox and SPAM/JUNK folder (emails often go to spam on first send). The email may take 1-2 minutes to arrive.');
             // Re-enable button after 5 seconds
             setTimeout(() => {
               passwordEmailBtn.disabled = false;
