@@ -75,6 +75,12 @@
           <input id="password" type="password" autocomplete="current-password" placeholder="Your website password" />
         </div>
 
+        <div class="field" id="captchaWrapper" style="margin-top: 10px; max-width: 420px; display:none;">
+          <label class="small" for="captchaMount">Verification</label>
+          <div id="captchaMount"></div>
+          <p class="small muted" id="captchaHint" style="margin-top: 6px;"></p>
+        </div>
+
         <div class="cta" style="margin-top: 10px;">
           <button class="btn primary" id="login" type="button">Log in</button>
           <button class="btn" id="passwordEmail" type="button">Email me a link to set/reset my password</button>
@@ -196,9 +202,9 @@
         <ul>
           <li><strong>25 Feb: Discussion &amp; Sharing</strong>
             <ul>
-              <li>7:00pm - 7:30pm: Discussion</li>
-              <li>7:30pm - 8:00pm: Sharing by Ar William LAU</li>
-              <li>8:00pm - 8:30pm: Sharing by Dr Bernard LEONG</li>
+              <li>7:00pm - 7:30pm: Discussion - <a href="https://drive.google.com/file/d/1agYgkQXsREfKNUH9o66Loz-zHALm_a4h/view" target="_blank" rel="noreferrer">slides</a></li>
+              <li>7:30pm - 8:00pm: Sharing by Ar William LAU - <a href="https://drive.google.com/file/d/1NPAb9fGk3eSJWpSBWOXEOHJOejPaXFze/view" target="_blank" rel="noreferrer">slides</a></li>
+              <li>8:00pm - 8:30pm: Sharing by Dr Bernard LEONG - <a href="https://drive.google.com/file/d/1z8abB6yJZhKHPGnJ2WqVcLyP1_2Rp5mu/view" target="_blank" rel="noreferrer">slides</a></li>
             </ul>
           </li>
           <li><strong>11 Mar: Discussion &amp; Sharing</strong>
@@ -312,6 +318,9 @@
       const whoEl = document.getElementById('who');
       const membersSection = document.getElementById('membersSection');
       const accessStatusEl = document.getElementById('accessStatus');
+      const captchaWrapperEl = document.getElementById('captchaWrapper');
+      const captchaMountEl = document.getElementById('captchaMount');
+      const captchaHintEl = document.getElementById('captchaHint');
 
       const passwordRecoveryCard = document.getElementById('passwordRecovery');
       const newPasswordEl = document.getElementById('newPassword');
@@ -341,6 +350,112 @@
       const adminSetupNote = document.getElementById('adminSetupNote');
       if (adminSetupNote) adminSetupNote.style.display = hasSupabaseConfig ? 'none' : '';
 
+      const CAPTCHA_SITE_KEY = String(window.SUPABASE_CAPTCHA_SITE_KEY || '').trim();
+      let captchaToken = '';
+      let captchaWidgetId = null;
+      let captchaScriptPromise = null;
+
+      function isCaptchaFailureMessage(message) {
+        return /captcha verification process failed|captcha|challenge/i.test(String(message || ''));
+      }
+
+      function resetCaptcha() {
+        try {
+          if (window.turnstile && captchaWidgetId !== null) {
+            window.turnstile.reset(captchaWidgetId);
+          }
+        } catch {
+          // ignore
+        }
+        captchaToken = '';
+      }
+
+      function ensureCaptchaScript() {
+        if (!CAPTCHA_SITE_KEY) return Promise.resolve(false);
+        if (window.turnstile) return Promise.resolve(true);
+        if (captchaScriptPromise) return captchaScriptPromise;
+
+        captchaScriptPromise = new Promise((resolve) => {
+          const existing = document.querySelector('script[data-turnstile="1"]');
+          if (existing) {
+            existing.addEventListener('load', () => resolve(true), { once: true });
+            existing.addEventListener('error', () => resolve(false), { once: true });
+            return;
+          }
+
+          const script = document.createElement('script');
+          script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+          script.async = true;
+          script.defer = true;
+          script.setAttribute('data-turnstile', '1');
+          script.onload = () => resolve(true);
+          script.onerror = () => resolve(false);
+          document.head.appendChild(script);
+        });
+
+        return captchaScriptPromise;
+      }
+
+      async function ensureCaptchaReady() {
+        if (!CAPTCHA_SITE_KEY) return false;
+        const loaded = await ensureCaptchaScript();
+        if (!loaded || !window.turnstile || !captchaMountEl) return false;
+
+        if (captchaWidgetId === null) {
+          captchaWidgetId = window.turnstile.render(captchaMountEl, {
+            sitekey: CAPTCHA_SITE_KEY,
+            callback: (token) => {
+              captchaToken = String(token || '').trim();
+            },
+            'expired-callback': () => {
+              captchaToken = '';
+            },
+            'error-callback': () => {
+              captchaToken = '';
+            }
+          });
+        }
+
+        return true;
+      }
+
+      async function getCaptchaToken() {
+        if (!CAPTCHA_SITE_KEY) return '';
+        await ensureCaptchaReady();
+        return String(captchaToken || '').trim();
+      }
+
+      function showCaptchaUI() {
+        if (!captchaWrapperEl) return;
+        if (!CAPTCHA_SITE_KEY) {
+          captchaWrapperEl.style.display = 'none';
+          return;
+        }
+        captchaWrapperEl.style.display = '';
+        if (captchaHintEl) {
+          captchaHintEl.textContent = 'Complete the verification challenge before logging in or requesting a password email.';
+        }
+      }
+
+      function setCaptchaFailureStatus() {
+        setStatus('Captcha verification failed or was not completed. Please complete the verification challenge, then try again. If no challenge appears, disable content blockers and refresh this page.');
+      }
+
+      async function requireCaptchaToken(actionLabel) {
+        if (!CAPTCHA_SITE_KEY) return '';
+        const ready = await ensureCaptchaReady();
+        if (!ready) {
+          setStatus(`Verification challenge could not load. Please disable content blockers, refresh this page, and try ${actionLabel} again.`);
+          return null;
+        }
+        const token = String(captchaToken || '').trim();
+        if (!token) {
+          setStatus('Please complete the verification challenge first, then try again.');
+          return null;
+        }
+        return token;
+      }
+
       let initAttempts = 0;
 
       function showPasswordRecovery(show) {
@@ -356,6 +471,19 @@
           onEnter();
         });
       }
+
+      showCaptchaUI();
+      ensureCaptchaReady()
+        .then((ready) => {
+          if (CAPTCHA_SITE_KEY && !ready && captchaHintEl) {
+            captchaHintEl.textContent = 'Verification challenge could not load. Disable content blockers and refresh this page.';
+          }
+        })
+        .catch(() => {
+          if (CAPTCHA_SITE_KEY && captchaHintEl) {
+            captchaHintEl.textContent = 'Verification challenge could not load. Disable content blockers and refresh this page.';
+          }
+        });
 
       function updateUI(session) {
         const user = session && session.user;
@@ -530,8 +658,20 @@
         }
 
         setStatus('Signing in...');
-        const { error } = await sb.auth.signInWithPassword({ email, password });
+        const captchaTokenForRequest = await requireCaptchaToken('sign in');
+        if (captchaTokenForRequest === null) {
+          return;
+        }
+        const signInPayload = captchaTokenForRequest
+          ? { email, password, options: { captchaToken: captchaTokenForRequest } }
+          : { email, password };
+        const { error } = await sb.auth.signInWithPassword(signInPayload);
         if (error) {
+          if (isCaptchaFailureMessage(error.message)) {
+            resetCaptcha();
+            setCaptchaFailureStatus();
+            return;
+          }
           setStatus(error.message || 'Could not log in.');
           return;
         }
@@ -562,6 +702,10 @@
           try {
             let requestAccessAccepted = false;
             let resetAccepted = false;
+            const captchaTokenForRequest = await requireCaptchaToken('requesting a password email');
+            if (captchaTokenForRequest === null) {
+              return;
+            }
 
             if (window.SUPABASE_FUNCTIONS_URL) {
               const requestAccessResp = await fetch(`${window.SUPABASE_FUNCTIONS_URL}/request-access`, {
@@ -571,16 +715,25 @@
                   apikey: SUPABASE_ANON_KEY,
                   authorization: `Bearer ${SUPABASE_ANON_KEY}`
                 },
-                body: JSON.stringify({ email })
+                body: JSON.stringify({ email, captchaToken: captchaTokenForRequest || undefined })
               });
               requestAccessAccepted = requestAccessResp && requestAccessResp.ok;
             }
 
             const sb = await getSupabaseClient();
             if (sb) {
-              const { error } = await sb.auth.resetPasswordForEmail(email, {
+              const resetOptions = {
                 redirectTo: `${window.location.origin}/members.html?type=recovery`
-              });
+              };
+              if (captchaTokenForRequest) {
+                resetOptions.captchaToken = captchaTokenForRequest;
+              }
+              const { error } = await sb.auth.resetPasswordForEmail(email, resetOptions);
+              if (error && isCaptchaFailureMessage(error.message)) {
+                resetCaptcha();
+                setCaptchaFailureStatus();
+                return;
+              }
               resetAccepted = !error;
             }
 
