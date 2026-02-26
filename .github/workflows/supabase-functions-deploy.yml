@@ -41,7 +41,7 @@ jobs:
           # Basic auth sanity check.
           supabase projects list >/dev/null
 
-          for fn in register-sync register-reconcile request-access members-resources winners winners-admin chat; do
+          for fn in register-sync register-reconcile request-access winners winners-admin chat; do
             echo "Deploying $fn..."
             supabase functions deploy "$fn" --project-ref "$PROJECT_REF"
           done
