@@ -20,7 +20,7 @@
     <link rel="manifest" href="site.webmanifest" />
     <link rel="stylesheet" href="site.css?v=2026-jan31" />
 
-    <script src="supabase-config.js"></script>
+    <script src="supabase-config.js?v=2026-feb26-captcha-hotfix"></script>
     <script type="module" src="supabase-loader.js"></script>
     <script src="supabase-utils.js?v=2026-jan31"></script>
 
@@ -438,6 +438,10 @@
       }
 
       function setCaptchaFailureStatus() {
+        if (!CAPTCHA_SITE_KEY) {
+          setStatus('Captcha is enabled in Supabase, but this page has no captcha site key configured. Ask admin to set SUPABASE_CAPTCHA_SITE_KEY in supabase-config.js or temporarily disable captcha in Supabase Auth.');
+          return;
+        }
         setStatus('Captcha verification failed or was not completed. Please complete the verification challenge, then try again. If no challenge appears, disable content blockers and refresh this page.');
       }
 
@@ -478,10 +482,16 @@
           if (CAPTCHA_SITE_KEY && !ready && captchaHintEl) {
             captchaHintEl.textContent = 'Verification challenge could not load. Disable content blockers and refresh this page.';
           }
+          if (!CAPTCHA_SITE_KEY && captchaHintEl) {
+            captchaHintEl.textContent = 'Captcha site key is not configured in supabase-config.js.';
+          }
         })
         .catch(() => {
           if (CAPTCHA_SITE_KEY && captchaHintEl) {
             captchaHintEl.textContent = 'Verification challenge could not load. Disable content blockers and refresh this page.';
+          }
+          if (!CAPTCHA_SITE_KEY && captchaHintEl) {
+            captchaHintEl.textContent = 'Captcha site key is not configured in supabase-config.js.';
           }
         });
 
