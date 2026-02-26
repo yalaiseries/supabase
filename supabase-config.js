@@ -14,6 +14,17 @@ window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXB
 // For Cloudflare Turnstile, use the Turnstile site key (public).
 window.SUPABASE_CAPTCHA_SITE_KEY = '0x4AAA0x4AAAAAACib2PApUJEa1fuV';
 
+// Guardrail: if key was pasted with an accidental duplicate prefix (e.g. 0x...0x...),
+// keep only the last valid-looking segment.
+(() => {
+	const rawKey = String(window.SUPABASE_CAPTCHA_SITE_KEY || '').trim();
+	if (!rawKey) return;
+	const secondPrefix = rawKey.indexOf('0x', 2);
+	if (secondPrefix > 0) {
+		window.SUPABASE_CAPTCHA_SITE_KEY = rawKey.slice(secondPrefix);
+	}
+})();
+
 // Derived helper for Supabase Edge Functions.
 // Example: https://<project-ref>.functions.supabase.co
 (() => {
