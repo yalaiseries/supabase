@@ -6,18 +6,26 @@
 
 **Symptom:** Edge Function returns 401/403 or "Could not verify registration" error
 
-**Root Cause:** The `allowed_members` table may have RLS enabled, which blocks even service role key writes in some configurations.
+**Root Cause:** RLS policies are missing or too restrictive. The Edge Function should use `SERVICE_ROLE_KEY`, which bypasses RLS, but missing secrets or incorrect policies can still cause failures.
 
 **Solution:**
 ```sql
--- Run this in Supabase Dashboard → SQL Editor
-ALTER TABLE public.allowed_members DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.members_resources DISABLE ROW LEVEL SECURITY;
+-- Keep RLS enabled and allow signed-in users to read only their own email row
+ALTER TABLE public.allowed_members ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS allowed_members_select_own_email ON public.allowed_members;
+CREATE POLICY allowed_members_select_own_email
+  ON public.allowed_members
+  FOR SELECT
+  TO authenticated
+  USING (lower(email) = lower(coalesce(auth.jwt() ->> 'email', '')));
 ```
+
+Then verify your Edge Function secrets include `SERVICE_ROLE_KEY` (or `SUPABASE_SERVICE_ROLE_KEY`).
 
 Or deploy the migration:
 ```powershell
-# Deploy the migration to disable RLS
+# Deploy the migration with RLS-safe policies
 supabase db push
 ```
 
@@ -152,7 +160,7 @@ supabase db push
 ## Quick Checklist
 
 - [ ] Table `public.allowed_members` exists
-- [ ] RLS is **disabled** on `allowed_members` table
+- [ ] RLS is **enabled** on `allowed_members` table
 - [ ] Edge Function `register-sync` is deployed
 - [ ] Secret `REGISTRATION_WEBHOOK_SECRET` is set in both:
   - [ ] Supabase Edge Function Secrets
