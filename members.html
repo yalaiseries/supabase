@@ -140,7 +140,7 @@
         <ol style="line-height: 1.8;">
           <li><strong>Register via the form:</strong> <a class="btn primary" href="https://forms.gle/rdZZzCxTVhAAzvCP7" target="_blank" rel="noreferrer">Open Registration Form</a></li>
           <li><strong>Use the same email:</strong> Register with the email you're currently signed in with (<span id="currentEmail" style="font-weight: bold;"></span>)</li>
-          <li><strong>Wait for approval:</strong> Your email will be added to the members list (usually within 24 hours)</li>
+          <li><strong>Return to this page:</strong> Click "Email me a link to set/reset my password" after registration.</li>
           <li><strong>Come back:</strong> Sign in again and you'll see all the members-only content below</li>
         </ol>
 
@@ -381,7 +381,7 @@
 
       function setRegistrationRequiredStatus(email) {
         const safeEmail = escapeHtml(String(email || '').trim());
-        setStatusHtml(`⚠️ <strong>${safeEmail}</strong> is not registered in the participant list yet. Please complete the <a href="${REGISTRATION_LINK}" target="_blank" rel="noreferrer">Registration Form</a>, wait for approval, then click the password email button again.`, 'warning');
+        setStatusHtml(`⚠️ <strong>${safeEmail}</strong> is not registered in the participant list yet. Please complete the <a href="${REGISTRATION_LINK}" target="_blank" rel="noreferrer">Registration Form</a>, then click the password email button again.`, 'warning');
         if (accessStatusEl) {
           accessStatusEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
