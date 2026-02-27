@@ -346,13 +346,19 @@
       const { getSupabaseClient, escapeHtml, siteBaseUrl, hasSupabaseConfig, SUPABASE_ANON_KEY } = window.__supabaseUtils;
       const REGISTRATION_LINK = 'https://tinyurl.com/AIHackathonROI';
 
-      function setStatusStyles(v) {
+      function setStatusStyles(v, variant = 'info') {
         if (!accessStatusEl) return;
         if (v) {
           accessStatusEl.style.display = 'block';
-          accessStatusEl.style.backgroundColor = 'rgba(78, 162, 253, 0.1)';
-          accessStatusEl.style.border = '1px solid rgba(78, 162, 253, 0.3)';
-          accessStatusEl.style.color = '#4ea2fd';
+          if (variant === 'warning') {
+            accessStatusEl.style.backgroundColor = 'rgba(255, 193, 7, 0.12)';
+            accessStatusEl.style.border = '1px solid rgba(255, 193, 7, 0.45)';
+            accessStatusEl.style.color = '#ffd666';
+          } else {
+            accessStatusEl.style.backgroundColor = 'rgba(78, 162, 253, 0.1)';
+            accessStatusEl.style.border = '1px solid rgba(78, 162, 253, 0.3)';
+            accessStatusEl.style.color = '#4ea2fd';
+          }
         } else {
           accessStatusEl.style.display = 'none';
         }
@@ -362,20 +368,23 @@
         const v = text || '';
         if (accessStatusEl) {
           accessStatusEl.textContent = v;
-          setStatusStyles(v);
+          setStatusStyles(v, 'info');
         }
       }
 
-      function setStatusHtml(html) {
+      function setStatusHtml(html, variant = 'info') {
         const v = String(html || '').trim();
         if (!accessStatusEl) return;
         accessStatusEl.innerHTML = v;
-        setStatusStyles(v);
+        setStatusStyles(v, variant);
       }
 
       function setRegistrationRequiredStatus(email) {
         const safeEmail = escapeHtml(String(email || '').trim());
-        setStatusHtml(`⚠️ <strong>${safeEmail}</strong> is not registered yet. Please complete <a href="${REGISTRATION_LINK}" target="_blank" rel="noreferrer">Registration Link</a> first, then request the password email again.`);
+        setStatusHtml(`⚠️ <strong>${safeEmail}</strong> is not registered in the participant list yet. Please complete the <a href="${REGISTRATION_LINK}" target="_blank" rel="noreferrer">Registration Form</a>, wait for approval, then click the password email button again.`, 'warning');
+        if (accessStatusEl) {
+          accessStatusEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
       }
 
       const adminSetupNote = document.getElementById('adminSetupNote');
