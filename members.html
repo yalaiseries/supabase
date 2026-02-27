@@ -90,6 +90,18 @@
 
         <div id="accessStatus" style="margin-top: 12px; padding: 12px; border-radius: 8px; display: none;"></div>
 
+        <div class="card" id="passwordRecovery" style="margin-top: 12px; display:none;">
+          <h3 style="margin-top: 0;">Set a new password</h3>
+          <p class="muted">Set your minimum 8-digit password here.</p>
+          <div class="field" style="margin-top: 10px; max-width: 420px;">
+            <label class="small" for="newPassword">New password</label>
+            <input id="newPassword" type="password" autocomplete="new-password" placeholder="Choose a strong password" />
+          </div>
+          <div class="cta" style="margin-top: 10px;">
+            <button class="btn primary" id="setPassword" type="button">Set password</button>
+          </div>
+        </div>
+
         <div style="margin-top: 16px; padding: 14px 16px; background: rgba(78, 162, 253, 0.1); border-left: 4px solid #4ea2fd; border-radius: 6px;">
           <h3 style="margin: 0 0 8px 0; font-size: 16px; color: #4ea2fd;">🔑 Password Help</h3>
           <p style="margin: 0;">Need help with your password? <a href="assets/password_setup.pdf" target="_blank" rel="noreferrer" style="font-weight: 600;">View the step-by-step guide (PDF)</a></p>
@@ -106,18 +118,6 @@
             <li>If your office network blocks verification, try a different network (for example, mobile hotspot) once.</li>
           </ul>
           <p class="small muted" style="margin: 10px 0 0 0;">Still blocked? Email <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> or <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> with your email, screenshot, and browser version.</p>
-        </div>
-
-        <div class="card" id="passwordRecovery" style="margin-top: 12px; display:none;">
-          <h3 style="margin-top: 0;">Set a new password</h3>
-          <p class="muted">Set your minimum 8-digit password here.</p>
-          <div class="field" style="margin-top: 10px; max-width: 420px;">
-            <label class="small" for="newPassword">New password</label>
-            <input id="newPassword" type="password" autocomplete="new-password" placeholder="Choose a strong password" />
-          </div>
-          <div class="cta" style="margin-top: 10px;">
-            <button class="btn primary" id="setPassword" type="button">Set password</button>
-          </div>
         </div>
 
         <p class="small warn" id="adminSetupNote" style="margin-top: 10px; display:none;">Admin setup required: configure Supabase Auth redirect URLs and set the Supabase URL + anon key in this page.</p>
@@ -391,12 +391,54 @@
       if (adminSetupNote) adminSetupNote.style.display = hasSupabaseConfig ? 'none' : '';
 
       const CAPTCHA_SITE_KEY = String(window.SUPABASE_CAPTCHA_SITE_KEY || '').trim();
+      const AUTH_DEBUG = (() => {
+        try {
+          const search = new URLSearchParams(window.location.search);
+          if (search.get('auth_debug') === '1') return true;
+          return String(localStorage.getItem('auth_debug') || '').trim() === '1';
+        } catch {
+          return false;
+        }
+      })();
+
+      function logAuthDebug(context, payload) {
+        if (!AUTH_DEBUG) return;
+        try {
+          console.warn('[auth-debug]', context, payload || {});
+        } catch {
+          // ignore
+        }
+      }
+
       let captchaToken = '';
       let captchaWidgetId = null;
       let captchaScriptPromise = null;
 
       function isCaptchaFailureMessage(message) {
         return /captcha verification process failed|captcha|challenge/i.test(String(message || ''));
+      }
+
+      function getPasswordEmailFailureMessage(errorMessage) {
+        const message = String(errorMessage || '').trim();
+        const lower = message.toLowerCase();
+
+        if (!message) {
+          return '⚠️ Could not send email request. Please try again shortly.';
+        }
+
+        if (isCaptchaFailureMessage(message)) {
+          return '⚠️ Verification failed or expired. Complete it and try again.';
+        }
+
+        if (lower.includes('over_email_send_rate_limit') || lower.includes('email rate limit exceeded') || lower.includes('rate limit')) {
+          return '⚠️ Too many requests. Please wait 10 minutes, then try once.';
+        }
+
+        if (lower.includes('unexpected_failure')) {
+          return '⚠️ Service is temporarily unavailable. Please retry in a few minutes.';
+        }
+
+        return `⚠️ Email request failed: ${message}`;
       }
 
       function resetCaptcha() {
@@ -479,10 +521,10 @@
 
       function setCaptchaFailureStatus() {
         if (!CAPTCHA_SITE_KEY) {
-          setStatus('Captcha is enabled in Supabase, but this page has no captcha site key configured. Ask admin to set SUPABASE_CAPTCHA_SITE_KEY in supabase-config.js or temporarily disable captcha in Supabase Auth.');
+          setStatus('Captcha is enabled but not configured on this page. Please contact support.');
           return;
         }
-        setStatus('Captcha verification failed or was not completed. Please complete the verification challenge, then try again. If no challenge appears, disable content blockers and refresh this page.');
+        setStatus('Captcha failed or expired. Complete it and try again.');
       }
 
       async function requireCaptchaToken(actionLabel) {
@@ -744,7 +786,7 @@
 
           // Disable button to prevent multiple clicks
           passwordEmailBtn.disabled = true;
-          setStatus('Sending email... Please wait, do not click again.');
+          setStatus('Sending email...');
 
           // 1) Invite flow (first-time setup) - allowlist gated, does not reveal eligibility.
           // 2) Reset flow (existing accounts) - standard Supabase password reset.
@@ -752,6 +794,7 @@
           try {
             let requestAccessAccepted = false;
             let resetAccepted = false;
+            let resetErrorMessage = '';
             const captchaTokenForRequest = await requireCaptchaToken('requesting a password email');
             if (captchaTokenForRequest === null) {
               return;
@@ -768,13 +811,25 @@
                 body: JSON.stringify({ email, captchaToken: captchaTokenForRequest || undefined })
               });
               requestAccessAccepted = requestAccessResp && requestAccessResp.ok;
+              logAuthDebug('request-access response', {
+                ok: requestAccessAccepted,
+                status: requestAccessResp ? requestAccessResp.status : null,
+                email
+              });
 
               if (requestAccessAccepted) {
                 const requestBody = await requestAccessResp.json().catch(() => ({}));
+                logAuthDebug('request-access body', requestBody);
                 if (requestBody && requestBody.allowlisted === false) {
                   setRegistrationRequiredStatus(email);
                   return;
                 }
+              } else {
+                const requestBodyText = await requestAccessResp.text().catch(() => '');
+                logAuthDebug('request-access non-ok body', {
+                  status: requestAccessResp ? requestAccessResp.status : null,
+                  body: requestBodyText
+                });
               }
             }
 
@@ -790,20 +845,42 @@
               if (error && isCaptchaFailureMessage(error.message)) {
                 resetCaptcha();
                 setCaptchaFailureStatus();
+                logAuthDebug('resetPasswordForEmail captcha failure', {
+                  email,
+                  error: String(error.message || '')
+                });
                 return;
               }
+              if (error) {
+                resetErrorMessage = String(error.message || '').trim();
+                logAuthDebug('resetPasswordForEmail error', {
+                  email,
+                  error: resetErrorMessage
+                });
+              }
               resetAccepted = !error;
+            } else {
+              resetErrorMessage = 'Supabase client/config not loaded.';
+              logAuthDebug('resetPasswordForEmail skipped', {
+                email,
+                reason: resetErrorMessage
+              });
             }
 
             if (resetAccepted) {
-              setStatus('✅ Email request submitted. Please check your inbox and SPAM/JUNK folder (first email can take 1-2 minutes).');
+              setStatus('✅ Email sent. Check inbox/spam (can take 1-2 minutes).');
             } else if (requestAccessAccepted && !resetAccepted) {
-              setStatus('⚠️ Registration check passed, but password email could not be sent. Please complete the verification challenge again and retry.');
+              setStatus(getPasswordEmailFailureMessage(resetErrorMessage));
             } else {
-              setStatus('⚠️ We could not submit the email request right now. Please try again in 1-2 minutes, and contact support if it continues.');
+              setStatus('⚠️ Could not send email request. Please try again shortly.');
             }
-          } catch {
-            setStatus('⚠️ We could not submit the email request right now. Please try again in 1-2 minutes, and contact support if it continues.');
+          } catch (e) {
+            const errMsg = e && e.message ? String(e.message) : String(e || '');
+            logAuthDebug('passwordEmailBtn catch', {
+              email: String(emailEl && emailEl.value ? emailEl.value : '').trim(),
+              error: errMsg
+            });
+            setStatus(getPasswordEmailFailureMessage(errMsg));
           } finally {
             // Re-enable button after 5 seconds
             setTimeout(() => {
@@ -877,17 +954,54 @@
           return;
         }
 
+        async function activateRecoverySessionFromUrl() {
+          const urlParams = new URLSearchParams(window.location.search);
+          const hashParams = new URLSearchParams(window.location.hash.substring(1));
+          const isRecoveryType = urlParams.get('type') === 'recovery' || hashParams.get('type') === 'recovery';
+          if (!isRecoveryType) {
+            return { attempted: false, active: false, error: '' };
+          }
+
+          const code = String(urlParams.get('code') || '').trim();
+          const tokenHash = String(urlParams.get('token_hash') || '').trim();
+
+          let authError = null;
+          if (code) {
+            const { error } = await sb.auth.exchangeCodeForSession(code);
+            authError = error || null;
+          } else if (tokenHash) {
+            const { error } = await sb.auth.verifyOtp({ type: 'recovery', token_hash: tokenHash });
+            authError = error || null;
+          }
+
+          const { data } = await sb.auth.getSession();
+          const isActive = !!(data && data.session && data.session.user);
+
+          if ((code || tokenHash) && !authError) {
+            try {
+              window.history.replaceState({}, document.title, `${window.location.pathname}?type=recovery`);
+            } catch {
+              // ignore
+            }
+          }
+
+          return {
+            attempted: !!(code || tokenHash),
+            active: isActive,
+            error: authError && authError.message ? String(authError.message) : ''
+          };
+        }
+
+        const recoverySession = await activateRecoverySessionFromUrl();
+
         const urlParams = new URLSearchParams(window.location.search);
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const hasCode = urlParams.has('code');
         const hasAccessToken = hashParams.has('access_token');
         const isPasswordRecovery = urlParams.get('type') === 'recovery' || hashParams.get('type') === 'recovery';
 
-        if (hasCode) {
-          setStatus('Password reset link is using an older flow. Please request a new reset email and open the latest link.');
-        }
-
-        if (hasAccessToken || isPasswordRecovery) {
+        if (recoverySession.error) {
+          setStatus(`Password reset link could not be verified: ${recoverySession.error}`);
+        } else if (recoverySession.active || hasAccessToken || isPasswordRecovery) {
           showPasswordRecovery(true);
           setStatus('✅ Password reset link verified! Set your new password below.');
         }
@@ -900,7 +1014,12 @@
             showPasswordRecovery(true);
             setStatus('✅ Password reset link verified! Set your new password below.');
           } else if (event !== 'INITIAL_SESSION') {
-            showPasswordRecovery(false);
+            const currentUrlParams = new URLSearchParams(window.location.search);
+            const currentHashParams = new URLSearchParams(window.location.hash.substring(1));
+            const isRecoveryContext = currentUrlParams.get('type') === 'recovery' || currentHashParams.get('type') === 'recovery';
+            if (!isRecoveryContext) {
+              showPasswordRecovery(false);
+            }
           }
           updateUI(session);
         });
