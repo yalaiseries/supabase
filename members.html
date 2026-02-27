@@ -795,8 +795,10 @@
               resetAccepted = !error;
             }
 
-            if (requestAccessAccepted || resetAccepted) {
+            if (resetAccepted) {
               setStatus('✅ Email request submitted. Please check your inbox and SPAM/JUNK folder (first email can take 1-2 minutes).');
+            } else if (requestAccessAccepted && !resetAccepted) {
+              setStatus('⚠️ Registration check passed, but password email could not be sent. Please complete the verification challenge again and retry.');
             } else {
               setStatus('⚠️ We could not submit the email request right now. Please try again in 1-2 minutes, and contact support if it continues.');
             }
