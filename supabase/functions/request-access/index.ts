@@ -43,6 +43,7 @@ function getServiceRoleKey(): string {
 
 type RequestAccessBody = {
   email?: string;
+  captchaToken?: string;
 };
 
 async function isAllowlisted(supabaseUrl: string, serviceRoleKey: string, email: string): Promise<
@@ -119,8 +120,7 @@ serve(async (req: Request) => {
 
   const email = normalizeEmail(payload?.email);
   if (!email) {
-    // Generic response to avoid leaking.
-    return json({ ok: true });
+    return json({ ok: true, allowlisted: false });
   }
 
   const allow = await isAllowlisted(supabaseUrl, serviceRoleKey, email);
@@ -128,8 +128,6 @@ serve(async (req: Request) => {
     return json({ error: allow.error }, allow.status);
   }
 
-  // Privacy: do NOT reveal allowlist status to the caller.
-  // Only send the invite email when allowlisted.
   if (allow.allowlisted) {
     try {
       await sendInvite(supabaseUrl, serviceRoleKey, email);
@@ -138,12 +136,12 @@ serve(async (req: Request) => {
         error: e instanceof Error ? e.message : String(e || 'unknown_error'),
         emailDomain: email.includes('@') ? email.split('@')[1] : 'unknown'
       });
-      // Intentionally swallow errors to avoid allowlist enumeration.
+      // Intentionally swallow invite errors so the UI flow can proceed.
       // Check Supabase Function logs if you need to debug invite sending.
     }
   }
 
-  return json({ ok: true });
+  return json({ ok: true, allowlisted: allow.allowlisted });
 });
 
 // Deployed via GitHub Actions (CI).

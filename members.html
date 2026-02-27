@@ -344,20 +344,38 @@
       const currentEmailSpan = document.getElementById('currentEmail');
 
       const { getSupabaseClient, escapeHtml, siteBaseUrl, hasSupabaseConfig, SUPABASE_ANON_KEY } = window.__supabaseUtils;
+      const REGISTRATION_LINK = 'https://tinyurl.com/AIHackathonROI';
+
+      function setStatusStyles(v) {
+        if (!accessStatusEl) return;
+        if (v) {
+          accessStatusEl.style.display = 'block';
+          accessStatusEl.style.backgroundColor = 'rgba(78, 162, 253, 0.1)';
+          accessStatusEl.style.border = '1px solid rgba(78, 162, 253, 0.3)';
+          accessStatusEl.style.color = '#4ea2fd';
+        } else {
+          accessStatusEl.style.display = 'none';
+        }
+      }
 
       function setStatus(text) {
         const v = text || '';
         if (accessStatusEl) {
           accessStatusEl.textContent = v;
-          if (v) {
-            accessStatusEl.style.display = 'block';
-            accessStatusEl.style.backgroundColor = 'rgba(78, 162, 253, 0.1)';
-            accessStatusEl.style.border = '1px solid rgba(78, 162, 253, 0.3)';
-            accessStatusEl.style.color = '#4ea2fd';
-          } else {
-            accessStatusEl.style.display = 'none';
-          }
+          setStatusStyles(v);
         }
+      }
+
+      function setStatusHtml(html) {
+        const v = String(html || '').trim();
+        if (!accessStatusEl) return;
+        accessStatusEl.innerHTML = v;
+        setStatusStyles(v);
+      }
+
+      function setRegistrationRequiredStatus(email) {
+        const safeEmail = escapeHtml(String(email || '').trim());
+        setStatusHtml(`⚠️ <strong>${safeEmail}</strong> is not registered yet. Please complete <a href="${REGISTRATION_LINK}" target="_blank" rel="noreferrer">Registration Link</a> first, then request the password email again.`);
       }
 
       const adminSetupNote = document.getElementById('adminSetupNote');
@@ -741,6 +759,14 @@
                 body: JSON.stringify({ email, captchaToken: captchaTokenForRequest || undefined })
               });
               requestAccessAccepted = requestAccessResp && requestAccessResp.ok;
+
+              if (requestAccessAccepted) {
+                const requestBody = await requestAccessResp.json().catch(() => ({}));
+                if (requestBody && requestBody.allowlisted === false) {
+                  setRegistrationRequiredStatus(email);
+                  return;
+                }
+              }
             }
 
             const sb = await getSupabaseClient();
