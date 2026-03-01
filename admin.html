@@ -690,7 +690,7 @@
           if (email) visitParams.set('email', email);
           if (path) visitParams.set('path', path);
 
-          const [downloadResp, visitResp] = await Promise.all([
+          const [downloadResult, visitResult] = await Promise.allSettled([
             fetch(`${SUPABASE_FUNCTIONS_URL}/slide-download-admin?${params.toString()}`, {
               headers: {
                 apikey: SUPABASE_ANON_KEY,
@@ -705,8 +705,16 @@
             })
           ]);
 
+          if (downloadResult.status !== 'fulfilled') {
+            setStatus('Download report unavailable (network or blocked request). Please try again or check allowlist.', 'error');
+            return;
+          }
+
+          const downloadResp = downloadResult.value;
+          const visitResp = visitResult.status === 'fulfilled' ? visitResult.value : null;
+
           const payload = await downloadResp.json().catch(() => ({}));
-          const visitPayload = await visitResp.json().catch(() => ({}));
+          const visitPayload = visitResp ? await visitResp.json().catch(() => ({})) : {};
 
           if (!downloadResp.ok) {
             if (downloadResp.status === 403) {
@@ -726,7 +734,7 @@
           renderCharts(events);
           renderEvents(events, payload);
 
-          let visitOk = visitResp.ok;
+          let visitOk = !!(visitResp && visitResp.ok);
           if (visitOk) {
             const visits = Array.isArray(visitPayload.visits) ? visitPayload.visits : [];
             currentVisitEvents = visits;
