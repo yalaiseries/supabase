@@ -143,19 +143,16 @@
       <p class="muted">Admin-only report for slide downloads: total count, who downloaded, and when.</p>
 
       <section class="card" style="margin-top: 12px;">
-        <h2 style="margin-top: 0;">Admin Sign-in</h2>
+        <h2 style="margin-top: 0;">Admin Access</h2>
         <div class="auth-grid">
           <div class="field">
-            <label class="small" for="loginEmail">Email</label>
-            <input id="loginEmail" type="email" autocomplete="email" placeholder="admin email" />
-          </div>
-          <div class="field">
-            <label class="small" for="loginPassword">Password</label>
-            <input id="loginPassword" type="password" autocomplete="current-password" placeholder="password" />
+            <p class="small-muted" style="margin: 0; line-height: 1.6;">
+              Use the normal login at <strong>members.html</strong> first, then return to this page.
+              This avoids captcha/login challenges on the admin screen.
+            </p>
           </div>
           <div class="field" style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn primary" id="loginBtn" type="button">Sign In</button>
-            <button class="btn" id="resetBtn" type="button">Email Reset Link</button>
+            <a class="btn" id="membersLoginBtn" href="/members.html">Open Members Login</a>
             <button class="btn" id="logoutBtn" type="button">Sign Out</button>
           </div>
         </div>
@@ -302,11 +299,8 @@
       const refreshBtn = document.getElementById('refreshBtn');
       const exportBtn = document.getElementById('exportBtn');
       const exportVisitsBtn = document.getElementById('exportVisitsBtn');
-      const loginBtn = document.getElementById('loginBtn');
-      const resetBtn = document.getElementById('resetBtn');
+      const membersLoginBtn = document.getElementById('membersLoginBtn');
       const logoutBtn = document.getElementById('logoutBtn');
-      const loginEmailEl = document.getElementById('loginEmail');
-      const loginPasswordEl = document.getElementById('loginPassword');
       const statusEl = document.getElementById('status');
       const whoEl = document.getElementById('who');
       const fromDateEl = document.getElementById('fromDate');
@@ -628,60 +622,6 @@
         currentSession = session || null;
         const email = String(session && session.user && session.user.email ? session.user.email : '').trim();
         whoEl.textContent = email ? `Signed in as ${email}` : 'Not signed in';
-        if (loginEmailEl && !loginEmailEl.value && email) {
-          loginEmailEl.value = email;
-        }
-      }
-
-      async function handleAdminLogin(sb) {
-        const email = String(loginEmailEl && loginEmailEl.value ? loginEmailEl.value : '').trim().toLowerCase();
-        const password = String(loginPasswordEl && loginPasswordEl.value ? loginPasswordEl.value : '').trim();
-
-        if (!email) {
-          setStatus('Please enter your admin email.', 'error');
-          return;
-        }
-        if (!password) {
-          setStatus('Please enter your password.', 'error');
-          return;
-        }
-
-        loginBtn.disabled = true;
-        setStatus('Signing in...');
-        try {
-          const { error } = await sb.auth.signInWithPassword({ email, password });
-          if (error) {
-            setStatus(String(error.message || 'Could not sign in.'), 'error');
-            return;
-          }
-          setStatus('Signed in. Loading report...');
-          await loadReport();
-        } finally {
-          loginBtn.disabled = false;
-        }
-      }
-
-      async function handlePasswordReset(sb) {
-        const email = String(loginEmailEl && loginEmailEl.value ? loginEmailEl.value : '').trim().toLowerCase();
-        if (!email) {
-          setStatus('Please enter your email first.', 'error');
-          return;
-        }
-
-        resetBtn.disabled = true;
-        setStatus('Sending reset email...');
-        try {
-          const { error } = await sb.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/members.html?type=recovery`
-          });
-          if (error) {
-            setStatus(String(error.message || 'Could not send reset email.'), 'error');
-            return;
-          }
-          setStatus('Reset email sent. Check inbox/spam.', 'info');
-        } finally {
-          resetBtn.disabled = false;
-        }
       }
 
       async function handleLogout(sb) {
@@ -712,31 +652,12 @@
         if (authBound) return;
         authBound = true;
 
-        loginBtn.addEventListener('click', () => handleAdminLogin(sb));
-        resetBtn.addEventListener('click', () => handlePasswordReset(sb));
         logoutBtn.addEventListener('click', () => handleLogout(sb));
-
-        if (loginEmailEl) {
-          loginEmailEl.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleAdminLogin(sb);
-            }
-          });
-        }
-        if (loginPasswordEl) {
-          loginPasswordEl.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleAdminLogin(sb);
-            }
-          });
-        }
       }
 
       async function loadReport() {
         if (!currentSession || !currentSession.access_token) {
-          setStatus('Please sign in above first.', 'error');
+          setStatus('Please sign in at members.html first, then return to this page.', 'error');
           return;
         }
         if (!SUPABASE_FUNCTIONS_URL) {
@@ -855,6 +776,12 @@
           updateAuthDisplay(session || null);
         });
 
+        if (membersLoginBtn) {
+          membersLoginBtn.addEventListener('click', () => {
+            setStatus('Open members login in this tab, sign in, then return to admin.', 'info');
+          });
+        }
+
         refreshBtn.addEventListener('click', () => loadReport());
         exportBtn.addEventListener('click', () => {
           if (!currentEvents.length) {
@@ -875,7 +802,7 @@
         });
 
         if (!currentSession || !currentSession.user) {
-          setStatus('Sign in above to load admin analytics.');
+          setStatus('Sign in at members.html to load admin analytics.');
           return;
         }
 
