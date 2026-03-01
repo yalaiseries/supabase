@@ -1,6 +1,6 @@
 // Update challenge topics for 2025 based on participant survey feedback priority
-const SUPABASE_URL = 'https://xcctqbamimafkkamuwly.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjY3RxYmFtaW1hZmtrYW11d2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxOTI5MzUsImV4cCI6MjA1Mjc2ODkzNX0.0BHjwATp6-MvVP4xQPp_mnKV8ZJO6ssPtVeOI5KDjg8';
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://<project-ref>.supabase.co';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const challengeTopics2025 = [
   {
@@ -36,6 +36,14 @@ const challengeTopics2025 = [
 ];
 
 async function updateChallengeTopics() {
+  if (!SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable.');
+  }
+
+  if (SUPABASE_URL.includes('<project-ref>')) {
+    throw new Error('Set SUPABASE_URL environment variable to your project URL before running this script.');
+  }
+
   console.log('Updating 2025 challenge topics in Supabase...\n');
   
   const url = `${SUPABASE_URL}/rest/v1/winners_payload?year=eq.2025&select=team,challenge_topics`;
@@ -43,8 +51,8 @@ async function updateChallengeTopics() {
   // First, fetch current records to see what exists
   const fetchResponse = await fetch(url, {
     headers: {
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      'apikey': SUPABASE_SERVICE_ROLE_KEY,
+      'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
     }
   });
   
@@ -65,8 +73,8 @@ async function updateChallengeTopics() {
     const updateResponse = await fetch(updateUrl, {
       method: 'PATCH',
       headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
         'Content-Type': 'application/json',
         'Prefer': 'return=minimal'
       },

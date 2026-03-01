@@ -434,7 +434,7 @@ code data/winners-2025-corrected.json
 cd data
 curl.exe -X POST https://xcctqbamimafkkamuwly.supabase.co/functions/v1/winners-admin \
   -H "Content-Type: application/json" \
-  -H "x-admin-token: MySecureToken2025!" \
+  -H "x-admin-token: WINNERS_ADMIN_TOKEN" \
   -d "@temp-upload-2025.json"
 ```
 
@@ -453,7 +453,7 @@ verify_jwt = false  # Token-based auth
 ```javascript
 // Client-side configuration
 const SUPABASE_URL = 'https://xcctqbamimafkkamuwly.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJh...'; // Public key
+const SUPABASE_ANON_KEY = 'SUPABASE_ANON_KEY_PLACEHOLDER'; // Public key
 ```
 
 ---
