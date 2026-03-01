@@ -592,6 +592,100 @@
         return `${Number(count)}${isTruncated ? '+' : ''}`;
       }
 
+      function extractDriveFileId(value) {
+        const raw = String(value || '').trim();
+        if (!raw) return '';
+        const fileMatch = raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/i);
+        if (fileMatch && fileMatch[1]) return String(fileMatch[1]);
+        const docMatch = raw.match(/\/(?:document|presentation|spreadsheets)\/d\/([a-zA-Z0-9_-]+)/i);
+        if (docMatch && docMatch[1]) return String(docMatch[1]);
+        return '';
+      }
+
+      function toReadableFileNameFromUrl(value) {
+        const raw = String(value || '').trim();
+        if (!raw) return '';
+        try {
+          const parsed = new URL(raw);
+          const explicitName =
+            parsed.searchParams.get('filename') ||
+            parsed.searchParams.get('file') ||
+            parsed.searchParams.get('name') ||
+            '';
+          if (explicitName) return decodeURIComponent(explicitName).trim();
+
+          const segments = parsed.pathname.split('/').map((s) => decodeURIComponent(String(s || '').trim())).filter(Boolean);
+          const fileLike = segments.find((segment) => /\.[a-z0-9]{2,5}$/i.test(segment));
+          if (fileLike) return fileLike;
+        } catch {
+          // ignore parse errors
+        }
+        return '';
+      }
+
+      function toReadableSlideId(value) {
+        const raw = String(value || '').trim();
+        if (!raw) return '';
+        const cleaned = raw
+          .replace(/^winners-drive-google-com-file-d-/i, '')
+          .replace(/-view$/i, '')
+          .replace(/^members-drive-google-com-file-d-/i, '')
+          .replace(/^slide-/i, '');
+        if (!cleaned) return '';
+        if (/^[a-z0-9_-]{18,}$/i.test(cleaned)) {
+          return `Drive file ${cleaned.slice(0, 8)}…`;
+        }
+        return cleaned.replace(/[-_]+/g, ' ').trim();
+      }
+
+      function getDownloadFileLabel(row) {
+        const slideUrl = String(row && row.slide_url ? row.slide_url : '').trim();
+        const slideId = String(row && row.slide_id ? row.slide_id : '').trim();
+
+        const fromUrl = toReadableFileNameFromUrl(slideUrl);
+        if (fromUrl) return fromUrl;
+
+        const driveId = extractDriveFileId(slideUrl);
+        if (driveId) return `Drive file ${driveId.slice(0, 8)}…`;
+
+        const fromSlideId = toReadableSlideId(slideId);
+        if (fromSlideId) return fromSlideId;
+
+        return 'Unknown file';
+      }
+
+      function getDownloadFileKey(row) {
+        const slideUrl = String(row && row.slide_url ? row.slide_url : '').trim();
+        const slideId = String(row && row.slide_id ? row.slide_id : '').trim();
+        const driveId = extractDriveFileId(slideUrl);
+        if (driveId) return `drive:${driveId}`;
+        if (slideId) return `slide:${slideId}`;
+        if (slideUrl) return `url:${slideUrl}`;
+        return 'unknown';
+      }
+
+      function buildDownloadFileEntries(rows) {
+        const source = Array.isArray(rows) ? rows : [];
+        const grouped = new Map();
+
+        source.forEach((row) => {
+          const key = getDownloadFileKey(row);
+          const label = getDownloadFileLabel(row);
+          if (!grouped.has(key)) {
+            grouped.set(key, { label, count: 0 });
+          }
+          const entry = grouped.get(key);
+          entry.count += 1;
+          if (entry.label === 'Unknown file' && label !== 'Unknown file') {
+            entry.label = label;
+          }
+        });
+
+        return Array.from(grouped.values())
+          .map((item) => [item.label, item.count])
+          .sort((a, b) => Number(b[1]) - Number(a[1]));
+      }
+
       function renderPieChart(el, entries, maxItems = 6) {
         const source = Array.isArray(entries) ? entries : [];
         const rows = source
@@ -679,9 +773,7 @@
 
         const visitorsByCountry = sortCountMap(groupCount(allVisitsRows, (r) => getCountryLabel(r)));
         const visitsByPage = sortCountMap(groupCount(allVisitsRows, (r) => String(r.path || '').trim() || 'unknown'));
-        const downloadsByFile = sortCountMap(
-          groupCount(allDownloadsRows, (r) => String(r.slide_id || '').trim() || String(r.slide_url || '').trim() || 'unknown')
-        );
+        const downloadsByFile = buildDownloadFileEntries(allDownloadsRows);
 
         renderPieChart(pieVisitorsCountryEl, visitorsByCountry, 6);
         renderPieChart(pieVisitPagesEl, visitsByPage, 6);
@@ -846,7 +938,7 @@
       }
 
       function renderCharts(events) {
-        const byFile = sortCountMap(groupCount(events, (r) => String(r.slide_id || '').trim() || String(r.slide_url || '').trim()));
+        const byFile = buildDownloadFileEntries(events);
         const byUser = sortCountMap(groupCount(events, (r) => String(r.email || '').toLowerCase()));
         const byDay = sortCountMap(
           groupCount(events, (r) => {
