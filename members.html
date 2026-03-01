@@ -82,6 +82,8 @@
           <p class="small muted" id="captchaHint" style="margin-top: 6px;"></p>
         </div>
 
+        <div id="captchaBanner" style="margin-top: 10px; max-width: 420px; padding: 10px 12px; border-radius: 8px; display: none; background: rgba(255, 193, 7, 0.12); border: 1px solid rgba(255, 193, 7, 0.45); color: #ffd666;"></div>
+
         <div class="cta" style="margin-top: 10px;">
           <button class="btn primary" id="login" type="button">Log in</button>
           <button class="btn" id="passwordEmail" type="button">Email me a link to set/reset my password</button>
@@ -349,6 +351,7 @@
       const captchaWrapperEl = document.getElementById('captchaWrapper');
       const captchaMountEl = document.getElementById('captchaMount');
       const captchaHintEl = document.getElementById('captchaHint');
+      const captchaBannerEl = document.getElementById('captchaBanner');
 
       const passwordRecoveryCard = document.getElementById('passwordRecovery');
       const newPasswordEl = document.getElementById('newPassword');
@@ -528,9 +531,11 @@
         if (!captchaWrapperEl) return;
         if (!CAPTCHA_SITE_KEY) {
           captchaWrapperEl.style.display = 'none';
+          setCaptchaBanner('Verification challenge is not configured. If login fails, contact support to set SUPABASE_CAPTCHA_SITE_KEY.');
           return;
         }
         captchaWrapperEl.style.display = '';
+        setCaptchaBanner('');
         if (captchaHintEl) {
           captchaHintEl.textContent = 'Automated bot-protection verification feature.';
         }
@@ -630,13 +635,27 @@
         setStatus('Captcha failed or expired. Complete it and try again.');
       }
 
+      function setCaptchaBanner(message) {
+        if (!captchaBannerEl) return;
+        const text = String(message || '').trim();
+        if (!text) {
+          captchaBannerEl.style.display = 'none';
+          captchaBannerEl.textContent = '';
+          return;
+        }
+        captchaBannerEl.style.display = 'block';
+        captchaBannerEl.textContent = text;
+      }
+
       async function requireCaptchaToken(actionLabel) {
         if (!CAPTCHA_SITE_KEY) return '';
         const ready = await ensureCaptchaReady();
         if (!ready) {
+          setCaptchaBanner('Verification challenge is blocked or failed to load. Allow challenges.cloudflare.com, then refresh this page.');
           setStatus(`Verification challenge could not load. Please disable content blockers, refresh this page, and try ${actionLabel} again.`);
           return null;
         }
+        setCaptchaBanner('');
         const token = String(captchaToken || '').trim();
         if (!token) {
           setStatus('Please complete the verification challenge first, then try again.');
@@ -666,6 +685,9 @@
         .then((ready) => {
           if (CAPTCHA_SITE_KEY && !ready && captchaHintEl) {
             captchaHintEl.textContent = 'Verification challenge could not load. Disable content blockers and refresh this page.';
+            setCaptchaBanner('Verification challenge could not load. Please allow challenges.cloudflare.com and refresh (Ctrl+F5).');
+          } else if (CAPTCHA_SITE_KEY && ready) {
+            setCaptchaBanner('');
           }
           if (!CAPTCHA_SITE_KEY && captchaHintEl) {
             captchaHintEl.textContent = 'Captcha site key is not configured in supabase-config.js.';
@@ -674,6 +696,7 @@
         .catch(() => {
           if (CAPTCHA_SITE_KEY && captchaHintEl) {
             captchaHintEl.textContent = 'Verification challenge could not load. Disable content blockers and refresh this page.';
+            setCaptchaBanner('Verification challenge could not load. Please allow challenges.cloudflare.com and refresh (Ctrl+F5).');
           }
           if (!CAPTCHA_SITE_KEY && captchaHintEl) {
             captchaHintEl.textContent = 'Captcha site key is not configured in supabase-config.js.';
