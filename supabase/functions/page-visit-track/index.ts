@@ -64,6 +64,28 @@ function cleanText(value: string, maxLen = 500): string {
   return String(value || '').trim().slice(0, maxLen);
 }
 
+function readHeader(req: Request, names: string[], maxLen = 120): string {
+  for (const name of names) {
+    const value = cleanText(String(req.headers.get(name) || ''), maxLen);
+    if (value) return value;
+  }
+  return '';
+}
+
+function buildGeoMetadata(req: Request): Record<string, string> {
+  const country = readHeader(req, ['cf-ipcountry', 'x-vercel-ip-country', 'x-country-code', 'x-appengine-country']);
+  const region = readHeader(req, ['x-vercel-ip-country-region', 'x-appengine-region']);
+  const city = readHeader(req, ['x-vercel-ip-city', 'x-appengine-city']);
+  const timezone = readHeader(req, ['x-vercel-ip-timezone']);
+
+  const geo: Record<string, string> = {};
+  if (country) geo.country = country;
+  if (region) geo.region = region;
+  if (city) geo.city = city;
+  if (timezone) geo.timezone = timezone;
+  return geo;
+}
+
 function parseQueryPayload(req: Request): VisitPayload {
   const url = new URL(req.url);
   return {
@@ -193,7 +215,19 @@ serve(async (req: Request) => {
     referrer: cleanText(String(payload.referrer || req.headers.get('referer') || ''), 1000),
     sessionId: cleanText(String(payload.session_id || ''), 100),
     userAgent: cleanText(String(req.headers.get('user-agent') || ''), 500),
-    metadata: payload.metadata && typeof payload.metadata === 'object' ? payload.metadata : null
+    metadata: (() => {
+      const metadata = payload.metadata && typeof payload.metadata === 'object'
+        ? { ...payload.metadata as Record<string, unknown> }
+        : {};
+      const geo = buildGeoMetadata(req);
+      if (Object.keys(geo).length) {
+        metadata.geo = {
+          ...(metadata.geo && typeof metadata.geo === 'object' ? metadata.geo as Record<string, unknown> : {}),
+          ...geo
+        };
+      }
+      return Object.keys(metadata).length ? metadata : null;
+    })()
   });
 
   if (!insert.ok) {

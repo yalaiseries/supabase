@@ -148,7 +148,7 @@ async function loadDownloadEvents(input: {
 > {
   const requestUrl = new URL(input.req.url);
 
-  const limit = parseIntInRange(String(requestUrl.searchParams.get('limit') || ''), 200, 1, 1000);
+  const limit = parseIntInRange(String(requestUrl.searchParams.get('limit') || ''), 200, 1, 20000);
   const offset = parseIntInRange(String(requestUrl.searchParams.get('offset') || ''), 0, 0, 1000000);
 
   const email = normalizeEmail(String(requestUrl.searchParams.get('email') || ''));

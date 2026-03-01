@@ -103,6 +103,51 @@
         font-size: 12px;
         color: #d8e7ff;
       }
+      .pie-wrap {
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        gap: 12px;
+        align-items: start;
+      }
+      .pie-donut {
+        width: 132px;
+        height: 132px;
+        border-radius: 50%;
+        position: relative;
+        margin: 0 auto;
+      }
+      .pie-donut::after {
+        content: '';
+        position: absolute;
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        background: #0f172a;
+        top: 32px;
+        left: 32px;
+      }
+      .pie-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .pie-item {
+        display: grid;
+        grid-template-columns: 10px 1fr auto;
+        gap: 8px;
+        align-items: center;
+        font-size: 12px;
+        color: #cdddf8;
+      }
+      .pie-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+      }
+      .pie-empty {
+        font-size: 12px;
+        color: #9fb8d9;
+      }
       table.analytics {
         width: 100%;
         border-collapse: collapse;
@@ -194,6 +239,26 @@
       </section>
 
       <section class="card">
+        <h2>Performance Dashboard</h2>
+        <p class="small-muted" id="dashboardMeta"></p>
+        <div class="metric-grid" id="dashboardMetrics"></div>
+        <div class="chart-grid" style="margin-top: 12px;">
+          <div class="chart-card">
+            <h3 class="chart-title">Visitors by Country (To-date)</h3>
+            <div id="pieVisitorsCountry"></div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">Visited Pages Share (To-date)</h3>
+            <div id="pieVisitPages"></div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">Downloads by File Share (To-date)</h3>
+            <div id="pieDownloadsByFile"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
         <h2>Summary</h2>
         <div class="metric-grid" id="metrics"></div>
       </section>
@@ -232,9 +297,47 @@
             <h3 class="chart-title">Visits by User (Top 10)</h3>
             <div id="chartVisitByUser" class="bar-list"></div>
           </div>
+          <div class="chart-card">
+            <h3 class="chart-title">Visits by Location (Top 10)</h3>
+            <div id="chartVisitByLocation" class="bar-list"></div>
+          </div>
           <div class="chart-card" style="grid-column: 1 / -1;">
             <h3 class="chart-title">Daily Visit Frequency (Last 30 days in data)</h3>
             <div id="chartVisitByDay" class="bar-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Country Audience (Who and Where)</h2>
+        <p class="small-muted" id="countryAudienceMeta"></p>
+        <div style="overflow:auto; margin-top: 8px;">
+          <table class="analytics" id="countryAudienceTable">
+            <thead>
+              <tr>
+                <th>Country</th>
+                <th>Total Visits</th>
+                <th>Different Visitors</th>
+                <th>Share</th>
+                <th>Including (sample)</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Visitor Behavior & Intent</h2>
+        <div class="metric-grid" id="visitBehaviorMetrics"></div>
+        <div class="chart-grid" style="margin-top: 10px;">
+          <div class="chart-card">
+            <h3 class="chart-title">Session Entry Pages (Top 10)</h3>
+            <div id="chartVisitEntryPages" class="bar-list"></div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">Session Referrers (Top 10)</h3>
+            <div id="chartVisitReferrers" class="bar-list"></div>
           </div>
         </div>
       </section>
@@ -267,6 +370,7 @@
                 <th>When</th>
                 <th>User</th>
                 <th>Path</th>
+                <th>Location</th>
                 <th>Referrer</th>
               </tr>
             </thead>
@@ -293,12 +397,23 @@
       const limitEl = document.getElementById('limit');
       const metricsEl = document.getElementById('metrics');
       const visitMetricsEl = document.getElementById('visitMetrics');
+      const dashboardMetaEl = document.getElementById('dashboardMeta');
+      const dashboardMetricsEl = document.getElementById('dashboardMetrics');
+      const pieVisitorsCountryEl = document.getElementById('pieVisitorsCountry');
+      const pieVisitPagesEl = document.getElementById('pieVisitPages');
+      const pieDownloadsByFileEl = document.getElementById('pieDownloadsByFile');
       const chartByFileEl = document.getElementById('chartByFile');
       const chartByUserEl = document.getElementById('chartByUser');
       const chartByDayEl = document.getElementById('chartByDay');
       const chartVisitByPathEl = document.getElementById('chartVisitByPath');
       const chartVisitByUserEl = document.getElementById('chartVisitByUser');
+      const chartVisitByLocationEl = document.getElementById('chartVisitByLocation');
       const chartVisitByDayEl = document.getElementById('chartVisitByDay');
+      const countryAudienceMetaEl = document.getElementById('countryAudienceMeta');
+      const countryAudienceTableBody = document.querySelector('#countryAudienceTable tbody');
+      const visitBehaviorMetricsEl = document.getElementById('visitBehaviorMetrics');
+      const chartVisitEntryPagesEl = document.getElementById('chartVisitEntryPages');
+      const chartVisitReferrersEl = document.getElementById('chartVisitReferrers');
       const eventsMetaEl = document.getElementById('eventsMeta');
       const eventsTableBody = document.querySelector('#eventsTable tbody');
       const visitEventsMetaEl = document.getElementById('visitEventsMeta');
@@ -354,6 +469,312 @@
 
       function sortCountMap(map) {
         return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+      }
+
+      function pickLocationParts(row) {
+        const metadata = row && row.metadata && typeof row.metadata === 'object' ? row.metadata : null;
+        const geo = metadata && metadata.geo && typeof metadata.geo === 'object' ? metadata.geo : null;
+
+        const country = String((geo && geo.country) || '').trim().toUpperCase();
+        const region = String((geo && geo.region) || '').trim();
+        const city = String((geo && geo.city) || '').trim();
+        const timezone = String((geo && geo.timezone) || (metadata && metadata.timezone) || '').trim();
+
+        return { country, region, city, timezone };
+      }
+
+      function countryNameFromCode(code) {
+        const normalized = String(code || '').trim().toUpperCase();
+        if (!normalized) return 'Unknown';
+        if (normalized === 'UNKNOWN') return 'Unknown';
+        if (normalized.length !== 2) return normalized;
+        try {
+          if (!window.__countryNameDisplay) {
+            window.__countryNameDisplay = new Intl.DisplayNames(['en'], { type: 'region' });
+          }
+          const name = window.__countryNameDisplay.of(normalized);
+          return name || normalized;
+        } catch {
+          return normalized;
+        }
+      }
+
+      function getCountryLabel(row) {
+        const location = pickLocationParts(row);
+        if (!location.country) return 'Unknown';
+        return countryNameFromCode(location.country);
+      }
+
+      function formatVisitLocation(row) {
+        const location = pickLocationParts(row);
+        if (location.country && location.city) return `${location.country} · ${location.city}`;
+        if (location.country && location.region) return `${location.country} · ${location.region}`;
+        if (location.country) return location.country;
+        if (location.timezone) return location.timezone;
+        return 'unknown';
+      }
+
+      function toReferrerDomain(value) {
+        const raw = String(value || '').trim();
+        if (!raw) return 'direct / unknown';
+        try {
+          const host = new URL(raw).hostname.toLowerCase();
+          return host || 'direct / unknown';
+        } catch {
+          return raw.slice(0, 80);
+        }
+      }
+
+      function buildSessionGroups(visits) {
+        const rows = Array.isArray(visits) ? visits : [];
+        const sessions = new Map();
+
+        rows.forEach((row) => {
+          const sessionId = String(row.session_id || '').trim();
+          const fallbackKey = String(row.email || '').trim().toLowerCase() || 'anonymous';
+          const key = sessionId || `fallback:${fallbackKey}`;
+          if (!sessions.has(key)) sessions.set(key, []);
+          sessions.get(key).push(row);
+        });
+
+        const grouped = [];
+        sessions.forEach((items, key) => {
+          const sorted = items
+            .slice()
+            .sort((a, b) => String(a.event_at || '').localeCompare(String(b.event_at || '')));
+          const first = sorted[0] || {};
+          const last = sorted[sorted.length - 1] || {};
+          const firstTime = new Date(String(first.event_at || '')).getTime();
+          const lastTime = new Date(String(last.event_at || '')).getTime();
+          const durationSeconds = Number.isFinite(firstTime) && Number.isFinite(lastTime) && lastTime >= firstTime
+            ? Math.round((lastTime - firstTime) / 1000)
+            : 0;
+
+          grouped.push({
+            sessionKey: key,
+            first,
+            last,
+            count: sorted.length,
+            durationSeconds,
+            rows: sorted
+          });
+        });
+
+        return grouped;
+      }
+
+      function startOfTodayIso() {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        return now.toISOString();
+      }
+
+      function toVisitorKey(row) {
+        const email = String(row && row.email ? row.email : '').trim().toLowerCase();
+        if (email) return `email:${email}`;
+        const sessionId = String(row && row.session_id ? row.session_id : '').trim();
+        if (sessionId) return `session:${sessionId}`;
+        const eventAt = String(row && row.event_at ? row.event_at : '').trim();
+        const path = String(row && row.path ? row.path : '').trim();
+        return `anonymous:${eventAt}:${path}`;
+      }
+
+      function countDistinctVisitors(rows) {
+        const keys = new Set();
+        (Array.isArray(rows) ? rows : []).forEach((row) => {
+          keys.add(toVisitorKey(row));
+        });
+        return keys.size;
+      }
+
+      function formatCountWithCoverage(count, isTruncated) {
+        if (!Number.isFinite(Number(count))) return '0';
+        return `${Number(count)}${isTruncated ? '+' : ''}`;
+      }
+
+      function renderPieChart(el, entries, maxItems = 6) {
+        const source = Array.isArray(entries) ? entries : [];
+        const rows = source
+          .filter((item) => Number(item && item[1] ? item[1] : 0) > 0)
+          .sort((a, b) => Number(b[1]) - Number(a[1]));
+
+        if (!rows.length) {
+          el.innerHTML = '<p class="pie-empty">No data.</p>';
+          return;
+        }
+
+        const top = rows.slice(0, maxItems);
+        const rest = rows.slice(maxItems);
+        const restValue = rest.reduce((sum, item) => sum + Number(item[1] || 0), 0);
+        if (restValue > 0) {
+          top.push(['Other', restValue]);
+        }
+
+        const total = top.reduce((sum, item) => sum + Number(item[1] || 0), 0);
+        const colors = ['#4ea2fd', '#7aa2ff', '#46d3c6', '#f7b955', '#f97373', '#a78bfa', '#94a3b8'];
+
+        let cursor = 0;
+        const stops = top
+          .map((item, index) => {
+            const value = Number(item[1] || 0);
+            const start = (cursor / total) * 360;
+            cursor += value;
+            const end = (cursor / total) * 360;
+            const color = colors[index % colors.length];
+            return `${color} ${start.toFixed(1)}deg ${end.toFixed(1)}deg`;
+          })
+          .join(', ');
+
+        const legend = top
+          .map((item, index) => {
+            const label = String(item[0] || 'unknown');
+            const value = Number(item[1] || 0);
+            const color = colors[index % colors.length];
+            const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+            return `
+              <div class="pie-item">
+                <span class="pie-dot" style="background:${color}"></span>
+                <span title="${escapeHtml(label)}">${escapeHtml(label)}</span>
+                <span>${value} (${pct}%)</span>
+              </div>
+            `;
+          })
+          .join('');
+
+        el.innerHTML = `
+          <div class="pie-wrap">
+            <div class="pie-donut" style="background: conic-gradient(${stops});"></div>
+            <div class="pie-legend">${legend}</div>
+          </div>
+        `;
+      }
+
+      function renderPerformanceDashboard(data) {
+        const allDownloadsRows = Array.isArray(data && data.downloadRows ? data.downloadRows : []) ? data.downloadRows : [];
+        const allVisitsRows = Array.isArray(data && data.visitRows ? data.visitRows : []) ? data.visitRows : [];
+
+        const totalDownloads = Number.isFinite(Number(data && data.totalDownloads)) ? Number(data.totalDownloads) : allDownloadsRows.length;
+        const todayDownloads = Number.isFinite(Number(data && data.todayDownloads)) ? Number(data.todayDownloads) : 0;
+        const totalVisits = Number.isFinite(Number(data && data.totalVisits)) ? Number(data.totalVisits) : allVisitsRows.length;
+        const todayVisits = Number.isFinite(Number(data && data.todayVisits)) ? Number(data.todayVisits) : 0;
+
+        const visitorsToDate = countDistinctVisitors(allVisitsRows);
+        const visitorsToday = countDistinctVisitors(Array.isArray(data && data.todayVisitRows ? data.todayVisitRows : []) ? data.todayVisitRows : []);
+
+        const visitsTruncated = totalVisits > allVisitsRows.length;
+        const todayVisitsTruncated = todayVisits > (Array.isArray(data && data.todayVisitRows ? data.todayVisitRows : []) ? data.todayVisitRows.length : 0);
+
+        dashboardMetricsEl.innerHTML = `
+          <div class="metric-card"><div class="metric-label">Total Visitors (to-date)</div><div class="metric-value">${formatCountWithCoverage(visitorsToDate, visitsTruncated)}</div></div>
+          <div class="metric-card"><div class="metric-label">Visitors Today</div><div class="metric-value">${formatCountWithCoverage(visitorsToday, todayVisitsTruncated)}</div></div>
+          <div class="metric-card"><div class="metric-label">Total Downloads (to-date)</div><div class="metric-value">${totalDownloads}</div></div>
+          <div class="metric-card"><div class="metric-label">Downloads Today</div><div class="metric-value">${todayDownloads}</div></div>
+          <div class="metric-card"><div class="metric-label">Total Visits (to-date)</div><div class="metric-value">${totalVisits}</div></div>
+          <div class="metric-card"><div class="metric-label">Visits Today</div><div class="metric-value">${todayVisits}</div></div>
+        `;
+
+        dashboardMetaEl.textContent = visitsTruncated
+          ? 'Visitor counts are estimated from loaded rows (showing + when more rows exist in database).'
+          : 'Visitor counts are based on all loaded rows in this report.';
+
+        const visitorsByCountry = sortCountMap(groupCount(allVisitsRows, (r) => getCountryLabel(r)));
+        const visitsByPage = sortCountMap(groupCount(allVisitsRows, (r) => String(r.path || '').trim() || 'unknown'));
+        const downloadsByFile = sortCountMap(
+          groupCount(allDownloadsRows, (r) => String(r.slide_id || '').trim() || String(r.slide_url || '').trim() || 'unknown')
+        );
+
+        renderPieChart(pieVisitorsCountryEl, visitorsByCountry, 6);
+        renderPieChart(pieVisitPagesEl, visitsByPage, 6);
+        renderPieChart(pieDownloadsByFileEl, downloadsByFile, 6);
+      }
+
+      function renderCountryAudience(visits) {
+        const rows = Array.isArray(visits) ? visits : [];
+        if (!rows.length) {
+          countryAudienceMetaEl.textContent = 'No visit rows to compute country totals.';
+          countryAudienceTableBody.innerHTML = '<tr><td colspan="5" class="small-muted">No country data.</td></tr>';
+          return;
+        }
+
+        const stats = new Map();
+        rows.forEach((row) => {
+          const country = getCountryLabel(row);
+          const email = String(row.email || '').trim().toLowerCase();
+          if (!stats.has(country)) {
+            stats.set(country, {
+              visits: 0,
+              visitors: new Set(),
+              examples: new Set()
+            });
+          }
+          const entry = stats.get(country);
+          entry.visits += 1;
+          if (email) {
+            entry.visitors.add(email);
+            if (entry.examples.size < 5) entry.examples.add(email);
+          }
+        });
+
+        const totalVisits = rows.length;
+        const ordered = Array.from(stats.entries()).sort((a, b) => b[1].visits - a[1].visits);
+        countryAudienceMetaEl.textContent = `Detected ${ordered.length} country groups from ${totalVisits} visits.`;
+
+        countryAudienceTableBody.innerHTML = ordered
+          .map(([country, value]) => {
+            const share = ((value.visits / totalVisits) * 100).toFixed(1);
+            const visitors = value.visitors.size;
+            const sample = Array.from(value.examples).join(', ') || 'anonymous visitors';
+            return `
+              <tr>
+                <td>${escapeHtml(country)}</td>
+                <td>${value.visits}</td>
+                <td>${visitors}</td>
+                <td>${share}%</td>
+                <td>${escapeHtml(sample)}</td>
+              </tr>
+            `;
+          })
+          .join('');
+      }
+
+      function renderVisitBehavior(visits) {
+        const rows = Array.isArray(visits) ? visits : [];
+        if (!rows.length) {
+          visitBehaviorMetricsEl.innerHTML = '<p class="small-muted">No behavior data.</p>';
+          chartVisitEntryPagesEl.innerHTML = '<p class="small-muted">No data.</p>';
+          chartVisitReferrersEl.innerHTML = '<p class="small-muted">No data.</p>';
+          return;
+        }
+
+        const sessions = buildSessionGroups(rows);
+        const sessionCount = sessions.length;
+        const totalVisits = rows.length;
+        const avgPagesPerSession = sessionCount ? (totalVisits / sessionCount).toFixed(2) : '0.00';
+        const avgSessionSeconds = sessionCount
+          ? Math.round(sessions.reduce((sum, s) => sum + Number(s.durationSeconds || 0), 0) / sessionCount)
+          : 0;
+        const avgSessionMinutes = (avgSessionSeconds / 60).toFixed(1);
+        const singlePageSessions = sessions.filter((s) => Number(s.count) <= 1).length;
+        const bounceRate = sessionCount ? ((singlePageSessions / sessionCount) * 100).toFixed(1) : '0.0';
+
+        const knownVisitors = new Set(rows.map((r) => String(r.email || '').trim().toLowerCase()).filter(Boolean)).size;
+        const anonymousVisits = rows.filter((r) => !String(r.email || '').trim()).length;
+
+        visitBehaviorMetricsEl.innerHTML = `
+          <div class="metric-card"><div class="metric-label">Estimated Sessions</div><div class="metric-value">${sessionCount}</div></div>
+          <div class="metric-card"><div class="metric-label">Avg Pages / Session</div><div class="metric-value">${avgPagesPerSession}</div></div>
+          <div class="metric-card"><div class="metric-label">Avg Session Duration (min)</div><div class="metric-value">${avgSessionMinutes}</div></div>
+          <div class="metric-card"><div class="metric-label">Single-Page Sessions</div><div class="metric-value">${singlePageSessions}</div></div>
+          <div class="metric-card"><div class="metric-label">Single-Page Session Rate</div><div class="metric-value">${bounceRate}%</div></div>
+          <div class="metric-card"><div class="metric-label">Known Visitors (signed-in emails)</div><div class="metric-value">${knownVisitors}</div></div>
+          <div class="metric-card"><div class="metric-label">Anonymous Visits</div><div class="metric-value">${anonymousVisits}</div></div>
+        `;
+
+        const byEntryPage = sortCountMap(groupCount(sessions, (s) => String((s.first && s.first.path) || '').trim() || 'unknown'));
+        const byReferrer = sortCountMap(groupCount(sessions, (s) => toReferrerDomain((s.first && s.first.referrer) || '')));
+
+        renderBarList(chartVisitEntryPagesEl, byEntryPage, 10);
+        renderBarList(chartVisitReferrersEl, byReferrer, 10);
       }
 
       function renderBarList(el, entries, maxItems = 10) {
@@ -473,6 +894,7 @@
         const total = Number.isFinite(Number(payload.total)) ? Number(payload.total) : rows.length;
         const uniqueUsers = new Set(rows.map((r) => String(r.email || '').toLowerCase()).filter(Boolean)).size;
         const uniquePaths = new Set(rows.map((r) => String(r.path || '').trim()).filter(Boolean)).size;
+        const uniqueLocations = new Set(rows.map((r) => formatVisitLocation(r)).filter(Boolean)).size;
 
         let first = '';
         let last = '';
@@ -501,6 +923,7 @@
           <div class="metric-card"><div class="metric-label">Total Visits</div><div class="metric-value">${total}</div></div>
           <div class="metric-card"><div class="metric-label">Unique Users</div><div class="metric-value">${uniqueUsers}</div></div>
           <div class="metric-card"><div class="metric-label">Unique Pages</div><div class="metric-value">${uniquePaths}</div></div>
+          <div class="metric-card"><div class="metric-label">Unique Locations</div><div class="metric-value">${uniqueLocations}</div></div>
           <div class="metric-card"><div class="metric-label">Time Period (days)</div><div class="metric-value">${periodDays}</div></div>
           <div class="metric-card"><div class="metric-label">Frequency / Day</div><div class="metric-value">${dailyFrequency}</div></div>
           <div class="metric-card"><div class="metric-label">Frequency / Week</div><div class="metric-value">${weeklyFrequency}</div></div>
@@ -520,6 +943,7 @@
         const rows = Array.isArray(visits) ? visits : [];
         const byPath = sortCountMap(groupCount(rows, (r) => String(r.path || '').trim()));
         const byUser = sortCountMap(groupCount(rows, (r) => String(r.email || '').toLowerCase()));
+        const byLocation = sortCountMap(groupCount(rows, (r) => formatVisitLocation(r)));
         const byDay = sortCountMap(
           groupCount(rows, (r) => {
             const d = new Date(String(r.event_at || ''));
@@ -530,6 +954,7 @@
 
         renderBarList(chartVisitByPathEl, byPath, 10);
         renderBarList(chartVisitByUserEl, byUser, 10);
+        renderBarList(chartVisitByLocationEl, byLocation, 10);
         renderBarList(chartVisitByDayEl, byDay.slice(-30), 30);
       }
 
@@ -539,7 +964,7 @@
         visitEventsMetaEl.textContent = `Showing ${rows.length} visit rows${Number.isFinite(total) ? ` (total matching: ${total})` : ''}.`;
 
         if (!rows.length) {
-          visitEventsTableBody.innerHTML = '<tr><td colspan="4" class="small-muted">No visit events found.</td></tr>';
+          visitEventsTableBody.innerHTML = '<tr><td colspan="5" class="small-muted">No visit events found.</td></tr>';
           return;
         }
 
@@ -548,12 +973,14 @@
             const when = fmtDateTime(row.event_at);
             const email = String(row.email || '');
             const path = String(row.path || '');
+            const location = formatVisitLocation(row);
             const referrer = String(row.referrer || '');
             return `
               <tr>
                 <td>${escapeHtml(when)}</td>
                 <td>${escapeHtml(email)}</td>
                 <td>${escapeHtml(path)}</td>
+                <td>${escapeHtml(location)}</td>
                 <td>${escapeHtml(referrer)}</td>
               </tr>
             `;
@@ -575,14 +1002,36 @@
       }
 
       function toVisitCsv(rows) {
-        const headers = ['event_at', 'email', 'path', 'page_title', 'referrer', 'session_id', 'user_agent'];
+        const headers = [
+          'event_at',
+          'email',
+          'path',
+          'location',
+          'country',
+          'region',
+          'city',
+          'timezone',
+          'page_title',
+          'referrer',
+          'session_id',
+          'user_agent'
+        ];
         const esc = (v) => {
           const s = String(v == null ? '' : v);
           return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
         };
         const lines = [headers.join(',')];
         rows.forEach((r) => {
-          lines.push(headers.map((h) => esc(r[h])).join(','));
+          const location = pickLocationParts(r);
+          const row = {
+            ...r,
+            location: formatVisitLocation(r),
+            country: location.country,
+            region: location.region,
+            city: location.city,
+            timezone: location.timezone
+          };
+          lines.push(headers.map((h) => esc(row[h])).join(','));
         });
         return lines.join('\n');
       }
@@ -655,6 +1104,41 @@
             })
           ]);
 
+          const todayFrom = startOfTodayIso();
+          const dashboardAllParams = new URLSearchParams();
+          dashboardAllParams.set('limit', '20000');
+
+          const dashboardTodayParams = new URLSearchParams();
+          dashboardTodayParams.set('limit', '20000');
+          dashboardTodayParams.set('from', todayFrom);
+
+          const [dashboardDownloadAll, dashboardVisitAll, dashboardDownloadToday, dashboardVisitToday] = await Promise.allSettled([
+            fetch(`${SUPABASE_FUNCTIONS_URL}/slide-download-admin?${dashboardAllParams.toString()}`, {
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+                authorization: `Bearer ${currentSession.access_token}`
+              }
+            }),
+            fetch(`${SUPABASE_FUNCTIONS_URL}/page-visit-admin?${dashboardAllParams.toString()}`, {
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+                authorization: `Bearer ${currentSession.access_token}`
+              }
+            }),
+            fetch(`${SUPABASE_FUNCTIONS_URL}/slide-download-admin?${dashboardTodayParams.toString()}`, {
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+                authorization: `Bearer ${currentSession.access_token}`
+              }
+            }),
+            fetch(`${SUPABASE_FUNCTIONS_URL}/page-visit-admin?${dashboardTodayParams.toString()}`, {
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+                authorization: `Bearer ${currentSession.access_token}`
+              }
+            })
+          ]);
+
           if (downloadResult.status !== 'fulfilled') {
             setStatus('Download report unavailable (network or blocked request). Please try again or check allowlist.', 'error');
             return;
@@ -677,6 +1161,29 @@
             return;
           }
 
+          const dashboardDownloadAllPayload = dashboardDownloadAll.status === 'fulfilled'
+            ? await dashboardDownloadAll.value.json().catch(() => ({}))
+            : {};
+          const dashboardVisitAllPayload = dashboardVisitAll.status === 'fulfilled'
+            ? await dashboardVisitAll.value.json().catch(() => ({}))
+            : {};
+          const dashboardDownloadTodayPayload = dashboardDownloadToday.status === 'fulfilled'
+            ? await dashboardDownloadToday.value.json().catch(() => ({}))
+            : {};
+          const dashboardVisitTodayPayload = dashboardVisitToday.status === 'fulfilled'
+            ? await dashboardVisitToday.value.json().catch(() => ({}))
+            : {};
+
+          renderPerformanceDashboard({
+            totalDownloads: Number(dashboardDownloadAllPayload.total),
+            totalVisits: Number(dashboardVisitAllPayload.total),
+            todayDownloads: Number(dashboardDownloadTodayPayload.total),
+            todayVisits: Number(dashboardVisitTodayPayload.total),
+            downloadRows: Array.isArray(dashboardDownloadAllPayload.events) ? dashboardDownloadAllPayload.events : [],
+            visitRows: Array.isArray(dashboardVisitAllPayload.visits) ? dashboardVisitAllPayload.visits : [],
+            todayVisitRows: Array.isArray(dashboardVisitTodayPayload.visits) ? dashboardVisitTodayPayload.visits : []
+          });
+
           const events = Array.isArray(payload.events) ? payload.events : [];
           currentEvents = events;
 
@@ -690,15 +1197,28 @@
             currentVisitEvents = visits;
             renderVisitMetrics(visitPayload, visits);
             renderVisitCharts(visits);
+            renderCountryAudience(visits);
+            renderVisitBehavior(visits);
             renderVisitEvents(visits, visitPayload);
           } else {
             currentVisitEvents = [];
+            dashboardMetaEl.textContent = 'Dashboard unavailable.';
+            dashboardMetricsEl.innerHTML = '<p class="small-muted">Dashboard unavailable.</p>';
+            pieVisitorsCountryEl.innerHTML = '<p class="small-muted">Chart unavailable.</p>';
+            pieVisitPagesEl.innerHTML = '<p class="small-muted">Chart unavailable.</p>';
+            pieDownloadsByFileEl.innerHTML = '<p class="small-muted">Chart unavailable.</p>';
             visitMetricsEl.innerHTML = '<p class="small-muted">Visit report unavailable.</p>';
             chartVisitByPathEl.innerHTML = '<p class="small-muted">Visit chart unavailable.</p>';
             chartVisitByUserEl.innerHTML = '<p class="small-muted">Visit chart unavailable.</p>';
+            chartVisitByLocationEl.innerHTML = '<p class="small-muted">Visit chart unavailable.</p>';
             chartVisitByDayEl.innerHTML = '<p class="small-muted">Visit chart unavailable.</p>';
+            countryAudienceMetaEl.textContent = 'Country audience unavailable.';
+            countryAudienceTableBody.innerHTML = '<tr><td colspan="5" class="small-muted">Country audience unavailable.</td></tr>';
+            visitBehaviorMetricsEl.innerHTML = '<p class="small-muted">Visitor behavior unavailable.</p>';
+            chartVisitEntryPagesEl.innerHTML = '<p class="small-muted">Behavior chart unavailable.</p>';
+            chartVisitReferrersEl.innerHTML = '<p class="small-muted">Behavior chart unavailable.</p>';
             visitEventsMetaEl.textContent = 'Visit report unavailable.';
-            visitEventsTableBody.innerHTML = '<tr><td colspan="4" class="small-muted">Visit report unavailable.</td></tr>';
+            visitEventsTableBody.innerHTML = '<tr><td colspan="5" class="small-muted">Visit report unavailable.</td></tr>';
           }
 
           const total = Number.isFinite(Number(payload.total)) ? Number(payload.total) : events.length;

@@ -148,7 +148,7 @@ async function loadVisitEvents(input: {
 > {
   const requestUrl = new URL(input.req.url);
 
-  const limit = parseIntInRange(String(requestUrl.searchParams.get('limit') || ''), 200, 1, 1000);
+  const limit = parseIntInRange(String(requestUrl.searchParams.get('limit') || ''), 200, 1, 20000);
   const offset = parseIntInRange(String(requestUrl.searchParams.get('offset') || ''), 0, 0, 1000000);
 
   const email = normalizeEmail(String(requestUrl.searchParams.get('email') || ''));
@@ -157,7 +157,7 @@ async function loadVisitEvents(input: {
   const to = String(requestUrl.searchParams.get('to') || '').trim();
 
   const url = new URL(`${input.supabaseUrl}/rest/v1/page_visit_events`);
-  url.searchParams.set('select', 'id,email,path,page_title,referrer,session_id,event_at,user_agent');
+  url.searchParams.set('select', 'id,email,path,page_title,referrer,session_id,event_at,user_agent,metadata');
   url.searchParams.set('order', 'event_at.desc');
   url.searchParams.set('limit', String(limit));
   url.searchParams.set('offset', String(offset));

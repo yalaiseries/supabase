@@ -30,6 +30,24 @@
     return pathname.startsWith('/') ? pathname : `/${pathname}`;
   }
 
+  function buildClientMetadata() {
+    const metadata = {
+      href: String(window.location.href || '').slice(0, 1200)
+    };
+
+    try {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (timezone) metadata.timezone = String(timezone).slice(0, 120);
+    } catch {
+      // ignore
+    }
+
+    const language = String((navigator && navigator.language) || '').trim();
+    if (language) metadata.language = language.slice(0, 40);
+
+    return metadata;
+  }
+
   async function resolveAccessToken() {
     try {
       if (window.__supabaseUtils && typeof window.__supabaseUtils.getSupabaseClient === 'function') {
@@ -72,9 +90,7 @@
       page_title: String(document.title || '').trim().slice(0, 200),
       referrer: String(document.referrer || '').trim().slice(0, 1000),
       session_id: getOrCreateSessionId(),
-      metadata: {
-        href: String(window.location.href || '').slice(0, 1200)
-      },
+      metadata: buildClientMetadata(),
       access_token: accessToken || undefined
     };
 
