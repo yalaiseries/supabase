@@ -9,16 +9,20 @@
 // - Access control is enforced by your serverless functions verifying the user's JWT.
 
 window.SUPABASE_URL = 'https://xcctqbamimafkkamuwly.supabase.co';
-window.SUPABASE_ANON_KEY = 'REPLACE_WITH_SUPABASE_ANON_KEY';
+window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjY3RxYmFtaW1hZmtrYW11d2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY3MjYyNzQsImV4cCI6MjA4MjMwMjI3NH0.CG0AoRd6nwmEtKKx88l8_srJyZB_sypbcUbL27hA94Y';
 // Optional: set this if Supabase Auth CAPTCHA is enabled (Auth -> Bot/Abuse Protection).
 // For Cloudflare Turnstile, use the Turnstile site key (public).
-window.SUPABASE_CAPTCHA_SITE_KEY = 'REPLACE_WITH_SUPABASE_CAPTCHA_SITE_KEY';
+window.SUPABASE_CAPTCHA_SITE_KEY = '0x4AAAAAACib2PApUJEa1fuV';
 
 // Guardrail: if key was pasted with an accidental duplicate prefix (e.g. 0x...0x...),
 // keep only the last valid-looking segment.
 (() => {
 	const rawKey = String(window.SUPABASE_CAPTCHA_SITE_KEY || '').trim();
 	if (!rawKey) return;
+	if (/^REPLACE_WITH_/i.test(rawKey)) {
+		window.SUPABASE_CAPTCHA_SITE_KEY = '';
+		return;
+	}
 	const secondPrefix = rawKey.indexOf('0x', 2);
 	if (secondPrefix > 0) {
 		window.SUPABASE_CAPTCHA_SITE_KEY = rawKey.slice(secondPrefix);
@@ -40,7 +44,13 @@ window.SUPABASE_CAPTCHA_SITE_KEY = 'REPLACE_WITH_SUPABASE_CAPTCHA_SITE_KEY';
 })();
 
 (() => {
-	if (window.SUPABASE_ANON_KEY === 'REPLACE_WITH_SUPABASE_ANON_KEY') {
+	if (/^REPLACE_WITH_/i.test(String(window.SUPABASE_ANON_KEY || ''))) {
+		window.SUPABASE_ANON_KEY = '';
+	}
+	if (/^REPLACE_WITH_/i.test(String(window.SUPABASE_URL || ''))) {
+		window.SUPABASE_URL = '';
+	}
+	if (!window.SUPABASE_ANON_KEY) {
 		console.warn('Supabase anon key is not configured. Set window.SUPABASE_ANON_KEY in supabase-config.js.');
 	}
 })();
