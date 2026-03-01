@@ -26,16 +26,14 @@ window.SUPABASE_CAPTCHA_SITE_KEY = '0x4AAA0x4AAAAAACib2PApUJEa1fuV';
 })();
 
 // Derived helper for Supabase Edge Functions.
-// Example: https://<project-ref>.functions.supabase.co
+// Example: https://<project-ref>.supabase.co/functions/v1
 (() => {
 	if (window.SUPABASE_FUNCTIONS_URL) return;
 	try {
 		const supabaseUrl = String(window.SUPABASE_URL || '').trim();
 		if (!supabaseUrl) return;
-		const host = new URL(supabaseUrl).hostname;
-		const projectRef = host.split('.')[0];
-		if (!projectRef) return;
-		window.SUPABASE_FUNCTIONS_URL = `https://${projectRef}.functions.supabase.co`;
+		const base = supabaseUrl.replace(/\/+$/, '');
+		window.SUPABASE_FUNCTIONS_URL = `${base}/functions/v1`;
 	} catch {
 		// ignore
 	}
