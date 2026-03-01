@@ -418,10 +418,12 @@
       const eventsTableBody = document.querySelector('#eventsTable tbody');
       const visitEventsMetaEl = document.getElementById('visitEventsMeta');
       const visitEventsTableBody = document.querySelector('#visitEventsTable tbody');
+      const TRACKABLE_SLIDE_HOSTS = new Set(['drive.google.com', 'docs.google.com']);
 
       let currentSession = null;
       let currentEvents = [];
       let currentVisitEvents = [];
+      let projectLabelByFileKey = new Map();
 
       function setStatus(message, type = 'info') {
         const text = String(message || '').trim();
@@ -592,6 +594,17 @@
         return `${Number(count)}${isTruncated ? '+' : ''}`;
       }
 
+      function isTrackableSlideUrl(value) {
+        const raw = String(value || '').trim();
+        if (!raw) return false;
+        try {
+          const parsed = new URL(raw);
+          return parsed.protocol === 'https:' && TRACKABLE_SLIDE_HOSTS.has(parsed.hostname.toLowerCase());
+        } catch {
+          return false;
+        }
+      }
+
       function extractDriveFileId(value) {
         const raw = String(value || '').trim();
         if (!raw) return '';
@@ -638,9 +651,31 @@
         return cleaned.replace(/[-_]+/g, ' ').trim();
       }
 
+      function getProjectLabelForRow(row) {
+        const slideUrl = String(row && row.slide_url ? row.slide_url : '').trim();
+        const slideId = String(row && row.slide_id ? row.slide_id : '').trim();
+        const driveId = extractDriveFileId(slideUrl);
+
+        const candidateKeys = [
+          driveId ? `drive:${driveId}` : '',
+          slideId ? `slide:${slideId}` : '',
+          slideUrl ? `url:${slideUrl}` : ''
+        ].filter(Boolean);
+
+        for (const key of candidateKeys) {
+          const label = String(projectLabelByFileKey.get(key) || '').trim();
+          if (label) return label;
+        }
+
+        return '';
+      }
+
       function getDownloadFileLabel(row) {
         const slideUrl = String(row && row.slide_url ? row.slide_url : '').trim();
         const slideId = String(row && row.slide_id ? row.slide_id : '').trim();
+
+        const projectLabel = getProjectLabelForRow(row);
+        if (projectLabel) return projectLabel;
 
         const fromUrl = toReadableFileNameFromUrl(slideUrl);
         if (fromUrl) return fromUrl;
@@ -684,6 +719,73 @@
         return Array.from(grouped.values())
           .map((item) => [item.label, item.count])
           .sort((a, b) => Number(b[1]) - Number(a[1]));
+      }
+
+      function buildProjectLabel(yearValue, titleValue) {
+        const year = Number(yearValue);
+        const title = String(titleValue || '').trim() || 'Unknown Project';
+        const yearLabel = Number.isFinite(year) && year > 0 ? String(year) : 'Unknown Year';
+        return `${yearLabel} · ${title}`;
+      }
+
+      function setProjectLookupEntry(map, linkValue, label) {
+        const link = String(linkValue || '').trim();
+        if (!link || !isTrackableSlideUrl(link)) return;
+
+        const driveId = extractDriveFileId(link);
+        if (driveId) {
+          map.set(`drive:${driveId}`, label);
+        }
+
+        map.set(`url:${link}`, label);
+      }
+
+      async function loadProjectLookup(session) {
+        if (!session || !session.access_token || !SUPABASE_FUNCTIONS_URL) {
+          projectLabelByFileKey = new Map();
+          return;
+        }
+
+        try {
+          const resp = await fetch(`${SUPABASE_FUNCTIONS_URL}/winners`, {
+            headers: {
+              apikey: SUPABASE_ANON_KEY,
+              authorization: `Bearer ${session.access_token}`
+            }
+          });
+
+          if (!resp.ok) {
+            projectLabelByFileKey = new Map();
+            return;
+          }
+
+          const payload = await resp.json().catch(() => ({}));
+          const winners = Array.isArray(payload && payload.winners) ? payload.winners : [];
+          const next = new Map();
+
+          winners.forEach((yearEntry) => {
+            const year = Number(yearEntry && yearEntry.year);
+            const categories = Array.isArray(yearEntry && yearEntry.categories) ? yearEntry.categories : [];
+
+            categories.forEach((category) => {
+              const useCases = Array.isArray(category && category.useCases) ? category.useCases : [];
+
+              useCases.forEach((useCase) => {
+                const projectLabel = buildProjectLabel(year, useCase && useCase.title);
+                const links = Array.isArray(useCase && useCase.links) ? useCase.links : [];
+
+                links.forEach((linkObj) => {
+                  const linkUrl = String(linkObj && linkObj.url ? linkObj.url : '').trim();
+                  setProjectLookupEntry(next, linkUrl, projectLabel);
+                });
+              });
+            });
+          });
+
+          projectLabelByFileKey = next;
+        } catch {
+          projectLabelByFileKey = new Map();
+        }
       }
 
       function renderPieChart(el, entries, maxItems = 6) {
@@ -1160,6 +1262,8 @@
         setStatus('Loading admin report...');
 
         try {
+          const projectLookupPromise = loadProjectLookup(currentSession);
+
           const params = new URLSearchParams();
           params.set('limit', String(limitEl.value || '500'));
 
@@ -1265,6 +1369,8 @@
           const dashboardVisitTodayPayload = dashboardVisitToday.status === 'fulfilled'
             ? await dashboardVisitToday.value.json().catch(() => ({}))
             : {};
+
+          await projectLookupPromise;
 
           renderPerformanceDashboard({
             totalDownloads: Number(dashboardDownloadAllPayload.total),
