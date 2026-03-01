@@ -55,3 +55,9 @@ url_check_results.txt
 invite/*Invitation Status.csv
 invite/batches_*/
 invite/retries/*.csv
+invite/retries/**
+
+# Dedicated local-only workspace for sensitive exports/backups
+local/**
+!local/.gitkeep
+!local/README.md
