@@ -128,9 +128,9 @@ supabase functions deploy register-sync
 #### 4. Secrets Configuration
 ```bash
 # Set required secrets
-supabase secrets set WINNERS_ADMIN_TOKEN=MySecureToken2025!
+supabase secrets set WINNERS_ADMIN_TOKEN=<your-strong-admin-token>
 supabase secrets set SUPABASE_URL=https://xcctqbamimafkkamuwly.supabase.co
-supabase secrets set SERVICE_ROLE_KEY=eyJh...
+supabase secrets set SERVICE_ROLE_KEY=<your-service-role-key>
 ```
 
 #### 5. GitHub Pages Deployment

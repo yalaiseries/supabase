@@ -44,3 +44,14 @@ section_*_content.json
 
 # All temporary JSON data files (load from Supabase only)
 temp*.json
+
+# Generated reports / operational outputs (may contain tokens or PII)
+reports/
+check_results.txt
+link_check_full.txt
+url_check_results.txt
+
+# Invitation operation artifacts (keep local only)
+invite/*Invitation Status.csv
+invite/batches_*/
+invite/retries/*.csv
