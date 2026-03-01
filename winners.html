@@ -24,6 +24,7 @@
     <script src="supabase-config.js"></script>
     <script type="module" src="supabase-loader.js"></script>
     <script src="supabase-utils.js?v=2026-jan31"></script>
+    <script src="visit-tracker.js?v=2026-mar01"></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -71,6 +72,8 @@
 
       const { getSupabaseClient, escapeHtml, hasSupabaseConfig, SUPABASE_ANON_KEY } = window.__supabaseUtils;
       const SUPABASE_FUNCTIONS_URL = String(window.SUPABASE_FUNCTIONS_URL || '').trim();
+      const TRACKABLE_SLIDE_HOSTS = new Set(['drive.google.com', 'docs.google.com']);
+      let currentSession = null;
 
       function setStatus(text) {
         if (debugStatusEl) debugStatusEl.textContent = text || '';
@@ -82,6 +85,91 @@
 
       function setDebug(text) {
         // Debug display removed - silently ignore
+      }
+
+      function isTrackableSlideUrl(url) {
+        const value = String(url || '').trim();
+        if (!value) return false;
+        try {
+          const parsed = new URL(value);
+          return parsed.protocol === 'https:' && TRACKABLE_SLIDE_HOSTS.has(parsed.hostname.toLowerCase());
+        } catch {
+          return false;
+        }
+      }
+
+      function makeSlideIdFromUrl(url, prefix = 'winners') {
+        const value = String(url || '').trim();
+        if (!value) return `${prefix}-unknown`;
+        let seed = value;
+        try {
+          const parsed = new URL(value);
+          seed = `${parsed.hostname}${parsed.pathname}`;
+        } catch {
+          // ignore and use raw value
+        }
+        const normalized = seed.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        return normalized ? `${prefix}-${normalized}`.slice(0, 120) : `${prefix}-unknown`;
+      }
+
+      function postSlideTrackingRedirect({ slideUrl, slideId, target = '_blank' }) {
+        const functionsBase = String(window.SUPABASE_FUNCTIONS_URL || '').trim();
+        const accessToken = String((currentSession && currentSession.access_token) || '').trim();
+        const safeUrl = String(slideUrl || '').trim();
+        const safeId = String(slideId || '').trim() || makeSlideIdFromUrl(safeUrl, 'winners');
+
+        if (!functionsBase || !accessToken || !safeUrl) {
+          return false;
+        }
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `${functionsBase}/slide-download-track`;
+        form.target = target || '_blank';
+        form.style.display = 'none';
+
+        const addField = (name, value) => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = name;
+          input.value = value;
+          form.appendChild(input);
+        };
+
+        addField('slide_id', safeId);
+        addField('slide_url', safeUrl);
+        addField('access_token', accessToken);
+
+        document.body.appendChild(form);
+        form.submit();
+        setTimeout(() => form.remove(), 1200);
+        return true;
+      }
+
+      function setupWinnersSlideTracking() {
+        if (!libraryEl || libraryEl.dataset.slideTrackingBound === '1') return;
+        libraryEl.dataset.slideTrackingBound = '1';
+
+        libraryEl.addEventListener('click', (event) => {
+          const targetEl = event && event.target ? event.target : null;
+          if (!targetEl || !targetEl.closest) return;
+          const anchor = targetEl.closest('a[href]');
+          if (!anchor || !libraryEl.contains(anchor)) return;
+
+          const href = String(anchor.getAttribute('href') || '').trim();
+          if (!isTrackableSlideUrl(href)) return;
+
+          const slideId = String(anchor.getAttribute('data-slide-id') || '').trim() || makeSlideIdFromUrl(href, 'winners');
+          const didTrack = postSlideTrackingRedirect({
+            slideUrl: href,
+            slideId,
+            target: String(anchor.getAttribute('target') || '_blank').trim() || '_blank'
+          });
+
+          if (didTrack) {
+            event.preventDefault();
+          }
+        });
       }
 
       function renderYearsNav(years) {
@@ -373,6 +461,7 @@
       }
 
       async function loadWinners(session, retry = true, skipCache = false) {
+        currentSession = session || null;
         if (!session || !session.access_token) {
           libraryEl.innerHTML = `
             <p><strong>Please sign in to view the winners library.</strong></p>
@@ -523,9 +612,12 @@
         }
 
         const { data } = await supabase.auth.getSession();
+        currentSession = data && data.session ? data.session : null;
+        setupWinnersSlideTracking();
         loadWinners(data && data.session ? data.session : null);
 
         supabase.auth.onAuthStateChange((_event, session) => {
+          currentSession = session || null;
           loadWinners(session);
         });
       }

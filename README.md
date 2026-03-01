@@ -51,12 +51,107 @@ supabase functions deploy members-resources
 supabase functions deploy register-sync
 supabase functions deploy register-reconcile
 supabase functions deploy request-access
+supabase functions deploy slide-download-track
+supabase functions deploy slide-download-admin
 ```
 
 Members-only data endpoints (require `Authorization: Bearer <access_token>`):
 
 - `https://<project-ref>.functions.supabase.co/winners`
 - `https://<project-ref>.functions.supabase.co/members-resources`
+- `https://<project-ref>.functions.supabase.co/slide-download-track`
+- `https://<project-ref>.functions.supabase.co/slide-download-admin` (admin only)
+
+## Slide download tracking
+
+`members.html` routes tagged slide links through `slide-download-track`.
+
+- Function flow: verify logged-in registered member → insert event row in `public.slide_download_events` → `302` redirect to the Google Drive/Slides URL.
+- Captured fields: `email`, `slide_id`, `slide_url`, `event_at`, `user_agent`, `referrer`.
+
+Run these analytics queries in Supabase SQL editor:
+
+```sql
+-- 1) Frequency by user
+select email, count(*) as downloads
+from public.slide_download_events
+group by email
+order by downloads desc;
+
+-- 2) Frequency by slide
+select slide_id, slide_url, count(*) as downloads
+from public.slide_download_events
+group by slide_id, slide_url
+order by downloads desc;
+
+-- 3) Daily frequency trend
+select date_trunc('day', event_at) as day, count(*) as downloads
+from public.slide_download_events
+group by 1
+order by 1 desc;
+
+-- 4) Weekly frequency per user and slide
+select date_trunc('week', event_at) as week, email, slide_id, count(*) as downloads
+from public.slide_download_events
+group by 1, 2, 3
+order by week desc, downloads desc;
+```
+
+### Admin-only access to who/when data
+
+To ensure only admins can view who downloaded and when:
+
+```sql
+-- Add admin emails allowed to query private download logs
+insert into public.admin_users (email, created_by)
+values
+  ('your-admin-email@example.com', 'setup')
+on conflict (email) do nothing;
+```
+
+Then call:
+
+`GET https://<project-ref>.functions.supabase.co/slide-download-admin`
+
+Headers:
+
+- `apikey: <anon-key>`
+- `authorization: Bearer <user-access-token>`
+
+Optional query params:
+
+- `limit` (default 200, max 1000)
+- `offset` (default 0)
+- `email` (filter by downloader)
+- `slide_id` (filter by file)
+- `from` / `to` (ISO timestamp window)
+
+Non-admin users receive `403 Forbidden`.
+
+Optional hardening (recommended):
+
+```powershell
+supabase secrets set ADMIN_ALLOWED_ORIGINS="https://aihackathon.pro,https://www.aihackathon.pro"
+```
+
+This restricts browser-origin access for `slide-download-admin` when configured.
+
+### Admin analytics page
+
+Open `admin.html` after signing in.
+
+It shows:
+
+- Total download count
+- Unique users and unique files
+- Time period and frequency (`downloads/day`, `downloads/week`)
+- Graphical bars for top files, top users, and daily frequency trend
+- Detailed who/when/file event table with CSV export
+
+## Security operations docs
+
+- [SECURITY_HARDENING.md](SECURITY_HARDENING.md)
+- [INCIDENT_RESPONSE_RUNBOOK.md](INCIDENT_RESPONSE_RUNBOOK.md)
 
 
 

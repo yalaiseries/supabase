@@ -16,6 +16,7 @@
     <script src="supabase-config.js"></script>
     <script type="module" src="supabase-loader.js"></script>
     <script src="supabase-utils.js?v=2026-jan31"></script>
+    <script src="visit-tracker.js?v=2026-mar01"></script>
 
     <style>
       .metric-grid {
@@ -172,7 +173,8 @@
       <section class="card">
         <div class="cta" style="margin-bottom: 12px;">
           <button class="btn primary" id="refreshBtn" type="button">Refresh Report</button>
-          <button class="btn" id="exportBtn" type="button">Export CSV</button>
+          <button class="btn" id="exportBtn" type="button">Export Download CSV</button>
+          <button class="btn" id="exportVisitsBtn" type="button">Export Visit CSV</button>
           <span id="who" class="small"></span>
         </div>
 
@@ -194,6 +196,10 @@
             <input id="filterSlide" type="text" placeholder="optional" />
           </div>
           <div class="field">
+            <label class="small" for="filterPath">Page Path</label>
+            <input id="filterPath" type="text" placeholder="optional e.g. /members.html" />
+          </div>
+          <div class="field">
             <label class="small" for="limit">Max rows</label>
             <select id="limit">
               <option value="200">200</option>
@@ -209,6 +215,11 @@
       <section class="card">
         <h2>Summary</h2>
         <div class="metric-grid" id="metrics"></div>
+      </section>
+
+      <section class="card">
+        <h2>Website Visit Summary</h2>
+        <div class="metric-grid" id="visitMetrics"></div>
       </section>
 
       <section class="card">
@@ -230,6 +241,24 @@
       </section>
 
       <section class="card">
+        <h2>Website Visit Charts</h2>
+        <div class="chart-grid">
+          <div class="chart-card">
+            <h3 class="chart-title">Visits by Page (Top 10)</h3>
+            <div id="chartVisitByPath" class="bar-list"></div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">Visits by User (Top 10)</h3>
+            <div id="chartVisitByUser" class="bar-list"></div>
+          </div>
+          <div class="chart-card" style="grid-column: 1 / -1;">
+            <h3 class="chart-title">Daily Visit Frequency (Last 30 days in data)</h3>
+            <div id="chartVisitByDay" class="bar-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
         <h2>Events (Who / When / File)</h2>
         <p class="small-muted" id="eventsMeta"></p>
         <div style="overflow:auto;">
@@ -246,6 +275,24 @@
           </table>
         </div>
       </section>
+
+      <section class="card">
+        <h2>Visit Events (Who / When / Page)</h2>
+        <p class="small-muted" id="visitEventsMeta"></p>
+        <div style="overflow:auto;">
+          <table class="analytics" id="visitEventsTable">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>User</th>
+                <th>Path</th>
+                <th>Referrer</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
     </main>
 
     <script>
@@ -254,6 +301,7 @@
 
       const refreshBtn = document.getElementById('refreshBtn');
       const exportBtn = document.getElementById('exportBtn');
+      const exportVisitsBtn = document.getElementById('exportVisitsBtn');
       const loginBtn = document.getElementById('loginBtn');
       const resetBtn = document.getElementById('resetBtn');
       const logoutBtn = document.getElementById('logoutBtn');
@@ -265,16 +313,24 @@
       const toDateEl = document.getElementById('toDate');
       const filterEmailEl = document.getElementById('filterEmail');
       const filterSlideEl = document.getElementById('filterSlide');
+      const filterPathEl = document.getElementById('filterPath');
       const limitEl = document.getElementById('limit');
       const metricsEl = document.getElementById('metrics');
+      const visitMetricsEl = document.getElementById('visitMetrics');
       const chartByFileEl = document.getElementById('chartByFile');
       const chartByUserEl = document.getElementById('chartByUser');
       const chartByDayEl = document.getElementById('chartByDay');
+      const chartVisitByPathEl = document.getElementById('chartVisitByPath');
+      const chartVisitByUserEl = document.getElementById('chartVisitByUser');
+      const chartVisitByDayEl = document.getElementById('chartVisitByDay');
       const eventsMetaEl = document.getElementById('eventsMeta');
       const eventsTableBody = document.querySelector('#eventsTable tbody');
+      const visitEventsMetaEl = document.getElementById('visitEventsMeta');
+      const visitEventsTableBody = document.querySelector('#visitEventsTable tbody');
 
       let currentSession = null;
       let currentEvents = [];
+      let currentVisitEvents = [];
       let authBound = false;
 
       function setStatus(message, type = 'info') {
@@ -437,8 +493,114 @@
           .join('');
       }
 
+      function renderVisitMetrics(payload, visits) {
+        const rows = Array.isArray(visits) ? visits : [];
+        const total = Number.isFinite(Number(payload.total)) ? Number(payload.total) : rows.length;
+        const uniqueUsers = new Set(rows.map((r) => String(r.email || '').toLowerCase()).filter(Boolean)).size;
+        const uniquePaths = new Set(rows.map((r) => String(r.path || '').trim()).filter(Boolean)).size;
+
+        let first = '';
+        let last = '';
+        if (rows.length) {
+          const sortedTimes = rows
+            .map((r) => String(r.event_at || '').trim())
+            .filter(Boolean)
+            .sort();
+          first = sortedTimes[0] || '';
+          last = sortedTimes[sortedTimes.length - 1] || '';
+        }
+
+        let periodDays = 0;
+        if (first && last) {
+          const start = new Date(first).getTime();
+          const end = new Date(last).getTime();
+          if (Number.isFinite(start) && Number.isFinite(end) && end >= start) {
+            periodDays = Math.max(1, Math.ceil((end - start) / 86400000));
+          }
+        }
+
+        const dailyFrequency = periodDays > 0 ? (total / periodDays).toFixed(2) : '0.00';
+        const weeklyFrequency = periodDays > 0 ? ((total / periodDays) * 7).toFixed(2) : '0.00';
+
+        visitMetricsEl.innerHTML = `
+          <div class="metric-card"><div class="metric-label">Total Visits</div><div class="metric-value">${total}</div></div>
+          <div class="metric-card"><div class="metric-label">Unique Users</div><div class="metric-value">${uniqueUsers}</div></div>
+          <div class="metric-card"><div class="metric-label">Unique Pages</div><div class="metric-value">${uniquePaths}</div></div>
+          <div class="metric-card"><div class="metric-label">Time Period (days)</div><div class="metric-value">${periodDays}</div></div>
+          <div class="metric-card"><div class="metric-label">Frequency / Day</div><div class="metric-value">${dailyFrequency}</div></div>
+          <div class="metric-card"><div class="metric-label">Frequency / Week</div><div class="metric-value">${weeklyFrequency}</div></div>
+        `;
+
+        if (first && last) {
+          visitMetricsEl.innerHTML += `
+            <div class="metric-card" style="grid-column: 1 / -1;">
+              <div class="metric-label">Observed Window</div>
+              <div class="small-muted">${escapeHtml(fmtDateTime(first))} → ${escapeHtml(fmtDateTime(last))}</div>
+            </div>
+          `;
+        }
+      }
+
+      function renderVisitCharts(visits) {
+        const rows = Array.isArray(visits) ? visits : [];
+        const byPath = sortCountMap(groupCount(rows, (r) => String(r.path || '').trim()));
+        const byUser = sortCountMap(groupCount(rows, (r) => String(r.email || '').toLowerCase()));
+        const byDay = sortCountMap(
+          groupCount(rows, (r) => {
+            const d = new Date(String(r.event_at || ''));
+            if (Number.isNaN(d.getTime())) return '';
+            return d.toISOString().slice(0, 10);
+          })
+        ).sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+
+        renderBarList(chartVisitByPathEl, byPath, 10);
+        renderBarList(chartVisitByUserEl, byUser, 10);
+        renderBarList(chartVisitByDayEl, byDay.slice(-30), 30);
+      }
+
+      function renderVisitEvents(visits, payload) {
+        const rows = Array.isArray(visits) ? visits : [];
+        const total = Number.isFinite(Number(payload.total)) ? Number(payload.total) : rows.length;
+        visitEventsMetaEl.textContent = `Showing ${rows.length} visit rows${Number.isFinite(total) ? ` (total matching: ${total})` : ''}.`;
+
+        if (!rows.length) {
+          visitEventsTableBody.innerHTML = '<tr><td colspan="4" class="small-muted">No visit events found.</td></tr>';
+          return;
+        }
+
+        visitEventsTableBody.innerHTML = rows
+          .map((row) => {
+            const when = fmtDateTime(row.event_at);
+            const email = String(row.email || '');
+            const path = String(row.path || '');
+            const referrer = String(row.referrer || '');
+            return `
+              <tr>
+                <td>${escapeHtml(when)}</td>
+                <td>${escapeHtml(email)}</td>
+                <td>${escapeHtml(path)}</td>
+                <td>${escapeHtml(referrer)}</td>
+              </tr>
+            `;
+          })
+          .join('');
+      }
+
       function toCsv(rows) {
         const headers = ['event_at', 'email', 'slide_id', 'slide_url', 'user_agent', 'referrer', 'request_method'];
+        const esc = (v) => {
+          const s = String(v == null ? '' : v);
+          return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+        };
+        const lines = [headers.join(',')];
+        rows.forEach((r) => {
+          lines.push(headers.map((h) => esc(r[h])).join(','));
+        });
+        return lines.join('\n');
+      }
+
+      function toVisitCsv(rows) {
+        const headers = ['event_at', 'email', 'path', 'page_title', 'referrer', 'session_id', 'user_agent'];
         const esc = (v) => {
           const s = String(v == null ? '' : v);
           return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -527,12 +689,19 @@
         try {
           await sb.auth.signOut();
           currentEvents = [];
+          currentVisitEvents = [];
           metricsEl.innerHTML = '';
+          visitMetricsEl.innerHTML = '';
           chartByFileEl.innerHTML = '';
           chartByUserEl.innerHTML = '';
           chartByDayEl.innerHTML = '';
+          chartVisitByPathEl.innerHTML = '';
+          chartVisitByUserEl.innerHTML = '';
+          chartVisitByDayEl.innerHTML = '';
           eventsMetaEl.textContent = '';
+          visitEventsMetaEl.textContent = '';
           eventsTableBody.innerHTML = '<tr><td colspan="4" class="small-muted">No events found.</td></tr>';
+          visitEventsTableBody.innerHTML = '<tr><td colspan="4" class="small-muted">No visit events found.</td></tr>';
           setStatus('Signed out.');
         } finally {
           logoutBtn.disabled = false;
@@ -567,7 +736,7 @@
 
       async function loadReport() {
         if (!currentSession || !currentSession.access_token) {
-          setStatus('Please sign in via members page first.', 'error');
+          setStatus('Please sign in above first.', 'error');
           return;
         }
         if (!SUPABASE_FUNCTIONS_URL) {
@@ -586,27 +755,45 @@
           const toIso = toIsoFromLocalInput(toDateEl);
           const email = String(filterEmailEl.value || '').trim().toLowerCase();
           const slideId = String(filterSlideEl.value || '').trim();
+          const path = String(filterPathEl.value || '').trim();
 
           if (fromIso) params.set('from', fromIso);
           if (toIso) params.set('to', toIso);
           if (email) params.set('email', email);
           if (slideId) params.set('slide_id', slideId);
 
-          const resp = await fetch(`${SUPABASE_FUNCTIONS_URL}/slide-download-admin?${params.toString()}`, {
-            headers: {
-              apikey: SUPABASE_ANON_KEY,
-              authorization: `Bearer ${currentSession.access_token}`
-            }
-          });
+          const visitParams = new URLSearchParams();
+          visitParams.set('limit', String(limitEl.value || '500'));
+          if (fromIso) visitParams.set('from', fromIso);
+          if (toIso) visitParams.set('to', toIso);
+          if (email) visitParams.set('email', email);
+          if (path) visitParams.set('path', path);
 
-          const payload = await resp.json().catch(() => ({}));
-          if (!resp.ok) {
-            if (resp.status === 403) {
+          const [downloadResp, visitResp] = await Promise.all([
+            fetch(`${SUPABASE_FUNCTIONS_URL}/slide-download-admin?${params.toString()}`, {
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+                authorization: `Bearer ${currentSession.access_token}`
+              }
+            }),
+            fetch(`${SUPABASE_FUNCTIONS_URL}/page-visit-admin?${visitParams.toString()}`, {
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+                authorization: `Bearer ${currentSession.access_token}`
+              }
+            })
+          ]);
+
+          const payload = await downloadResp.json().catch(() => ({}));
+          const visitPayload = await visitResp.json().catch(() => ({}));
+
+          if (!downloadResp.ok) {
+            if (downloadResp.status === 403) {
               setStatus('Access unavailable for this account.', 'error');
-            } else if (resp.status === 401) {
+            } else if (downloadResp.status === 401) {
               setStatus('Session unavailable. Please sign in again.', 'error');
             } else {
-              setStatus('Report temporarily unavailable. Please try again.', 'error');
+              setStatus('Download report temporarily unavailable. Please try again.', 'error');
             }
             return;
           }
@@ -618,8 +805,33 @@
           renderCharts(events);
           renderEvents(events, payload);
 
+          let visitOk = visitResp.ok;
+          if (visitOk) {
+            const visits = Array.isArray(visitPayload.visits) ? visitPayload.visits : [];
+            currentVisitEvents = visits;
+            renderVisitMetrics(visitPayload, visits);
+            renderVisitCharts(visits);
+            renderVisitEvents(visits, visitPayload);
+          } else {
+            currentVisitEvents = [];
+            visitMetricsEl.innerHTML = '<p class="small-muted">Visit report unavailable.</p>';
+            chartVisitByPathEl.innerHTML = '<p class="small-muted">Visit chart unavailable.</p>';
+            chartVisitByUserEl.innerHTML = '<p class="small-muted">Visit chart unavailable.</p>';
+            chartVisitByDayEl.innerHTML = '<p class="small-muted">Visit chart unavailable.</p>';
+            visitEventsMetaEl.textContent = 'Visit report unavailable.';
+            visitEventsTableBody.innerHTML = '<tr><td colspan="4" class="small-muted">Visit report unavailable.</td></tr>';
+          }
+
           const total = Number.isFinite(Number(payload.total)) ? Number(payload.total) : events.length;
-          setStatus(`Report loaded. Total matching downloads: ${total}.`);
+          const visitTotal = Number.isFinite(Number(visitPayload.total))
+            ? Number(visitPayload.total)
+            : currentVisitEvents.length;
+
+          if (visitOk) {
+            setStatus(`Report loaded. Downloads: ${total}. Visits: ${visitTotal}.`);
+          } else {
+            setStatus(`Download report loaded (${total}). Visit report unavailable.`, 'info');
+          }
         } catch (e) {
           setStatus(String(e && e.message ? e.message : e), 'error');
         } finally {
@@ -651,6 +863,15 @@
           }
           const stamp = new Date().toISOString().replace(/[:.]/g, '-');
           downloadCsv(`download-analytics-${stamp}.csv`, toCsv(currentEvents));
+        });
+
+        exportVisitsBtn.addEventListener('click', () => {
+          if (!currentVisitEvents.length) {
+            setStatus('No visit rows to export yet.', 'error');
+            return;
+          }
+          const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+          downloadCsv(`visit-analytics-${stamp}.csv`, toVisitCsv(currentVisitEvents));
         });
 
         if (!currentSession || !currentSession.user) {
