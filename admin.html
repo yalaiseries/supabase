@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Download Analytics · AI (Hackathon) Series</title>
+    <meta name="description" content="Admin-only download analytics for AI Sharing slide links." />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="canonical" href="https://aihackathon.pro/admin.html" />
+    <meta name="theme-color" content="#0b1220" />
+
+    <link rel="icon" href="favicon.svg?v=2026-jan23d" type="image/svg+xml" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="stylesheet" href="site.css?v=2026-jan31" />
+
+    <script src="supabase-config.js"></script>
+    <script type="module" src="supabase-loader.js"></script>
+    <script src="supabase-utils.js?v=2026-jan31"></script>
+
+    <style>
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .metric-card {
+        background: rgba(78, 162, 253, 0.08);
+        border: 1px solid rgba(78, 162, 253, 0.2);
+        border-radius: 10px;
+        padding: 12px;
+      }
+      .metric-label {
+        font-size: 12px;
+        color: #9fb8d9;
+        margin-bottom: 6px;
+      }
+      .metric-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: #4ea2fd;
+      }
+      .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 10px;
+      }
+      .auth-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 10px;
+        align-items: end;
+      }
+      .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .chart-card {
+        background: rgba(78, 162, 253, 0.06);
+        border: 1px solid rgba(78, 162, 253, 0.2);
+        border-radius: 10px;
+        padding: 12px;
+      }
+      .chart-title {
+        margin: 0 0 10px 0;
+        font-size: 14px;
+        color: #d8e7ff;
+      }
+      .bar-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .bar-row {
+        display: grid;
+        grid-template-columns: minmax(90px, 1fr) 2fr auto;
+        gap: 8px;
+        align-items: center;
+      }
+      .bar-label {
+        font-size: 12px;
+        color: #cdddf8;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      .bar-track {
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+      }
+      .bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4ea2fd, #7aa2ff);
+      }
+      .bar-value {
+        min-width: 34px;
+        text-align: right;
+        font-size: 12px;
+        color: #d8e7ff;
+      }
+      table.analytics {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      table.analytics th,
+      table.analytics td {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 8px;
+        text-align: left;
+        vertical-align: top;
+      }
+      table.analytics th {
+        color: #9fb8d9;
+        font-weight: 600;
+      }
+      .small-muted {
+        font-size: 12px;
+        color: #9fb8d9;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="header">
+      <div class="nav">
+        <div class="brand">
+          <span>
+            <strong>Internal Analytics Console</strong>
+            <span class="sub">Admin only</span>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <main class="main" id="main">
+      <h1>Download Analytics (Admin)</h1>
+      <p class="muted">Admin-only report for slide downloads: total count, who downloaded, and when.</p>
+
+      <section class="card" style="margin-top: 12px;">
+        <h2 style="margin-top: 0;">Admin Sign-in</h2>
+        <div class="auth-grid">
+          <div class="field">
+            <label class="small" for="loginEmail">Email</label>
+            <input id="loginEmail" type="email" autocomplete="email" placeholder="admin email" />
+          </div>
+          <div class="field">
+            <label class="small" for="loginPassword">Password</label>
+            <input id="loginPassword" type="password" autocomplete="current-password" placeholder="password" />
+          </div>
+          <div class="field" style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn primary" id="loginBtn" type="button">Sign In</button>
+            <button class="btn" id="resetBtn" type="button">Email Reset Link</button>
+            <button class="btn" id="logoutBtn" type="button">Sign Out</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top: 12px;">
+        <h2 style="margin-top: 0;">Connectivity Note</h2>
+        <p class="small-muted" style="margin: 0; line-height: 1.6;">
+          If this report fails to load in office/corporate environments, security software may be blocking the API call.
+          Ask IT to allowlist: <strong>aihackathon.pro</strong>, <strong>www.aihackathon.pro</strong>,
+          <strong>xcctqbamimafkkamuwly.supabase.co</strong>, and <strong>xcctqbamimafkkamuwly.functions.supabase.co</strong>.
+        </p>
+      </section>
+
+      <section class="card">
+        <div class="cta" style="margin-bottom: 12px;">
+          <button class="btn primary" id="refreshBtn" type="button">Refresh Report</button>
+          <button class="btn" id="exportBtn" type="button">Export CSV</button>
+          <span id="who" class="small"></span>
+        </div>
+
+        <div class="filter-grid">
+          <div class="field">
+            <label class="small" for="fromDate">From</label>
+            <input id="fromDate" type="datetime-local" />
+          </div>
+          <div class="field">
+            <label class="small" for="toDate">To</label>
+            <input id="toDate" type="datetime-local" />
+          </div>
+          <div class="field">
+            <label class="small" for="filterEmail">User Email</label>
+            <input id="filterEmail" type="text" placeholder="optional" />
+          </div>
+          <div class="field">
+            <label class="small" for="filterSlide">Slide ID</label>
+            <input id="filterSlide" type="text" placeholder="optional" />
+          </div>
+          <div class="field">
+            <label class="small" for="limit">Max rows</label>
+            <select id="limit">
+              <option value="200">200</option>
+              <option value="500" selected>500</option>
+              <option value="1000">1000</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="status" style="margin-top: 12px;"></div>
+      </section>
+
+      <section class="card">
+        <h2>Summary</h2>
+        <div class="metric-grid" id="metrics"></div>
+      </section>
+
+      <section class="card">
+        <h2>Charts</h2>
+        <div class="chart-grid">
+          <div class="chart-card">
+            <h3 class="chart-title">Downloads by File (Top 10)</h3>
+            <div id="chartByFile" class="bar-list"></div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">Downloads by User (Top 10)</h3>
+            <div id="chartByUser" class="bar-list"></div>
+          </div>
+          <div class="chart-card" style="grid-column: 1 / -1;">
+            <h3 class="chart-title">Daily Download Frequency (Last 30 days in data)</h3>
+            <div id="chartByDay" class="bar-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Events (Who / When / File)</h2>
+        <p class="small-muted" id="eventsMeta"></p>
+        <div style="overflow:auto;">
+          <table class="analytics" id="eventsTable">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>User</th>
+                <th>Slide ID</th>
+                <th>URL</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const { getSupabaseClient, escapeHtml, SUPABASE_ANON_KEY } = window.__supabaseUtils;
+      const SUPABASE_FUNCTIONS_URL = String(window.SUPABASE_FUNCTIONS_URL || '').trim();
+
+      const refreshBtn = document.getElementById('refreshBtn');
+      const exportBtn = document.getElementById('exportBtn');
+      const loginBtn = document.getElementById('loginBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const loginEmailEl = document.getElementById('loginEmail');
+      const loginPasswordEl = document.getElementById('loginPassword');
+      const statusEl = document.getElementById('status');
+      const whoEl = document.getElementById('who');
+      const fromDateEl = document.getElementById('fromDate');
+      const toDateEl = document.getElementById('toDate');
+      const filterEmailEl = document.getElementById('filterEmail');
+      const filterSlideEl = document.getElementById('filterSlide');
+      const limitEl = document.getElementById('limit');
+      const metricsEl = document.getElementById('metrics');
+      const chartByFileEl = document.getElementById('chartByFile');
+      const chartByUserEl = document.getElementById('chartByUser');
+      const chartByDayEl = document.getElementById('chartByDay');
+      const eventsMetaEl = document.getElementById('eventsMeta');
+      const eventsTableBody = document.querySelector('#eventsTable tbody');
+
+      let currentSession = null;
+      let currentEvents = [];
+      let authBound = false;
+
+      function setStatus(message, type = 'info') {
+        const text = String(message || '').trim();
+        if (!text) {
+          statusEl.style.display = 'none';
+          statusEl.textContent = '';
+          return;
+        }
+        statusEl.style.display = 'block';
+        statusEl.textContent = text;
+        statusEl.style.padding = '10px 12px';
+        statusEl.style.borderRadius = '8px';
+        statusEl.style.border = '1px solid rgba(78, 162, 253, 0.35)';
+        statusEl.style.background = 'rgba(78, 162, 253, 0.10)';
+        statusEl.style.color = '#d8e7ff';
+        if (type === 'error') {
+          statusEl.style.border = '1px solid rgba(255, 107, 107, 0.45)';
+          statusEl.style.background = 'rgba(255, 107, 107, 0.12)';
+          statusEl.style.color = '#ffd0d0';
+        }
+      }
+
+      function toIsoFromLocalInput(inputEl) {
+        const raw = String(inputEl && inputEl.value ? inputEl.value : '').trim();
+        if (!raw) return '';
+        const d = new Date(raw);
+        if (Number.isNaN(d.getTime())) return '';
+        return d.toISOString();
+      }
+
+      function fmtDateTime(iso) {
+        const d = new Date(iso);
+        if (Number.isNaN(d.getTime())) return String(iso || '');
+        return d.toLocaleString();
+      }
+
+      function groupCount(rows, keyFn) {
+        const map = new Map();
+        rows.forEach((row) => {
+          const key = String(keyFn(row) || '').trim() || 'unknown';
+          map.set(key, (map.get(key) || 0) + 1);
+        });
+        return map;
+      }
+
+      function sortCountMap(map) {
+        return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+      }
+
+      function renderBarList(el, entries, maxItems = 10) {
+        const rows = Array.isArray(entries) ? entries.slice(0, maxItems) : [];
+        if (!rows.length) {
+          el.innerHTML = '<p class="small-muted">No data.</p>';
+          return;
+        }
+        const maxValue = Math.max(...rows.map((r) => Number(r[1] || 0)), 1);
+        el.innerHTML = rows
+          .map(([label, value]) => {
+            const width = Math.max(4, Math.round((Number(value) / maxValue) * 100));
+            return `
+              <div class="bar-row">
+                <div class="bar-label" title="${escapeHtml(label)}">${escapeHtml(label)}</div>
+                <div class="bar-track"><div class="bar-fill" style="width:${width}%"></div></div>
+                <div class="bar-value">${Number(value)}</div>
+              </div>
+            `;
+          })
+          .join('');
+      }
+
+      function renderMetrics(payload, events) {
+        const total = Number.isFinite(Number(payload.total)) ? Number(payload.total) : events.length;
+        const uniqueUsers = new Set(events.map((r) => String(r.email || '').toLowerCase()).filter(Boolean)).size;
+        const uniqueFiles = new Set(events.map((r) => String(r.slide_id || '').trim()).filter(Boolean)).size;
+
+        let first = '';
+        let last = '';
+        if (events.length) {
+          const sortedTimes = events
+            .map((r) => String(r.event_at || '').trim())
+            .filter(Boolean)
+            .sort();
+          first = sortedTimes[0] || '';
+          last = sortedTimes[sortedTimes.length - 1] || '';
+        }
+
+        let periodDays = 0;
+        if (first && last) {
+          const start = new Date(first).getTime();
+          const end = new Date(last).getTime();
+          if (Number.isFinite(start) && Number.isFinite(end) && end >= start) {
+            periodDays = Math.max(1, Math.ceil((end - start) / 86400000));
+          }
+        }
+
+        const dailyFrequency = periodDays > 0 ? (total / periodDays).toFixed(2) : '0.00';
+        const weeklyFrequency = periodDays > 0 ? ((total / periodDays) * 7).toFixed(2) : '0.00';
+
+        metricsEl.innerHTML = `
+          <div class="metric-card"><div class="metric-label">Total Downloads</div><div class="metric-value">${total}</div></div>
+          <div class="metric-card"><div class="metric-label">Unique Users</div><div class="metric-value">${uniqueUsers}</div></div>
+          <div class="metric-card"><div class="metric-label">Unique Files</div><div class="metric-value">${uniqueFiles}</div></div>
+          <div class="metric-card"><div class="metric-label">Time Period (days)</div><div class="metric-value">${periodDays}</div></div>
+          <div class="metric-card"><div class="metric-label">Frequency / Day</div><div class="metric-value">${dailyFrequency}</div></div>
+          <div class="metric-card"><div class="metric-label">Frequency / Week</div><div class="metric-value">${weeklyFrequency}</div></div>
+        `;
+
+        if (first && last) {
+          metricsEl.innerHTML += `
+            <div class="metric-card" style="grid-column: 1 / -1;">
+              <div class="metric-label">Observed Window</div>
+              <div class="small-muted">${escapeHtml(fmtDateTime(first))} → ${escapeHtml(fmtDateTime(last))}</div>
+            </div>
+          `;
+        }
+      }
+
+      function renderCharts(events) {
+        const byFile = sortCountMap(groupCount(events, (r) => String(r.slide_id || '').trim() || String(r.slide_url || '').trim()));
+        const byUser = sortCountMap(groupCount(events, (r) => String(r.email || '').toLowerCase()));
+        const byDay = sortCountMap(
+          groupCount(events, (r) => {
+            const d = new Date(String(r.event_at || ''));
+            if (Number.isNaN(d.getTime())) return '';
+            return d.toISOString().slice(0, 10);
+          })
+        ).sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+
+        renderBarList(chartByFileEl, byFile, 10);
+        renderBarList(chartByUserEl, byUser, 10);
+        renderBarList(chartByDayEl, byDay.slice(-30), 30);
+      }
+
+      function renderEvents(events, payload) {
+        const rows = Array.isArray(events) ? events : [];
+        const total = Number.isFinite(Number(payload.total)) ? Number(payload.total) : rows.length;
+        eventsMetaEl.textContent = `Showing ${rows.length} event rows${Number.isFinite(total) ? ` (total matching: ${total})` : ''}.`;
+
+        if (!rows.length) {
+          eventsTableBody.innerHTML = '<tr><td colspan="4" class="small-muted">No events found.</td></tr>';
+          return;
+        }
+
+        eventsTableBody.innerHTML = rows
+          .map((row) => {
+            const when = fmtDateTime(row.event_at);
+            const email = String(row.email || '');
+            const slideId = String(row.slide_id || '');
+            const slideUrl = String(row.slide_url || '');
+            return `
+              <tr>
+                <td>${escapeHtml(when)}</td>
+                <td>${escapeHtml(email)}</td>
+                <td>${escapeHtml(slideId)}</td>
+                <td><a href="${escapeHtml(slideUrl)}" target="_blank" rel="noreferrer">open</a></td>
+              </tr>
+            `;
+          })
+          .join('');
+      }
+
+      function toCsv(rows) {
+        const headers = ['event_at', 'email', 'slide_id', 'slide_url', 'user_agent', 'referrer', 'request_method'];
+        const esc = (v) => {
+          const s = String(v == null ? '' : v);
+          return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+        };
+        const lines = [headers.join(',')];
+        rows.forEach((r) => {
+          lines.push(headers.map((h) => esc(r[h])).join(','));
+        });
+        return lines.join('\n');
+      }
+
+      function downloadCsv(filename, content) {
+        const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function updateAuthDisplay(session) {
+        currentSession = session || null;
+        const email = String(session && session.user && session.user.email ? session.user.email : '').trim();
+        whoEl.textContent = email ? `Signed in as ${email}` : 'Not signed in';
+        if (loginEmailEl && !loginEmailEl.value && email) {
+          loginEmailEl.value = email;
+        }
+      }
+
+      async function handleAdminLogin(sb) {
+        const email = String(loginEmailEl && loginEmailEl.value ? loginEmailEl.value : '').trim().toLowerCase();
+        const password = String(loginPasswordEl && loginPasswordEl.value ? loginPasswordEl.value : '').trim();
+
+        if (!email) {
+          setStatus('Please enter your admin email.', 'error');
+          return;
+        }
+        if (!password) {
+          setStatus('Please enter your password.', 'error');
+          return;
+        }
+
+        loginBtn.disabled = true;
+        setStatus('Signing in...');
+        try {
+          const { error } = await sb.auth.signInWithPassword({ email, password });
+          if (error) {
+            setStatus(String(error.message || 'Could not sign in.'), 'error');
+            return;
+          }
+          setStatus('Signed in. Loading report...');
+          await loadReport();
+        } finally {
+          loginBtn.disabled = false;
+        }
+      }
+
+      async function handlePasswordReset(sb) {
+        const email = String(loginEmailEl && loginEmailEl.value ? loginEmailEl.value : '').trim().toLowerCase();
+        if (!email) {
+          setStatus('Please enter your email first.', 'error');
+          return;
+        }
+
+        resetBtn.disabled = true;
+        setStatus('Sending reset email...');
+        try {
+          const { error } = await sb.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/members.html?type=recovery`
+          });
+          if (error) {
+            setStatus(String(error.message || 'Could not send reset email.'), 'error');
+            return;
+          }
+          setStatus('Reset email sent. Check inbox/spam.', 'info');
+        } finally {
+          resetBtn.disabled = false;
+        }
+      }
+
+      async function handleLogout(sb) {
+        logoutBtn.disabled = true;
+        try {
+          await sb.auth.signOut();
+          currentEvents = [];
+          metricsEl.innerHTML = '';
+          chartByFileEl.innerHTML = '';
+          chartByUserEl.innerHTML = '';
+          chartByDayEl.innerHTML = '';
+          eventsMetaEl.textContent = '';
+          eventsTableBody.innerHTML = '<tr><td colspan="4" class="small-muted">No events found.</td></tr>';
+          setStatus('Signed out.');
+        } finally {
+          logoutBtn.disabled = false;
+        }
+      }
+
+      function bindAuthActions(sb) {
+        if (authBound) return;
+        authBound = true;
+
+        loginBtn.addEventListener('click', () => handleAdminLogin(sb));
+        resetBtn.addEventListener('click', () => handlePasswordReset(sb));
+        logoutBtn.addEventListener('click', () => handleLogout(sb));
+
+        if (loginEmailEl) {
+          loginEmailEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleAdminLogin(sb);
+            }
+          });
+        }
+        if (loginPasswordEl) {
+          loginPasswordEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleAdminLogin(sb);
+            }
+          });
+        }
+      }
+
+      async function loadReport() {
+        if (!currentSession || !currentSession.access_token) {
+          setStatus('Please sign in via members page first.', 'error');
+          return;
+        }
+        if (!SUPABASE_FUNCTIONS_URL) {
+          setStatus('Missing SUPABASE_FUNCTIONS_URL. Check supabase-config.js.', 'error');
+          return;
+        }
+
+        refreshBtn.disabled = true;
+        setStatus('Loading admin report...');
+
+        try {
+          const params = new URLSearchParams();
+          params.set('limit', String(limitEl.value || '500'));
+
+          const fromIso = toIsoFromLocalInput(fromDateEl);
+          const toIso = toIsoFromLocalInput(toDateEl);
+          const email = String(filterEmailEl.value || '').trim().toLowerCase();
+          const slideId = String(filterSlideEl.value || '').trim();
+
+          if (fromIso) params.set('from', fromIso);
+          if (toIso) params.set('to', toIso);
+          if (email) params.set('email', email);
+          if (slideId) params.set('slide_id', slideId);
+
+          const resp = await fetch(`${SUPABASE_FUNCTIONS_URL}/slide-download-admin?${params.toString()}`, {
+            headers: {
+              apikey: SUPABASE_ANON_KEY,
+              authorization: `Bearer ${currentSession.access_token}`
+            }
+          });
+
+          const payload = await resp.json().catch(() => ({}));
+          if (!resp.ok) {
+            if (resp.status === 403) {
+              setStatus('Access unavailable for this account.', 'error');
+            } else if (resp.status === 401) {
+              setStatus('Session unavailable. Please sign in again.', 'error');
+            } else {
+              setStatus('Report temporarily unavailable. Please try again.', 'error');
+            }
+            return;
+          }
+
+          const events = Array.isArray(payload.events) ? payload.events : [];
+          currentEvents = events;
+
+          renderMetrics(payload, events);
+          renderCharts(events);
+          renderEvents(events, payload);
+
+          const total = Number.isFinite(Number(payload.total)) ? Number(payload.total) : events.length;
+          setStatus(`Report loaded. Total matching downloads: ${total}.`);
+        } catch (e) {
+          setStatus(String(e && e.message ? e.message : e), 'error');
+        } finally {
+          refreshBtn.disabled = false;
+        }
+      }
+
+      async function init() {
+        const sb = await getSupabaseClient();
+        if (!sb) {
+          setStatus('Supabase client/config not loaded.', 'error');
+          return;
+        }
+
+        bindAuthActions(sb);
+
+        const { data } = await sb.auth.getSession();
+        updateAuthDisplay(data && data.session ? data.session : null);
+
+        sb.auth.onAuthStateChange((_event, session) => {
+          updateAuthDisplay(session || null);
+        });
+
+        refreshBtn.addEventListener('click', () => loadReport());
+        exportBtn.addEventListener('click', () => {
+          if (!currentEvents.length) {
+            setStatus('No rows to export yet.', 'error');
+            return;
+          }
+          const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+          downloadCsv(`download-analytics-${stamp}.csv`, toCsv(currentEvents));
+        });
+
+        if (!currentSession || !currentSession.user) {
+          setStatus('Sign in above to load admin analytics.');
+          return;
+        }
+
+        await loadReport();
+      }
+
+      init();
+    </script>
+  </body>
+</html>

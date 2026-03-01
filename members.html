@@ -117,6 +117,19 @@
             <li>If antivirus/web protection is strict, allow <strong>aihackathon.pro</strong> and <strong>challenges.cloudflare.com</strong>.</li>
             <li>If your office network blocks verification, try a different network (for example, mobile hotspot) once.</li>
           </ul>
+          <details style="margin-top: 10px;">
+            <summary style="cursor: pointer; font-weight: 600;">Security software / firewall note (click to expand)</summary>
+            <div class="small muted" style="margin-top: 8px; line-height: 1.6;">
+              <p style="margin: 0 0 8px 0;">Some antivirus, VPN, privacy extensions, or office firewalls may block login, reset email, or analytics calls.</p>
+              <p style="margin: 0 0 8px 0;"><strong>If needed, allowlist these domains:</strong><br>
+              <strong>aihackathon.pro</strong><br>
+              <strong>www.aihackathon.pro</strong><br>
+              <strong>xcctqbamimafkkamuwly.supabase.co</strong><br>
+              <strong>xcctqbamimafkkamuwly.functions.supabase.co</strong><br>
+              <strong>challenges.cloudflare.com</strong> (captcha)</p>
+              <p style="margin: 0;">After allowlisting, hard refresh this page (<strong>Ctrl+F5</strong>) and try again.</p>
+            </div>
+          </details>
           <p class="small muted" style="margin: 10px 0 0 0;">Still blocked? Email <a href="mailto:youth@sia.org.sg">youth@sia.org.sg</a> or <a href="mailto:yal.aiseries@gmail.com">yal.aiseries@gmail.com</a> with your email, screenshot, and browser version.</p>
         </div>
 
@@ -191,7 +204,7 @@
 
           <h4 style="margin-top: 20px;">Submission Template</h4>
           <p>
-            <a class="btn primary" href="https://docs.google.com/presentation/d/1j9tp4xyeNo78nlDmFeLko11mAvf3eij_/edit?usp=sharing&ouid=111462678514080289565&rtpof=true&sd=true" target="_blank" rel="noreferrer">Open Submission Template (Google Slides)</a>
+            <a class="btn primary" href="https://docs.google.com/presentation/d/1j9tp4xyeNo78nlDmFeLko11mAvf3eij_/edit?usp=sharing&ouid=111462678514080289565&rtpof=true&sd=true" target="_blank" rel="noreferrer" data-slide-track="1" data-slide-id="submission-template-2026">Open Submission Template (Google Slides)</a>
           </p>
           <p class="muted">Download or make a copy of the template to prepare your submission.</p>
         </div>
@@ -215,9 +228,9 @@
         <ul>
           <li><strong>25 Feb: Discussion &amp; Sharing</strong>
             <ul>
-              <li>7:00pm - 7:30pm: Discussion - <a href="https://drive.google.com/file/d/1agYgkQXsREfKNUH9o66Loz-zHALm_a4h/view" target="_blank" rel="noreferrer">slides</a></li>
-              <li>7:30pm - 8:00pm: Sharing by Ar William LAU - <a href="https://drive.google.com/file/d/1NPAb9fGk3eSJWpSBWOXEOHJOejPaXFze/view" target="_blank" rel="noreferrer">slides</a></li>
-              <li>8:00pm - 8:30pm: Sharing by Dr Bernard LEONG - <a href="https://drive.google.com/file/d/1z8abB6yJZhKHPGnJ2WqVcLyP1_2Rp5mu/view" target="_blank" rel="noreferrer">slides</a></li>
+              <li>7:00pm - 7:30pm: Discussion - <a href="https://drive.google.com/file/d/1agYgkQXsREfKNUH9o66Loz-zHALm_a4h/view" target="_blank" rel="noreferrer" data-slide-track="1" data-slide-id="2026-02-25-discussion">slides</a></li>
+              <li>7:30pm - 8:00pm: Sharing by Ar William LAU - <a href="https://drive.google.com/file/d/1NPAb9fGk3eSJWpSBWOXEOHJOejPaXFze/view" target="_blank" rel="noreferrer" data-slide-track="1" data-slide-id="2026-02-25-william-lau">slides</a></li>
+              <li>8:00pm - 8:30pm: Sharing by Dr Bernard LEONG - <a href="https://drive.google.com/file/d/1z8abB6yJZhKHPGnJ2WqVcLyP1_2Rp5mu/view" target="_blank" rel="noreferrer" data-slide-track="1" data-slide-id="2026-02-25-bernard-leong">slides</a></li>
             </ul>
           </li>
           <li><strong>11 Mar: Discussion &amp; Sharing</strong>
@@ -342,6 +355,8 @@
       const videoRecordingsSection = document.getElementById('videoRecordingsSection');
       const notRegisteredMessage = document.getElementById('notRegisteredMessage');
       const currentEmailSpan = document.getElementById('currentEmail');
+      let currentSession = null;
+      const TRACKABLE_SLIDE_HOSTS = new Set(['drive.google.com', 'docs.google.com']);
 
       const { getSupabaseClient, escapeHtml, siteBaseUrl, hasSupabaseConfig, SUPABASE_ANON_KEY } = window.__supabaseUtils;
       const REGISTRATION_LINK = 'https://tinyurl.com/AIHackathonROI';
@@ -519,6 +534,92 @@
         }
       }
 
+      function isTrackableSlideUrl(url) {
+        const value = String(url || '').trim();
+        if (!value) return false;
+        try {
+          const parsed = new URL(value);
+          return parsed.protocol === 'https:' && TRACKABLE_SLIDE_HOSTS.has(parsed.hostname.toLowerCase());
+        } catch {
+          return false;
+        }
+      }
+
+      function makeSlideIdFromUrl(url, prefix = 'slide') {
+        const value = String(url || '').trim();
+        if (!value) return `${prefix}-unknown`;
+        let seed = value;
+        try {
+          const parsed = new URL(value);
+          seed = `${parsed.hostname}${parsed.pathname}`;
+        } catch {
+          // ignore and use raw value
+        }
+        const normalized = seed.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        return normalized ? `${prefix}-${normalized}`.slice(0, 120) : `${prefix}-unknown`;
+      }
+
+      function getTrackableSlideLinks() {
+        const explicit = Array.from(document.querySelectorAll('a[data-slide-track="1"]'));
+        const sharingLinks = sharingSessionsSection
+          ? Array.from(sharingSessionsSection.querySelectorAll('a[href]')).filter((linkEl) => isTrackableSlideUrl(linkEl.getAttribute('href')))
+          : [];
+        return Array.from(new Set(explicit.concat(sharingLinks)));
+      }
+
+      function postSlideTrackingRedirect(linkEl) {
+        const functionsBase = String(window.SUPABASE_FUNCTIONS_URL || '').trim();
+        const accessToken = String((currentSession && currentSession.access_token) || '').trim();
+        const slideUrl = String(linkEl && linkEl.getAttribute('href') ? linkEl.getAttribute('href') : '').trim();
+        const rawSlideId = String(linkEl && linkEl.getAttribute('data-slide-id') ? linkEl.getAttribute('data-slide-id') : '').trim();
+        const slideId = rawSlideId || makeSlideIdFromUrl(slideUrl, 'members');
+
+        if (!functionsBase || !accessToken || !slideUrl) {
+          return false;
+        }
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `${functionsBase}/slide-download-track`;
+        form.target = '_blank';
+        form.style.display = 'none';
+
+        const addField = (name, value) => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = name;
+          input.value = value;
+          form.appendChild(input);
+        };
+
+        addField('slide_id', slideId);
+        addField('slide_url', slideUrl);
+        addField('access_token', accessToken);
+
+        document.body.appendChild(form);
+        form.submit();
+        setTimeout(() => {
+          form.remove();
+        }, 1200);
+        return true;
+      }
+
+      function setupSlideTracking() {
+        const slideTrackingLinks = getTrackableSlideLinks();
+        slideTrackingLinks.forEach((linkEl) => {
+          if (!linkEl || linkEl.dataset.slideTrackingBound === '1') return;
+          linkEl.dataset.slideTrackingBound = '1';
+
+          linkEl.addEventListener('click', (event) => {
+            if (!event) return;
+            const didTrack = postSlideTrackingRedirect(linkEl);
+            if (didTrack) {
+              event.preventDefault();
+            }
+          });
+        });
+      }
+
       function setCaptchaFailureStatus() {
         if (!CAPTCHA_SITE_KEY) {
           setStatus('Captcha is enabled but not configured on this page. Please contact support.');
@@ -578,6 +679,7 @@
         });
 
       function updateUI(session) {
+        currentSession = session || null;
         const user = session && session.user;
         
         // Check if this is a password recovery session
@@ -953,6 +1055,8 @@
           }
           return;
         }
+
+        setupSlideTracking();
 
         async function activateRecoverySessionFromUrl() {
           const urlParams = new URLSearchParams(window.location.search);
