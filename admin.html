@@ -143,22 +143,6 @@
       <p class="muted">Admin-only report for slide downloads: total count, who downloaded, and when.</p>
 
       <section class="card" style="margin-top: 12px;">
-        <h2 style="margin-top: 0;">Admin Access</h2>
-        <div class="auth-grid">
-          <div class="field">
-            <p class="small-muted" style="margin: 0; line-height: 1.6;">
-              Use the normal login at <strong>members.html</strong> first, then return to this page.
-              This avoids captcha/login challenges on the admin screen.
-            </p>
-          </div>
-          <div class="field" style="display:flex; gap:8px; flex-wrap:wrap;">
-            <a class="btn" id="membersLoginBtn" href="/members.html">Open Members Login</a>
-            <button class="btn" id="logoutBtn" type="button">Sign Out</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="card" style="margin-top: 12px;">
         <h2 style="margin-top: 0;">Connectivity Note</h2>
         <p class="small-muted" style="margin: 0; line-height: 1.6;">
           If this report fails to load in office/corporate environments, security software may be blocking the API call.
@@ -299,8 +283,6 @@
       const refreshBtn = document.getElementById('refreshBtn');
       const exportBtn = document.getElementById('exportBtn');
       const exportVisitsBtn = document.getElementById('exportVisitsBtn');
-      const membersLoginBtn = document.getElementById('membersLoginBtn');
-      const logoutBtn = document.getElementById('logoutBtn');
       const statusEl = document.getElementById('status');
       const whoEl = document.getElementById('who');
       const fromDateEl = document.getElementById('fromDate');
@@ -325,7 +307,6 @@
       let currentSession = null;
       let currentEvents = [];
       let currentVisitEvents = [];
-      let authBound = false;
 
       function setStatus(message, type = 'info') {
         const text = String(message || '').trim();
@@ -624,37 +605,6 @@
         whoEl.textContent = email ? `Signed in as ${email}` : 'Not signed in';
       }
 
-      async function handleLogout(sb) {
-        logoutBtn.disabled = true;
-        try {
-          await sb.auth.signOut();
-          currentEvents = [];
-          currentVisitEvents = [];
-          metricsEl.innerHTML = '';
-          visitMetricsEl.innerHTML = '';
-          chartByFileEl.innerHTML = '';
-          chartByUserEl.innerHTML = '';
-          chartByDayEl.innerHTML = '';
-          chartVisitByPathEl.innerHTML = '';
-          chartVisitByUserEl.innerHTML = '';
-          chartVisitByDayEl.innerHTML = '';
-          eventsMetaEl.textContent = '';
-          visitEventsMetaEl.textContent = '';
-          eventsTableBody.innerHTML = '<tr><td colspan="4" class="small-muted">No events found.</td></tr>';
-          visitEventsTableBody.innerHTML = '<tr><td colspan="4" class="small-muted">No visit events found.</td></tr>';
-          setStatus('Signed out.');
-        } finally {
-          logoutBtn.disabled = false;
-        }
-      }
-
-      function bindAuthActions(sb) {
-        if (authBound) return;
-        authBound = true;
-
-        logoutBtn.addEventListener('click', () => handleLogout(sb));
-      }
-
       async function loadReport() {
         if (!currentSession || !currentSession.access_token) {
           setStatus('Please sign in at members.html first, then return to this page.', 'error');
@@ -775,20 +725,12 @@
           return;
         }
 
-        bindAuthActions(sb);
-
         const { data } = await sb.auth.getSession();
         updateAuthDisplay(data && data.session ? data.session : null);
 
         sb.auth.onAuthStateChange((_event, session) => {
           updateAuthDisplay(session || null);
         });
-
-        if (membersLoginBtn) {
-          membersLoginBtn.addEventListener('click', () => {
-            setStatus('Open members login in this tab, sign in, then return to admin.', 'info');
-          });
-        }
 
         refreshBtn.addEventListener('click', () => loadReport());
         exportBtn.addEventListener('click', () => {
