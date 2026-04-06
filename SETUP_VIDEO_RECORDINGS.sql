@@ -30,6 +30,13 @@ CREATE INDEX IF NOT EXISTS idx_video_recordings_sort ON video_recordings(sort_or
 -- ============================================================================
 
 INSERT INTO video_recordings (year, date_text, title, url, sort_order) VALUES
+-- 2026
+(2026, '25 Feb: Discussion & Sharing', '7:00pm - 7:30pm: Discussion\n7:30pm - 8:00pm: Sharing by Ar William LAU\n8:00pm - 8:30pm: Sharing by Dr Bernard LEONG', 'https://www.youtube.com/watch?v=UyQSYG0qER4', 1),
+
+(2026, '11 Mar: Discussion & Sharing', '7:00pm - 7:30pm: Discussion\n7:30pm - 8:00pm: Sharing by Mr Samuel OOI\n8:00pm - 8:30pm: Sharing by Mr Keith LIM', 'https://www.youtube.com/watch?v=5RWBCODpElc&t=1s', 2),
+
+(2026, '25 Mar: Discussion & Sharing', '7:00pm - 7:30pm: Discussion\n7:30pm - 8:00pm: Sharing by Mr CHAK Lee Meng\n8:00pm - 8:30pm: Sharing by Mr Jason LI', 'https://www.youtube.com/watch?v=RpLLSyYmEvU', 3),
+
 -- 2025
 (2025, '13 Mar: Hybrid Session', '7:30pm - 8:00pm: Sharing by Bob LEE, DPA
 8:00pm - 8:30pm: Sharing by Ar PAN Yi Cheng, Type0 Architecture', 'https://youtu.be/FYu6R862JBw?si=ih4aOLEOKlGOkpQ2', 1),

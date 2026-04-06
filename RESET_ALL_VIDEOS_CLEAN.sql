@@ -3,6 +3,13 @@ DELETE FROM video_recordings;
 
 -- STEP 2: Insert clean data (only once!)
 INSERT INTO video_recordings (year, date_text, title, url, sort_order) VALUES
+-- 2026 recordings
+(2026, '25 Feb: Discussion & Sharing', '7:00pm - 7:30pm: Discussion\n7:30pm - 8:00pm: Sharing by Ar William LAU\n8:00pm - 8:30pm: Sharing by Dr Bernard LEONG', 'https://www.youtube.com/watch?v=UyQSYG0qER4', 1),
+
+(2026, '11 Mar: Discussion & Sharing', '7:00pm - 7:30pm: Discussion\n7:30pm - 8:00pm: Sharing by Mr Samuel OOI\n8:00pm - 8:30pm: Sharing by Mr Keith LIM', 'https://www.youtube.com/watch?v=5RWBCODpElc&t=1s', 2),
+
+(2026, '25 Mar: Discussion & Sharing', '7:00pm - 7:30pm: Discussion\n7:30pm - 8:00pm: Sharing by Mr CHAK Lee Meng\n8:00pm - 8:30pm: Sharing by Mr Jason LI', 'https://www.youtube.com/watch?v=RpLLSyYmEvU', 3),
+
 -- 2025 recordings
 (2025, '13 Mar: Hybrid Session', '7:30pm - 8:00pm: Sharing by Bob LEE, DPA
 8:00pm - 8:30pm: Sharing by Ar PAN Yi Cheng, Type0 Architecture', 'https://youtu.be/FYu6R862JBw?si=ih4aOLEOKlGOkpQ2', 1),
@@ -32,6 +39,6 @@ Sketchup Solutions by Michael WONG, Warehouse Blueprint', 'https://youtu.be/SSGn
 -- 2023 and earlier
 (2023, '2023 and earlier', 'YAL AI Talks and earlier computational BIM workshops', 'https://www.integrations.space/p/past-workshops.html', 1);
 
--- STEP 3: Verify - should show exactly 11 rows (2+8+1)
+-- STEP 3: Verify - should show exactly 14 rows (3+2+8+1)
 SELECT year, COUNT(*) as count FROM video_recordings GROUP BY year ORDER BY year DESC;
 SELECT * FROM video_recordings ORDER BY year DESC, sort_order;
