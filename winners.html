@@ -494,7 +494,7 @@
         // CACHE_VERSION is part of the key: bump it whenever the set of years or the
         // payload shape changes, otherwise members keep seeing a stale library for up
         // to an hour and a browser hard-refresh will not help (localStorage survives it).
-        const CACHE_VERSION = '2026-08-01-topic-ranking';
+        const CACHE_VERSION = '2026-08-01-swr';
         const CACHE_KEY = `winners_library_cache_${CACHE_VERSION}`;
         const CACHE_TIMESTAMP_KEY = `winners_library_timestamp_${CACHE_VERSION}`;
 
@@ -508,8 +508,7 @@
         } catch (_e) {
           // localStorage unavailable (private mode / blocked) - nothing to clean up
         }
-        const CACHE_FRESH_TIME = 300000; // 5 minutes
-        const CACHE_MAX_AGE = 3600000; // 1 hour max
+        const CACHE_MAX_AGE = 3600000; // show a cached copy up to 1 hour old while revalidating
         
         let cacheShown = false;
         
@@ -532,13 +531,13 @@
                 yearsNavEl.innerHTML = `<small style="color: #666; font-size: 0.9em;">Last updated: ${timeAgo} <button id="refreshBtn" style="margin-left: 10px; padding: 4px 12px; font-size: 0.85em;" class="btn">Refresh</button></small>`;
                 
                 cacheShown = true;
-                
-                // If cache is fresh (< 5 min), we're done
-                if (age < CACHE_FRESH_TIME) {
-                  setupRefreshButton(session);
-                  return;
-                }
-                // Otherwise continue to fetch fresh data in background
+                setupRefreshButton(session);
+                // Always revalidate in the background. The cached copy is painted
+                // immediately so the page stays fast, then replaced as soon as the
+                // fetch returns. Previously a cache under 5 minutes old returned here
+                // without fetching, so a data-only change (a new year, new links, new
+                // topic ranking) stayed invisible for up to CACHE_MAX_AGE and a browser
+                // refresh could not clear it.
               }
             }
           } catch (cacheError) {
