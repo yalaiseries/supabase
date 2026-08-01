@@ -113,7 +113,7 @@
           const { data, error } = await supabase
             .from('winners_payload')
             .select('payload')
-            .eq('year', 2026)
+            .eq('year', 9999)
             .maybeSingle();
 
           if (error) {

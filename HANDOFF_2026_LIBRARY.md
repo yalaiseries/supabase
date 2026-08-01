@@ -1,133 +1,127 @@
-# Handoff — Adding 2026 to the Winners Library
+# 2026 in the Winners Library — done
 
-**Status:** Investigation only. No code changes made yet.
-**Date:** 1 Aug 2026
-
-Goal: add a 2026 section to the Winners Library (`winners.html`), alongside the
-existing 2024 and 2025 sections.
+**Status:** Shipped 1 Aug 2026. 2026 now renders alongside 2024 and 2025.
 
 ---
 
-## ⚠️ Blocker: year 2026 is already taken
+## What the blocker was, and how it was resolved
 
-`public.winners_payload` is keyed by year (`year int primary key`), and the row at
-`year = 2026` is **not** a winners year — it holds the *AI/AECO Resources* payload.
-Four places hard-code this:
+`public.winners_payload` is keyed by year, and `year = 2026` was already taken by
+the *AI/AECO Resources* payload — a row deliberately made **anon-readable** by RLS
+so `resources.html` could fetch it without a login. Putting members-only winners
+content in that row would have published it to the open internet.
 
-| Location | What it does |
+Resolved with Option 1 from the original investigation: the resources payload was
+re-keyed onto a non-year sentinel, `year = 9999`, and the public policy moved with
+it. Every real calendar year is now free for winners.
+
+Migration: `supabase/migrations/20260801000001_rekey_resources_sentinel.sql`
+(idempotent). Applied to the remote project on 1 Aug 2026.
+
+| Location | Change |
 |---|---|
-| `winners.html:192-193` | `winners.find(w => Number(w.year) === 2026)` → treated as resources; 2026 is filtered out of the years list |
-| `supabase/functions/winners/index.ts:43` | `year=in.(2024,2025)` — 2026 explicitly excluded from the members-only fetch |
-| `resources.html:114-116` | Public (anon) read of `winners_payload` where `year = 2026` |
-| `supabase/sql/schema.sql:42-47` | RLS policy `winners_payload_public_resources_2026` grants **anon** select on `year = 2026` |
+| `supabase/sql/schema.sql` | policy renamed `winners_payload_public_resources`, predicate `year = 9999` |
+| `resources.html` | public fetch now `.eq('year', 9999)` |
+| `winners.html` | `RESOURCES_YEAR = 9999` constant replaces the inline 2026 checks |
+| `supabase/functions/winners/index.ts` | year filter is now `neq.9999` instead of an allow-list — **future years need no code change here** |
 
-Same policy also in `supabase/migrations/20260226000001_enable_rls_public_tables.sql`.
+### Verified after deploy
 
-### 🚨 Security consequence — read this before touching the DB
-
-Do **not** insert 2026 winners content into the row at `year = 2026`. That row is
-publicly readable by `anon` under the RLS policy above. Winners content is
-members-only; writing it there would expose it to the open internet.
-
-### Options
-
-1. **Re-key the resources payload** to a non-year sentinel (e.g. `9999`), update the
-   RLS policy, `resources.html`, and the `winners.html` resources branch. Then 2026
-   is free for real winners data. *Cleanest; touches 4 files + a migration.*
-2. **Move resources to its own table** (e.g. `public.resources_payload`) with its own
-   public policy. More invasive but removes the year-sentinel hack for good.
-
-Option 1 is the smaller change. Either way it needs a migration, because the RLS
-policy predicate is literally `year = 2026`.
+- anon can read **only** `year = 9999`; a direct anon probe of `year=eq.2026` returns `[]`
+- the service-role query the Edge Function runs returns 2026, 2025, 2024
+- `functions/v1/winners` without a member JWT returns 401, not a 500
 
 ---
 
-## Front-end changes also needed (`winners.html`)
+## Front-end changes
 
-- `:376-381` — category matcher only knows `Top Winners` / `Prize Winners` /
-  `AI Programme Winners` (left) and `Innovation Awards` / `Merit Awards` /
-  `Merit Prizes` (right). Add whatever 2026's award categories are called.
-- `:390-394` — year → title map has 2025 and 2024 only; falls back to bare
-  `String(year)`. Add the 2026 title (e.g. "2026 AI Collaboration").
-- `members.html:166` and `:185` — copy says "2024 and 2025", needs updating.
-- `winners.html:7` — meta description says "(2024–2025)".
-
----
-
-## Source data (local only — not in the repo)
-
-`C:\2026_AI_Collaboration\Submission\`
-
-- **11 team submissions**, PDF + PPTX:
-  BuildingBytes, Agent D, Metatron, AI Digital Reviewer, PoC-05, WIP,
-  IterationsZero, Agent i, Agent A, BIM_Reaper, Team16
-- `AI_assesment\2026 Submissions for JP.xlsx` — sheets: `Sub` (27 cols: full
-  write-up + scores) plus assessor sheets `William`, `Immanuel`, `TF`, `KW`
-- `AI Challenge 2026 - 13 May Write-up Submission (Responses).xlsx` — 11 form
-  responses: team members' names, emails, mobiles, Google Slides links
-- `Particiapnts Contact.xlsx` — participant contacts (PII)
-
-**Scoring rubric:** Practicality & Impact 30% + Collaboration & Innovation 30% +
-Documentation & Implementation 40% = Total 100%.
-
-⚠️ These workbooks contain personal data (emails, mobile numbers). Keep them out of
-git — `data/*.xlsx` is already gitignored; the `Submission` folder is outside the repo.
+- `winners.html` used to pick exactly two categories per year via `.find()`, so any
+  third category was silently dropped. It now renders **all** categories, ordered by
+  `CATEGORY_RANK` with unranked ones following in payload order. 2026 needs this —
+  it has three tiers.
+- Year titles moved into a `YEAR_TITLES` map; 2026 is "2026 AI (Hackathon) Challenge".
+- Copy updated: `winners.html` meta description, `members.html` (two places),
+  `index.html` past-winners link.
 
 ---
 
-## Open decisions (need your input)
+## The 2026 data
 
-1. Which option above for freeing up the 2026 slot?
-2. What are 2026's award categories, and which teams won what? The assessor sheets
-   have raw scores but I have not seen a final ranking / award allocation.
-3. Year section title for 2026 — "2026 AI Collaboration"? "2026 AI Challenge"?
-4. Where will the 2026 slide decks be hosted? Prior years link to Google Slides /
-   Drive URLs; the form responses do include per-team Google Slides links.
+Built by `scripts/build_2026_payload.py` (git-ignored — it reads PII sources).
+Output `local/winners_2026.json`, upserted to `winners_payload` year 2026.
+
+**Awards come from the signed certificates** in `C:\2026_AI_Collaboration\Certificates\2026\`,
+which are the only authoritative record of who won what:
+
+| Award | Team |
+|---|---|
+| First Prize | Agent A.i.D. (Agent A) |
+| Second Prize | Metatron |
+| Third Prize | AI Digital Reviewer |
+| Innovation Award | Agent D, Agent i, BIM Reaper, PoC-05, Team 16, WIP |
+| Rising Innovator Award | Building Bytes, Iteration Zero |
+
+Agent A, Agent D and Agent i are three submissions from the **same** team
+(Wynn Lei PHYU et al.) — confirmed against the form responses, not a cert copy-paste.
+
+### ⚠️ Data trap — the assessment workbook is partly shuffled
+
+In `2026 Submissions for JP.xlsx`:
+
+- The four assessor sheets (`William`, `Immanuel`, `TF`, `KW`) contain **placeholder
+  scores only** — every team has 25/25/25/75. There is no scored ranking anywhere.
+- The `Summary` column (col 20) of the `Sub` sheet is **misaligned** with its rows:
+  Building Bytes' summary describes Metatron's project and vice versa. The assessor
+  sheets' summary column is shuffled the same way.
+- Columns 2–19 of `Sub` **are** correctly aligned per team — verified by matching each
+  row's slide URL against the form-response workbook.
+
+So summaries in the payload are composed from each team's own objectives and outcomes
+(cols 5 and 16), never from col 20. Do not "fix" this back to col 20.
+
+---
+
+## Still open
+
+- **Prize amounts.** 2024/2025 awards read "First Prize Winner ($2500)" etc. The 2026
+  certificates carry no amounts, so awards are stored without them. Add if wanted.
+- **`challenge_topics` for 2026** is unset — 2025 has a "Topic Survey Ranking" block
+  that 2026 will not render until that column is populated.
+- **Lead position/company/LinkedIn** are absent for most 2026 leads (certificates list
+  names only). The renderer degrades gracefully — it only shows the role line when
+  both position and company are present. `Particiapnts Contact.xlsx` has contact data
+  if you want to enrich this, but it is PII: keep it out of git.
 
 ---
 
 ## How winners data gets published
 
-Winners content is **DB-only by design** so this repo can stay public — see the note
-in `supabase/functions/_shared/winners-data.ts`. The in-repo CSV/JSON constants are
-deliberately empty placeholders. `admin.html` has **no** winners editor, so the 2026
-payload has to be inserted into `public.winners_payload` via SQL or a local script
-using the service-role key. Do not commit the payload.
+DB-only by design so this repo can stay public — see the note in
+`supabase/functions/_shared/winners-data.ts`. The in-repo CSV/JSON constants are
+deliberately empty placeholders and `admin.html` has no winners editor, so payloads
+go in via SQL or a local script using the service-role key. Never commit the payload.
 
-Payload shape consumed by `renderLibrary()` (`winners.html:185`):
+Payload shape actually consumed by `renderLibrary()`:
 
 ```jsonc
-{
-  "year": 2026,
-  "categories": [
-    {
-      "category": "Top Winners",
-      "useCases": [
-        {
-          "title": "...", "team": "...", "award": "...", "summary": "...",
-          "people": {
-            "lead": { "name": "...", "position": "...", "company": "...", "linkedin": "..." },
-            "coLeads": [], "teamMembers": []
-          },
-          "showcase": {
-            "problem": "", "existingSolutions": "", "gap": "", "proposedSolution": "",
-            "approach": "", "methods": "", "tools": "", "strategy": "", "impact": ""
-          },
-          "links": [{ "label": "Slides", "url": "https://..." }]
-        }
-      ]
-    }
-  ]
-}
+{ "categories": [ { "category": "Top Winners", "useCases": [ {
+  "award": "First Prize", "team": "...", "title": "...", "summary": "...",
+  "people": { "lead": { "name": "...", "position": "...", "company": "...", "linkedin": "..." },
+              "coLeads": [], "teamMembers": [] },
+  "showcase": { "problem": "", "existingSolutions": "", "gap": "", "proposedSolution": "",
+                "approach": "", "methods": "", "tools": "", "strategy": "", "impact": "" },
+  "links": [ { "label": "Slides", "url": "https://..." } ]
+} ] } ] }
 ```
 
-The `showcase` keys map cleanly onto the write-up form columns.
+Note this differs from the shape guessed in the original handoff: there is no
+top-level `year` inside `payload`, and `team` sits beside `title`.
 
 ---
 
-## Unrelated latent bug spotted
+## Unrelated latent bug still present
 
 `supabase/functions/winners/index.ts:163` returns `debug: dbDebug`, but `dbDebug` is
 never declared → `ReferenceError` if the code-fallback path ever runs. Only reachable
-when the DB returns zero entries, and the fallback data is empty placeholders anyway,
-so it is currently harmless. Worth deleting the `debug` field when next in that file.
+when the DB returns zero entries, and the fallback data is empty placeholders, so it
+stays harmless. Worth deleting the `debug` field when next in that file.

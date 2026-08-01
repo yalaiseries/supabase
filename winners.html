@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Winners & Use Cases · AI (Hackathon) Series</title>
-    <meta name="description" content="Members-only winners and use cases library (2024–2025)." />
+    <meta name="description" content="Members-only winners and use cases library (2024–2026)." />
     <meta name="robots" content="noindex, nofollow" />
     <link rel="canonical" href="https://aihackathon.pro/winners.html" />
     <meta name="theme-color" content="#0b1220" />
@@ -73,6 +73,25 @@
       const { getSupabaseClient, escapeHtml, hasSupabaseConfig, SUPABASE_ANON_KEY } = window.__supabaseUtils;
       const SUPABASE_FUNCTIONS_URL = String(window.SUPABASE_FUNCTIONS_URL || '').trim();
       const TRACKABLE_SLIDE_HOSTS = new Set(['drive.google.com', 'docs.google.com']);
+      // Sentinel row in winners_payload that holds the public AI/AECO Resources
+      // content rather than a winners year. Kept off the real year range so any
+      // calendar year stays available for actual winners.
+      const RESOURCES_YEAR = 9999;
+      // Display order for award categories within a year; unlisted ones follow.
+      const CATEGORY_RANK = [
+        'Top Winners',
+        'Prize Winners',
+        'AI Programme Winners',
+        'Innovation Awards',
+        'Merit Awards',
+        'Merit Prizes',
+        'Rising Innovator Awards'
+      ];
+      const YEAR_TITLES = {
+        2026: '2026 AI (Hackathon) Challenge',
+        2025: '2025 AI (Hackathon) Challenge',
+        2024: '2024 AI (Hackathon) Programme'
+      };
       let currentSession = null;
 
       function setStatus(text) {
@@ -188,9 +207,9 @@
           .filter((y) => Number.isFinite(y))
           .sort((a, b) => b - a);
 
-        // Separate resources (year 2026) from winners
-        const resourcesData = winners.find(w => Number(w.year) === 2026);
-        const winnersYears = years.filter(y => y !== 2026);
+        // Separate resources (sentinel year RESOURCES_YEAR) from real winners years
+        const resourcesData = winners.find(w => Number(w.year) === RESOURCES_YEAR);
+        const winnersYears = years.filter(y => y !== RESOURCES_YEAR);
 
         renderYearsNav(winnersYears);
 
@@ -370,28 +389,25 @@
               `;
             };
 
-            // Separate categories into left and right columns based on year
-            // 2025: Left = "Top Winners", Right = "Innovation Awards"
-            // 2024: Left = "Top Winners", Right = "Merit Prizes"
-            const leftCategory = categories.find(cat => 
-              cat.category === 'Top Winners' || cat.category === 'Prize Winners' || cat.category === 'AI Programme Winners'
-            );
-            const rightCategory = categories.find(cat => 
-              cat.category === 'Innovation Awards' || cat.category === 'Merit Awards' || cat.category === 'Merit Prizes'
-            );
+            // Render every category the year defines, top tier first.
+            // 2024: Top Winners, Merit Prizes
+            // 2025: Top Winners, Innovation Awards
+            // 2026: Top Winners, Innovation Awards, Rising Innovator Awards
+            // Anything not in CATEGORY_RANK keeps its payload order after the ranked ones.
+            const rankOf = (cat) => {
+              const idx = CATEGORY_RANK.indexOf(String((cat && cat.category) || ''));
+              return idx === -1 ? CATEGORY_RANK.length : idx;
+            };
+            const orderedCategories = categories
+              .map((cat, idx) => ({ cat, idx }))
+              .sort((a, b) => (rankOf(a.cat) - rankOf(b.cat)) || (a.idx - b.idx))
+              .map((entry) => entry.cat);
 
-            const leftCol = renderCategory(leftCategory);
-            const rightCol = renderCategory(rightCategory);
-            
             // Use single-column layout for all years for consistency
-            const columns = leftCol + rightCol;
+            const columns = orderedCategories.map(renderCategory).join('');
 
             // Map year to full title
-            const yearTitle = year === 2025 
-              ? '2025 AI (Hackathon) Challenge' 
-              : year === 2024 
-                ? '2024 AI (Hackathon) Programme'
-                : String(year);
+            const yearTitle = YEAR_TITLES[year] || String(year);
 
             return `
               <details class="year-section">

@@ -39,12 +39,15 @@ alter table public.winners_payload enable row level security;
 
 grant select on table public.winners_payload to anon, authenticated;
 
+-- year 9999 is a sentinel row holding the public AI/AECO Resources payload,
+-- not a winners year. Every real winners year stays members-only.
 drop policy if exists winners_payload_public_resources_2026 on public.winners_payload;
-create policy winners_payload_public_resources_2026
+drop policy if exists winners_payload_public_resources on public.winners_payload;
+create policy winners_payload_public_resources
   on public.winners_payload
   for select
   to anon, authenticated
-  using (year = 2026);
+  using (year = 9999);
 
 create index if not exists winners_payload_updated_at
   on public.winners_payload (updated_at);

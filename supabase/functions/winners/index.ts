@@ -40,7 +40,9 @@ async function loadWinnersFromDb(): Promise<{ ok: true; entries: YearEntry[]; ch
 
   const url = new URL(`${supabaseUrl}/rest/v1/winners_payload`);
   url.searchParams.set('select', 'year,payload,challenge_topics');
-  url.searchParams.set('year', 'in.(2024,2025)');  // Only fetch winners years, not resources (2026)
+  // Every row except the sentinel is a winners year, so new years need no code change.
+  // 9999 holds the public AI/AECO Resources payload served by resources.html.
+  url.searchParams.set('year', 'neq.9999');
   url.searchParams.set('order', 'year.desc');
 
   const resp = await fetch(url.toString(), {
